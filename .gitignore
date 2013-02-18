@@ -1,3 +1,7 @@
+# These folders
+bin/
+gen/
+
 # Compiled source #
 ###################
 *.com
