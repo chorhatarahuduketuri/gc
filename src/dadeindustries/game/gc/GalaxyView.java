@@ -65,7 +65,6 @@ public class GalaxyView extends View implements OnTouchListener {
 	@Override
 	public void onDraw(Canvas canvas) {
 
-		System.out.println("Draw!");
 		// vertical lines
 		for (int i = 1; i <= displayWidth; i++) {
 			canvas.drawLine(i * SQUARE_SIZE, 0, i * SQUARE_SIZE, displayHeight,
@@ -101,7 +100,7 @@ public class GalaxyView extends View implements OnTouchListener {
 				// do nothing
 
 			}
-			System.out.println("End switch!!");
+
 		}
 
 		// highlight current selection
@@ -118,7 +117,7 @@ public class GalaxyView extends View implements OnTouchListener {
 			paint.setColor(Color.WHITE);
 
 		}
-		System.out.println("EndDraw!");
+
 	}
 
 	private int currentX = -1;
