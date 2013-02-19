@@ -10,12 +10,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.widget.Toast;
 
 public class GalaxyView extends View implements OnTouchListener {
 
@@ -26,7 +26,12 @@ public class GalaxyView extends View implements OnTouchListener {
 	private int displayWidth = 0;
 	private int displayHeight = 0;
 	private static int SQUARE_SIZE;
-	Bitmap ship = null; // temp variable
+	
+	private Point viewPosition = new Point(0,0);
+	protected static final int MAP_RADIUS = 50;
+	
+	Bitmap up = null; // temp variable
+	Bitmap mo = null; // temp variable
 
 	ArrayList<Ship> ships = new ArrayList<Ship>();
 
@@ -40,18 +45,27 @@ public class GalaxyView extends View implements OnTouchListener {
 		this.setBackgroundColor(Color.BLACK);
 		paint.setColor(Color.WHITE);
 		paint.setStrokeWidth(3);
-		ship = BitmapFactory.decodeResource(getResources(), R.drawable.ship);
-		ships.add(new Ship(SQUARE_SIZE * 2, SQUARE_SIZE * 2));
-
+		up = BitmapFactory.decodeResource(getResources(), R.drawable.up);
+		mo = BitmapFactory.decodeResource(getResources(), R.drawable.morphers);
+		loadTestShips();
 		this.setOnTouchListener(this);
 
 	}
 
+	public void loadTestShips()
+	{
+		ships.add(new Ship(SQUARE_SIZE * 0, SQUARE_SIZE * 0,
+				Ship.Faction.UNITED_PLANETS, "USS Douglas"));
+		ships.add(new Ship(SQUARE_SIZE * 2, SQUARE_SIZE * 2,
+				Ship.Faction.MORPHERS, "Kdfkljsdf"));
+	}
+	
 	Rect r = new Rect();
 
 	@Override
 	public void onDraw(Canvas canvas) {
 
+		System.out.println("Draw!");
 		// vertical lines
 		for (int i = 1; i <= displayWidth; i++) {
 			canvas.drawLine(i * SQUARE_SIZE, 0, i * SQUARE_SIZE, displayHeight,
@@ -64,20 +78,33 @@ public class GalaxyView extends View implements OnTouchListener {
 					paint);
 		}
 
-		// draw current icons
-		// canvas.drawBitmap(bitmap, NULL, dst, paint);
-
+		// ships
 		for (int i = 0; i < ships.size(); i++) {
-			int x = ships.get(0).x;
-			int y = ships.get(0).y;
+			int x = ships.get(i).x;
+			int y = ships.get(i).y;
 			r.left = x;
 			r.top = y;
 			r.right = x + SQUARE_SIZE;
 			r.bottom = y + SQUARE_SIZE;
-			canvas.drawBitmap(ship, null, r, paint);
+
+			switch (ships.get(i).side) {
+
+			case UNITED_PLANETS:
+				canvas.drawBitmap(up, null, r, paint);
+				break;
+
+			case MORPHERS:
+				canvas.drawBitmap(mo, null, r, paint);
+				break;
+
+			default:
+				// do nothing
+
+			}
+			System.out.println("End switch!!");
 		}
 
-		// highlight current square
+		// highlight current selection
 		if (currentX >= 0 && currentY >= 0) {
 			paint.setColor(Color.RED);
 			paint.setStyle(Paint.Style.STROKE);
@@ -91,9 +118,7 @@ public class GalaxyView extends View implements OnTouchListener {
 			paint.setColor(Color.WHITE);
 
 		}
-
-	
-	
+		System.out.println("EndDraw!");
 	}
 
 	private int currentX = -1;
@@ -106,7 +131,7 @@ public class GalaxyView extends View implements OnTouchListener {
 		// whether user wishes to scroll map
 
 		if (motion.getActionMasked() == MotionEvent.ACTION_MOVE) {
-//			Toast.makeText(ctxt, "Movement!", Toast.LENGTH_SHORT).show();
+			// Toast.makeText(ctxt, "Movement!", Toast.LENGTH_SHORT).show();
 		}
 
 		int x = (int) (motion.getX() / SQUARE_SIZE);
