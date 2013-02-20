@@ -3,8 +3,7 @@ package dadeindustries.game.gc;
 public class Ship {
 
 	public static enum Faction { UNITED_PLANETS, INIATS, GHZRGORZ, MORPHERS }
-	
-	
+		
 	int x = 0;
 	int y = 0;
 	Faction side;

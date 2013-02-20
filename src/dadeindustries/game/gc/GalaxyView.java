@@ -1,9 +1,7 @@
 package dadeindustries.game.gc;
 
 import java.util.ArrayList;
-
 import com.example.gc.R;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,26 +11,38 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
+import android.widget.Toast;
 
-public class GalaxyView extends View implements OnTouchListener {
+public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
-	Context ctxt;
+	private Context ctxt;
 
+	// Display details
 	private final static int NUM_SQUARES_IN_ROW = 5;
 	private Paint paint = new Paint();
 	private int displayWidth = 0;
 	private int displayHeight = 0;
 	private static int SQUARE_SIZE;
 	
-	private Point viewPosition = new Point(0,0);
-	protected static final int MAP_RADIUS = 50;
+	// co-ordinates of the top left of the viewport
+	// in real world co-ordinates
+	protected Point viewPort = new Point(2, 2);
 	
-	Bitmap up = null; // temp variable
-	Bitmap mo = null; // temp variable
+	// Map details
+	protected static final int MAP_HEIGHT = 50;
+	protected static final int MAP_WIDTH = 50;
+	
+	
+	// Global Bitmaps
+	private Bitmap up = null; // UP emblem bitmap
+	private Bitmap mo = null; // Morphers emblem bitmap
 
+	// Game data structures
 	ArrayList<Ship> ships = new ArrayList<Ship>();
 
 	public GalaxyView(Context context) {
@@ -42,24 +52,38 @@ public class GalaxyView extends View implements OnTouchListener {
 		displayWidth = metrics.widthPixels;
 		displayHeight = metrics.heightPixels;
 		SQUARE_SIZE = displayWidth / NUM_SQUARES_IN_ROW;
-		this.setBackgroundColor(Color.BLACK);
+		setBackgroundColor(Color.BLACK);
 		paint.setColor(Color.WHITE);
 		paint.setStrokeWidth(3);
-		up = BitmapFactory.decodeResource(getResources(), R.drawable.up);
-		mo = BitmapFactory.decodeResource(getResources(), R.drawable.morphers);
+		loadBitmaps();
 		loadTestShips();
-		this.setOnTouchListener(this);
+		setOnTouchListener(this);
+		setOnKeyListener(this);
+		setFocusable(true);
+		requestFocus();
 
-	}
 
-	public void loadTestShips()
-	{
-		ships.add(new Ship(SQUARE_SIZE * 0, SQUARE_SIZE * 0,
-				Ship.Faction.UNITED_PLANETS, "USS Douglas"));
-		ships.add(new Ship(SQUARE_SIZE * 2, SQUARE_SIZE * 2,
-				Ship.Faction.MORPHERS, "Kdfkljsdf"));
 	}
 	
+	private void loadBitmaps(){
+		up = BitmapFactory.decodeResource(getResources(), R.drawable.up);
+		mo = BitmapFactory.decodeResource(getResources(), R.drawable.morphers);
+	}
+	
+	public void setViewPortPosition(int x, int y){
+		if(x>=0 && y>=0 && x<MAP_WIDTH & y<MAP_HEIGHT){
+			viewPort.x = x;
+			viewPort.y = y;
+			invalidate();
+		}
+	}
+
+	private void loadTestShips() {
+		ships.add(new Ship(4, 4, Ship.Faction.UNITED_PLANETS, "USS Douglas"));
+		// ships.add(new Ship(SQUARE_SIZE * 2, SQUARE_SIZE * 2,
+		// Ship.Faction.MORPHERS, "Kdfkljsdf"));
+	}
+
 	Rect r = new Rect();
 
 	@Override
@@ -79,28 +103,46 @@ public class GalaxyView extends View implements OnTouchListener {
 
 		// ships
 		for (int i = 0; i < ships.size(); i++) {
-			int x = ships.get(i).x;
-			int y = ships.get(i).y;
-			r.left = x;
-			r.top = y;
-			r.right = x + SQUARE_SIZE;
-			r.bottom = y + SQUARE_SIZE;
+			/*
+			 * int x = ships.get(i).x; int y = ships.get(i).y; r.left = x; r.top
+			 * = y; r.right = x + SQUARE_SIZE; r.bottom = y + SQUARE_SIZE;
+			 */
 
-			switch (ships.get(i).side) {
+			int shipx = ships.get(i).x;
+			int shipy = ships.get(i).y;
 
-			case UNITED_PLANETS:
-				canvas.drawBitmap(up, null, r, paint);
-				break;
+			if ((shipx >= viewPort.x)
+					&& (shipx <= viewPort.x + NUM_SQUARES_IN_ROW)
+					&& (shipy >= viewPort.y)
+					&& (shipy <= viewPort.y + NUM_SQUARES_IN_ROW)) 
+			{
 
-			case MORPHERS:
-				canvas.drawBitmap(mo, null, r, paint);
-				break;
+				// Try this instead
+				int x = (shipx - viewPort.x)*SQUARE_SIZE;
+				int y = (shipy - viewPort.y)*SQUARE_SIZE;
+				r.left = x;
+				r.top = y;
+				r.right = x + SQUARE_SIZE;
+				r.bottom = y + SQUARE_SIZE;
 
-			default:
-				// do nothing
+				switch (ships.get(i).side) {
 
+				case UNITED_PLANETS:
+					canvas.drawBitmap(up, null, r, paint);
+					break;
+
+				case MORPHERS:
+					canvas.drawBitmap(mo, null, r, paint);
+					break;
+
+				default:
+					// do nothing
+
+				}
+				// might be nice to be able to centre the text
+				canvas.drawText(ships.get(i).name, x, y + (SQUARE_SIZE / 2),
+						paint);
 			}
-
 		}
 
 		// highlight current selection
@@ -137,7 +179,40 @@ public class GalaxyView extends View implements OnTouchListener {
 		int y = (int) (motion.getY() / SQUARE_SIZE);
 		currentX = x;
 		currentY = y;
-		this.invalidate();
+		invalidate();
+		return true;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		
+		boolean result = false;
+		
+		Toast.makeText(ctxt,"Keydown!", Toast.LENGTH_SHORT).show();
+		switch (keyCode) {
+        case KeyEvent.KEYCODE_L:
+        	viewPort.x--;
+        	result = true;
+        	break;
+        	
+        case KeyEvent.KEYCODE_R:
+        	viewPort.x++;
+        	result = true;
+        	break;
+        	
+        default:
+        	// do nothing
+		}
+		invalidate();
+		return result;
+	}
+
+	@Override
+	public boolean onKey(View v, int keyCode, KeyEvent event) {
+		Toast.makeText(
+				ctxt,
+				"Key!", Toast.LENGTH_SHORT)
+				.show();
 		return true;
 	}
 }
