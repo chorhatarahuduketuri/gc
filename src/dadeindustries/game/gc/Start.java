@@ -10,7 +10,7 @@ import android.view.Menu;
 
 public class Start extends Activity {
 
-	GalaxyView gv;
+	private GalaxyView gv;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -19,7 +19,6 @@ public class Start extends Activity {
 
 		gv = new GalaxyView(this);
 		setContentView(gv);
-
 	}
 
 	@Override

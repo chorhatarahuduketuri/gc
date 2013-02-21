@@ -36,15 +36,16 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	// Map details
 	protected static final int MAP_HEIGHT = 50;
 	protected static final int MAP_WIDTH = 50;
-	
-	
+		
 	// Global Bitmaps
 	private Bitmap up = null; // UP emblem bitmap
 	private Bitmap mo = null; // Morphers emblem bitmap
 
 	// Game data structures
 	ArrayList<Ship> ships = new ArrayList<Ship>();
-
+	ArrayList<System> systems = new ArrayList<System>();
+	
+	
 	public GalaxyView(Context context) {
 		super(context);
 		ctxt = context;
@@ -103,10 +104,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		// ships
 		for (int i = 0; i < ships.size(); i++) {
-			/*
-			 * int x = ships.get(i).x; int y = ships.get(i).y; r.left = x; r.top
-			 * = y; r.right = x + SQUARE_SIZE; r.bottom = y + SQUARE_SIZE;
-			 */
 
 			int shipx = ships.get(i).x;
 			int shipy = ships.get(i).y;
@@ -117,7 +114,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					&& (shipy <= viewPort.y + NUM_SQUARES_IN_ROW)) 
 			{
 
-				// Try this instead
 				int x = (shipx - viewPort.x)*SQUARE_SIZE;
 				int y = (shipy - viewPort.y)*SQUARE_SIZE;
 				r.left = x;
@@ -209,10 +205,21 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	@Override
 	public boolean onKey(View v, int keyCode, KeyEvent event) {
-		Toast.makeText(
-				ctxt,
-				"Key!", Toast.LENGTH_SHORT)
-				.show();
+		switch (keyCode) {
+        case KeyEvent.KEYCODE_L:
+        	viewPort.x--;
+        	break;
+        	
+        case KeyEvent.KEYCODE_R:
+        	viewPort.x++;
+        	break;
+        	
+        default:
+        	// do nothing
+		}
+		invalidate();
+
+		
 		return true;
 	}
 }
