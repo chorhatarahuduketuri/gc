@@ -205,21 +205,26 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	@Override
 	public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+		boolean result = false;
+		
+		Toast.makeText(ctxt,"Keydown!", Toast.LENGTH_SHORT).show();
 		switch (keyCode) {
         case KeyEvent.KEYCODE_L:
         	viewPort.x--;
+        	result = true;
         	break;
         	
         case KeyEvent.KEYCODE_R:
         	viewPort.x++;
+        	result = true;
         	break;
         	
         default:
         	// do nothing
 		}
 		invalidate();
+		return result;
 
-		
-		return true;
 	}
 }
