@@ -45,7 +45,7 @@ public class Start extends Activity {
 				.setPositiveButton("Yes",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								Start.this.finish();
+								finish();
 							}
 						})
 				.setNegativeButton("No", new DialogInterface.OnClickListener() {

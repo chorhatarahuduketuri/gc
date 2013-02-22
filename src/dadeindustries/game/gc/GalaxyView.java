@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
-	private Context ctxt;
+	private Context ctxt; // needed for Toast debugging
 
 	// Display details
 	private final static int NUM_SQUARES_IN_ROW = 5;
@@ -80,9 +80,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	private void loadTestShips() {
-		ships.add(new Ship(4, 4, Ship.Faction.UNITED_PLANETS, "USS Douglas"));
-		// ships.add(new Ship(SQUARE_SIZE * 2, SQUARE_SIZE * 2,
-		// Ship.Faction.MORPHERS, "Kdfkljsdf"));
+		ships.add(new Ship(4, 4, Ship.Faction.UNITED_PLANETS, "HMS Douglas"));
+		ships.add(new Ship(5, 6, Ship.Faction.MORPHERS, "Kdfkljsdf"));
 	}
 
 	Rect r = new Rect();
@@ -110,17 +109,17 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 			if ((shipx >= viewPort.x)
 					&& (shipx <= viewPort.x + NUM_SQUARES_IN_ROW)
-					&& (shipy >= viewPort.y)
-					&& (shipy <= viewPort.y + NUM_SQUARES_IN_ROW)) 
+					&& (shipy >= viewPort.y)) 
 			{
-
+				
 				int x = (shipx - viewPort.x)*SQUARE_SIZE;
 				int y = (shipy - viewPort.y)*SQUARE_SIZE;
 				r.left = x;
 				r.top = y;
-				r.right = x + SQUARE_SIZE;
-				r.bottom = y + SQUARE_SIZE;
+				r.right = x + SQUARE_SIZE/2;
+				r.bottom = y + SQUARE_SIZE/2;
 
+				// TODO: Need to handle case where multiple ships in the same system
 				switch (ships.get(i).side) {
 
 				case UNITED_PLANETS:
@@ -168,7 +167,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		// whether user wishes to scroll map
 
 		if (motion.getActionMasked() == MotionEvent.ACTION_MOVE) {
-			// Toast.makeText(ctxt, "Movement!", Toast.LENGTH_SHORT).show();
+
 		}
 
 		int x = (int) (motion.getX() / SQUARE_SIZE);
@@ -178,9 +177,17 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		invalidate();
 		return true;
 	}
-
+	
 	@Override
 	public boolean onKey(View v, int keyCode, KeyEvent event) {
+		
+		return false;
+	}
+		
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		
+		// TODO: Update highlighted square
 		
 		switch (keyCode) {
 		
