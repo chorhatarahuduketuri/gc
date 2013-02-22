@@ -11,12 +11,14 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
-import android.widget.Toast;
 
 public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
@@ -28,15 +30,15 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private int displayWidth = 0;
 	private int displayHeight = 0;
 	private static int SQUARE_SIZE;
-	
+
 	// co-ordinates of the top left of the viewport
 	// in real world co-ordinates
 	protected Point viewPort = new Point(2, 2);
-	
+
 	// Map details
 	protected static final int MAP_HEIGHT = 50;
 	protected static final int MAP_WIDTH = 50;
-		
+
 	// Global Bitmaps
 	private Bitmap up = null; // UP emblem bitmap
 	private Bitmap mo = null; // Morphers emblem bitmap
@@ -44,8 +46,15 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	// Game data structures
 	ArrayList<Ship> ships = new ArrayList<Ship>();
 	ArrayList<System> systems = new ArrayList<System>();
-	
-	
+
+	// Gesture stuff
+	private static final int SWIPE_MIN_DISTANCE = 120;
+	private static final int SWIPE_MAX_OFF_PATH = 250;
+	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+	private GestureDetector gestureDetector;
+
+	// View.OnTouchListener gestureListener;
+
 	public GalaxyView(Context context) {
 		super(context);
 		ctxt = context;
@@ -58,21 +67,29 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		paint.setStrokeWidth(3);
 		loadBitmaps();
 		loadTestShips();
+
+		// Gesture detection
+		gestureDetector = new GestureDetector(ctxt, new GestureListener());
+		/*
+		 * gestureListener = new View.OnTouchListener() { public boolean
+		 * onTouch(View v, MotionEvent event) { return
+		 * gestureDetector.onTouchEvent(event); } };
+		 */
+
 		setOnTouchListener(this);
+		// setOnTouchListener(gestureListener);
 		setOnKeyListener(this);
 		setFocusable(true);
 		requestFocus();
-
-
 	}
-	
-	private void loadBitmaps(){
+
+	private void loadBitmaps() {
 		up = BitmapFactory.decodeResource(getResources(), R.drawable.up);
 		mo = BitmapFactory.decodeResource(getResources(), R.drawable.morphers);
 	}
-	
-	public void setViewPortPosition(int x, int y){
-		if(x>=0 && y>=0 && x<MAP_WIDTH & y<MAP_HEIGHT){
+
+	public void setViewPortPosition(int x, int y) {
+		if (x >= 0 && y >= 0 && x < MAP_WIDTH & y < MAP_HEIGHT) {
 			viewPort.x = x;
 			viewPort.y = y;
 			invalidate();
@@ -109,17 +126,17 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 			if ((shipx >= viewPort.x)
 					&& (shipx <= viewPort.x + NUM_SQUARES_IN_ROW)
-					&& (shipy >= viewPort.y)) 
-			{
-				
-				int x = (shipx - viewPort.x)*SQUARE_SIZE;
-				int y = (shipy - viewPort.y)*SQUARE_SIZE;
+					&& (shipy >= viewPort.y)) {
+
+				int x = (shipx - viewPort.x) * SQUARE_SIZE;
+				int y = (shipy - viewPort.y) * SQUARE_SIZE;
 				r.left = x;
 				r.top = y;
-				r.right = x + SQUARE_SIZE/2;
-				r.bottom = y + SQUARE_SIZE/2;
+				r.right = x + SQUARE_SIZE / 2;
+				r.bottom = y + SQUARE_SIZE / 2;
 
-				// TODO: Need to handle case where multiple ships in the same system
+				// TODO: Need to handle case where multiple ships in the same
+				// system
 				switch (ships.get(i).side) {
 
 				case UNITED_PLANETS:
@@ -152,9 +169,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			paint.setStrokeWidth(3);
 			paint.setStyle(Paint.Style.FILL);
 			paint.setColor(Color.WHITE);
-
 		}
-
 	}
 
 	private int currentX = -1;
@@ -163,55 +178,110 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	@Override
 	public boolean onTouch(View view, MotionEvent motion) {
 
-		// Use the type of motion event to potentially figure out
-		// whether user wishes to scroll map
+		gestureDetector.onTouchEvent(motion);
 
-		if (motion.getActionMasked() == MotionEvent.ACTION_MOVE) {
+		// when finger lifts off screen
+		if (motion.getAction() == 1) {
 
+			int x = (int) (motion.getX() / SQUARE_SIZE);
+			int y = (int) (motion.getY() / SQUARE_SIZE);
+			currentX = x;
+			currentY = y;
 		}
-
-		int x = (int) (motion.getX() / SQUARE_SIZE);
-		int y = (int) (motion.getY() / SQUARE_SIZE);
-		currentX = x;
-		currentY = y;
 		invalidate();
+
 		return true;
 	}
-	
+
 	@Override
 	public boolean onKey(View v, int keyCode, KeyEvent event) {
-		
+
 		return false;
 	}
-		
+
+	void moveGridUp() {
+		viewPort.y--;
+	}
+
+	void moveGridDown() {
+		viewPort.y++;
+	}
+
+	void moveGridLeft() {
+		viewPort.x--;
+	}
+
+	void moveGridRight() {
+		viewPort.x++;
+	}
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		
+
 		// TODO: Update highlighted square
-		
+
 		switch (keyCode) {
-		
+
 		case 19:
 			viewPort.y--;
 			break;
-			
+
 		case 20:
 			viewPort.y++;
 			break;
-		
-        case 21:
-        	viewPort.x--;
-        	break;
-        	
-        case 22:
-        	viewPort.x++;
-        	break;
-        	
-        default:
-        	return false;
+
+		case 21:
+			viewPort.x--;
+			break;
+
+		case 22:
+			viewPort.x++;
+			break;
+
+		default:
+			return false;
 		}
-		
+
 		invalidate();
 		return true;
+	}
+
+	class GestureListener extends SimpleOnGestureListener {
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+				float velocityY) {
+			try {
+				Log.i("Gesture", "Gesture call");
+				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH){
+					
+					// up - down swipe
+					if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE
+							&& Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+						Log.i("Gesture", "Left");
+						moveGridUp();
+					} else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE
+							&& Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+						Log.i("Gesture", "Right");
+						moveGridDown();
+					}
+					
+				}
+				
+				// right - left swipe
+				else if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE
+						&& Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+					Log.i("Gesture", "Left");
+					moveGridLeft();
+				} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
+						&& Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+					Log.i("Gesture", "Right");
+					moveGridRight();
+				}
+								
+			} catch (Exception e) {
+				// nothing
+			}
+			return false;
+		}
 	}
 }
