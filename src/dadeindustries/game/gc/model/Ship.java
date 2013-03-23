@@ -2,14 +2,12 @@ package dadeindustries.game.gc.model;
 
 public class Ship {
 
-	public static enum Faction { UNITED_PLANETS, INIATS, GHZRGORZ, MORPHERS }
-		
 	protected int x = 0;
 	protected int y = 0;
-	protected Faction side;
+	protected GlobalGameData.Faction side;
 	protected String name = null;
 	
-	public Ship(int xinit, int yinit, Faction faction, String shipname)
+	public Ship(int xinit, int yinit, GlobalGameData.Faction faction, String shipname)
 	{
 		x = xinit;
 		y = yinit;
@@ -25,7 +23,7 @@ public class Ship {
 		return y;
 	}
 	
-	public Faction getFaction(){
+	public GlobalGameData.Faction getFaction(){
 		return side;
 	}
 	

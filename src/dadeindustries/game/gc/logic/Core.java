@@ -1,7 +1,11 @@
 package dadeindustries.game.gc.logic;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Vector;
 
+import dadeindustries.game.gc.model.GlobalGameData;
+import dadeindustries.game.gc.model.Sector;
 import dadeindustries.game.gc.model.Ship;
 import dadeindustries.game.gc.model.System;
 
@@ -12,23 +16,24 @@ import dadeindustries.game.gc.model.System;
 public class Core {
 
 	
-	private ArrayList<Ship> ships = new ArrayList<Ship>();
-	private ArrayList<System> systems = new ArrayList<System>();
+	private Collection<Ship> ships = new ArrayList<Ship>();
+	private Collection<System> systems = new ArrayList<System>();
+	private Collection<Sector> sectors = new Vector<Sector>();
 	
 	public Core(){
 		loadTestShips();
 	}	
 	
 	private void loadTestShips() {
-		ships.add(new Ship(4, 4, Ship.Faction.UNITED_PLANETS, "HMS Douglas"));
-		ships.add(new Ship(5, 6, Ship.Faction.MORPHERS, "Kdfkljsdf"));
+		ships.add(new Ship(4, 4, GlobalGameData.Faction.UNITED_PLANETS, "HMS Douglas"));
+		ships.add(new Ship(5, 6, GlobalGameData.Faction.MORPHERS, "Kdfkljsdf"));
 	}
 
 	public void addShip(Ship newship){
 		ships.add(newship);
 	}
 	
-	public ArrayList<Ship> getShips(){
+	public Collection<Ship> getShips(){
 		return ships;
 	}	
 }
