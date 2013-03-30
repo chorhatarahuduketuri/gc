@@ -2,25 +2,23 @@ package dadeindustries.game.gc.model;
 
 public class Ship {
 
-	protected int x = 0;
-	protected int y = 0;
+	protected Sector currentLocation;
 	protected GlobalGameData.Faction side;
 	protected String name = null;
 	
-	public Ship(int xinit, int yinit, GlobalGameData.Faction faction, String shipname)
+	public Ship(Sector currentLocation, GlobalGameData.Faction faction, String shipname)
 	{
-		x = xinit;
-		y = yinit;
 		side = faction;
 		name = shipname;
+		this.currentLocation = currentLocation;
 	}
 	
 	public int getX(){
-		return x;
+		return currentLocation.getX();
 	}
 	
 	public int getY(){
-		return y;
+		return currentLocation.getY();
 	}
 	
 	public GlobalGameData.Faction getFaction(){
