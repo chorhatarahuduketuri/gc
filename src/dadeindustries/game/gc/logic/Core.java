@@ -10,8 +10,9 @@ import dadeindustries.game.gc.model.Ship;
 import dadeindustries.game.gc.model.SolarSystem;
 
 /*
- * This is where all the games data structures are kept
- * separate from the game interfaces views
+ * This is where all the data structures relevant 
+ * to an instance of a game are kept, separate 
+ * from the views
  */
 public class Core {
 
