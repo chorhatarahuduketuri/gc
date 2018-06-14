@@ -285,11 +285,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE
 							&& Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
 						Log.i("Gesture", "Left");
-						moveGridUp();
+						moveGridDown();
 					} else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE
 							&& Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
 						Log.i("Gesture", "Right");
-						moveGridDown();
+						moveGridUp();
 					}
 
 				}
@@ -298,15 +298,15 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				else if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE
 						&& Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 					Log.i("Gesture", "Left");
-					moveGridLeft();
+					moveGridRight();
 				} else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
 						&& Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 					Log.i("Gesture", "Right");
-					moveGridRight();
+					moveGridLeft();
 				}
 
 			} catch (Exception e) {
-				// nothing
+				Log.e("ERR", e.getLocalizedMessage());
 			}
 			return false;
 		}
