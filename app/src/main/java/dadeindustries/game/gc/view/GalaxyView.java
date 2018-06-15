@@ -8,6 +8,8 @@ import com.example.gc.R;
 import dadeindustries.game.gc.logic.Core;
 import dadeindustries.game.gc.model.Sector;
 import dadeindustries.game.gc.model.Ship;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -79,10 +81,15 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		core = c;
 		ships = (ArrayList<Ship>) c.getShips();
 
-		// Gesture detection
+		// Enable gesture detection
 		gestureDetector = new GestureDetector(ctxt, new GestureListener());
+
 		setOnTouchListener(this);
+
+		// Enable keyboard detection
 		setOnKeyListener(this);
+
+
 		setFocusable(true);
 		requestFocus();
 	}
@@ -138,16 +145,16 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				// system
 				switch (ships.get(i).getFaction()) {
 
-				case UNITED_PLANETS:
-					canvas.drawBitmap(up, null, r, paint);
-					break;
+					case UNITED_PLANETS:
+						canvas.drawBitmap(up, null, r, paint);
+						break;
 
-				case MORPHERS:
-					canvas.drawBitmap(mo, null, r, paint);
-					break;
+					case MORPHERS:
+						canvas.drawBitmap(mo, null, r, paint);
+						break;
 
-				default:
-					// do nothing
+					default:
+						// do nothing
 
 				}
 				// might be nice to be able to centre the text
@@ -155,7 +162,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 						+ (SQUARE_SIZE / 2), paint);
 			}
 		}
-		
+
 		// highlight current selection
 		if (currentX >= 0 && currentY >= 0) {
 			paint.setColor(Color.RED);
@@ -173,6 +180,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	private int currentX = -1;
 	private int currentY = -1;
+
 
 	@Override
 	public boolean onTouch(View view, MotionEvent motion) {
@@ -194,6 +202,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				// TODO: display options/commands
 			}
 		}
+
 		invalidate();
 
 		return true;
@@ -245,38 +254,70 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 
-		// TODO: Update highlighted square
-
 		switch (keyCode) {
 
-		case 19:
-			viewPort.y--;
-			break;
+			case 19:
+				viewPort.y--;
+				break;
 
-		case 20:
-			viewPort.y++;
-			break;
+			case 20:
+				viewPort.y++;
+				break;
 
-		case 21:
-			viewPort.x--;
-			break;
+			case 21:
+				viewPort.x--;
+				break;
 
-		case 22:
-			viewPort.x++;
-			break;
+			case 22:
+				viewPort.x++;
+				break;
 
-		default:
-			return false;
+			default:
+				return false;
 		}
 
 		invalidate();
 		return true;
 	}
 
+	/**
+	 * A popup menu that gives the player some options about the entity
+	 * TODO: This should eventually be generic to handle ships, planets, and other
+	 * things.
+	 */
+	void showMenu() {
+
+		CharSequence colors[] = new CharSequence[]{"Move", "Attack", "Colonise"};
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
+		builder.setTitle("Menu");
+		builder.setItems(colors, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// the user clicked on colors[which]
+			}
+		});
+
+		// If a ship is selected then show the menu
+		if (isShipSelected(currentX, currentY)) {
+			builder.show();
+		}
+	}
+
 	class GestureListener extends SimpleOnGestureListener {
+
+		@Override
+		public void onLongPress(MotionEvent e) {
+			int x = (int) (e.getX() / SQUARE_SIZE);
+			int y = (int) (e.getY() / SQUARE_SIZE);
+			currentX = x;
+			currentY = y;
+			showMenu();
+		}
+
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
+							   float velocityY) {
 			try {
 				Log.i("Gesture", "Gesture call");
 				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
