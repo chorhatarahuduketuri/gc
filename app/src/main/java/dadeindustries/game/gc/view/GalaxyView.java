@@ -3,11 +3,13 @@ package dadeindustries.game.gc.view;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import android.provider.Settings;
 import com.example.gc.R;
 
 import dadeindustries.game.gc.logic.Core;
 import dadeindustries.game.gc.model.Sector;
 import dadeindustries.game.gc.model.Ship;
+import dadeindustries.game.gc.model.GlobalGameData;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Context;
@@ -44,18 +46,16 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	// in real world co-ordinates
 	protected Point viewPort = new Point(2, 2);
 
-	// Map details
-	//TODO: move the data of 'space' to a class in the model package. 
-	protected static final int MAP_HEIGHT = 50;
-	protected static final int MAP_WIDTH = 50;
+	static final int PADDING = 10;
 
 	// Global Bitmaps
 	private Bitmap up = null; // UP emblem bitmap
 	private Bitmap mo = null; // Morphers emblem bitmap
+	private Bitmap p1, p2 = null;
 
 	// Game data structures REFERENCE
 	ArrayList<Ship> ships;
-	Collection<Sector> sectors;
+	public Sector[][] sectors;
 
 	// Gesture stuff
 	private static final int SWIPE_MIN_DISTANCE = 120;
@@ -66,6 +66,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	// View.OnTouchListener gestureListener;
 
 	private Core core;
+
+	private int currentX = -1;
+	private int currentY = -1;
+
 
 	public GalaxyView(Context context, Core c) {
 		super(context);
@@ -80,6 +84,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		loadBitmaps();
 		core = c;
 		ships = (ArrayList<Ship>) c.getShips();
+		sectors = c.sectors;
 
 		// Enable gesture detection
 		gestureDetector = new GestureDetector(ctxt, new GestureListener());
@@ -89,7 +94,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		// Enable keyboard detection
 		setOnKeyListener(this);
 
-
 		setFocusable(true);
 		requestFocus();
 	}
@@ -97,17 +101,19 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private void loadBitmaps() {
 		up = BitmapFactory.decodeResource(getResources(), R.drawable.up);
 		mo = BitmapFactory.decodeResource(getResources(), R.drawable.morphers);
+		p1 = BitmapFactory.decodeResource(getResources(), R.drawable.planet1);
+		p2 = BitmapFactory.decodeResource(getResources(), R.drawable.planet2);
 	}
 
 	public void setViewPortPosition(int x, int y) {
-		if (x >= 0 && y >= 0 && x < MAP_WIDTH & y < MAP_HEIGHT) {
+		if (x >= 0 && y >= 0 && x < GlobalGameData.galaxySizeX & y < GlobalGameData.galaxySizeY) {
 			viewPort.x = x;
 			viewPort.y = y;
 			invalidate();
 		}
 	}
 
-	Rect r = new Rect();
+	private Rect r = new Rect();
 
 	@Override
 	public void onDraw(Canvas canvas) {
@@ -124,8 +130,39 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					paint);
 		}
 
+		// TODO: Draw purple squares for all unexplored areas
+		int j = 0;
+		int i = 0;
+
+		// Draw System bitmaps
+		for (i = 0; i < GlobalGameData.galaxySizeX; i++) {
+			for (j = 0; j < GlobalGameData.galaxySizeY; j++) {
+				if (sectors[i][j].hasSystem()) {
+					int planetX = sectors[i][j].getX();
+					int planetY = sectors[i][j].getY();
+
+					if ((planetX >= viewPort.x)
+							&& (planetX <= viewPort.x + NUM_SQUARES_IN_ROW)
+							&& (planetY >= viewPort.y)) {
+
+						int x = (planetX - viewPort.x) * SQUARE_SIZE;
+						int y = (planetY - viewPort.y) * SQUARE_SIZE;
+						r.left = x + (SQUARE_SIZE / 2);
+						r.top = y + (SQUARE_SIZE / 2);
+						r.right = x + (SQUARE_SIZE / 2) * 2;
+						r.bottom = y + (SQUARE_SIZE / 2) * 2;
+
+						canvas.drawBitmap(p2, null, r, paint);
+						paint.setTextSize(16 * getResources().getDisplayMetrics().density);
+						canvas.drawText(sectors[i][j].getSystem().getName(), x+PADDING, y
+								+ (SQUARE_SIZE / 2), paint);
+					}
+				}
+			}
+		}
+
 		// ships
-		for (int i = 0; i < ships.size(); i++) {
+		for (i = 0; i < ships.size(); i++) {
 
 			int shipx = ships.get(i).getX();
 			int shipy = ships.get(i).getY();
@@ -158,7 +195,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 				}
 				// might be nice to be able to centre the text
-				canvas.drawText(ships.get(i).getShipName(), x, y
+				canvas.drawText(ships.get(i).getShipName(), x+PADDING, y+(PADDING*3)
 						+ (SQUARE_SIZE / 2), paint);
 			}
 		}
@@ -177,9 +214,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			paint.setColor(Color.WHITE);
 		}
 	}
-
-	private int currentX = -1;
-	private int currentY = -1;
 
 
 	@Override
@@ -201,6 +235,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 						.show();
 				// TODO: display options/commands
 			}
+
+			if (isSystemSelected(currentX, currentY)) {
+				Toast.makeText(ctxt, "System selected", Toast.LENGTH_SHORT)
+							.show();
+			}
 		}
 
 		invalidate();
@@ -215,19 +254,27 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	void moveGridUp() {
-		viewPort.y--;
+		if (viewPort.y > 0) {
+			viewPort.y--;
+		}
 	}
 
 	void moveGridDown() {
-		viewPort.y++;
+		if (viewPort.y < GlobalGameData.galaxySizeY) {
+			viewPort.y++;
+		}
 	}
 
 	void moveGridLeft() {
-		viewPort.x--;
+		if (viewPort.x > 0) {
+			viewPort.x--;
+		}
 	}
 
 	void moveGridRight() {
-		viewPort.x++;
+		if (viewPort.x < GlobalGameData.galaxySizeX) {
+			viewPort.x++;
+		}
 	}
 
 	private void makeToast(String s) {
@@ -251,25 +298,37 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		return false;
 	}
 
+	boolean isSystemSelected(int x, int y) {
+		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
+
+		if (sectors[gameCoods.x][gameCoods.y].hasSystem()){
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 
+		Log.wtf("Current co-ords", ""+viewPort.x + " " + viewPort.y);
 		switch (keyCode) {
 
 			case 19:
-				viewPort.y--;
+				moveGridUp();
 				break;
 
 			case 20:
-				viewPort.y++;
+				moveGridDown();
 				break;
 
 			case 21:
-				viewPort.x--;
+				moveGridLeft();
 				break;
 
 			case 22:
-				viewPort.x++;
+				moveGridRight();
 				break;
 
 			default:
@@ -287,7 +346,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	 */
 	void showMenu() {
 
-		CharSequence colors[] = new CharSequence[]{"Move", "Attack", "Colonise"};
+		CharSequence colors[] = new CharSequence[]{
+				"Move", "Attack", "Raid", "Build", "Colonise", "Suicide"};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
 		builder.setTitle("Menu");
@@ -295,6 +355,13 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				// the user clicked on colors[which]
+				switch (which) {
+					case 0:
+						Toast.makeText(ctxt, "Move where?", Toast.LENGTH_LONG).show();
+					default:
+						Log.wtf("Clicked ", "" + which);
+
+				}
 			}
 		});
 
