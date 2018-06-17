@@ -9,19 +9,25 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.Menu;
+import android.media.MediaPlayer;
+
 
 public class Start extends Activity {
 
 	private GalaxyView gv;
 	private Core core;
-	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
 		core = new Core();
-		gv = new GalaxyView(this, core);
+        gv = new GalaxyView(this, core);
+
+		MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.lj_kruzer_chantiers_navals);
+		mediaPlayer.start(); // TODO: switch to async preparation method
+
 		setContentView(gv);
 	}
 
