@@ -3,7 +3,7 @@ package dadeindustries.game.gc.model;
 public class Planet {
 
 	protected String name;
-	
+
 	private boolean colonisable = false;
 	private int initPopulation = 0;
 	private int maxPopulation = 300;
