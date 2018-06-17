@@ -26,6 +26,7 @@ public class Start extends Activity {
         gv = new GalaxyView(this, core);
 
 		MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.lj_kruzer_chantiers_navals);
+		mediaPlayer.setLooping(true);
 		mediaPlayer.start(); // TODO: switch to async preparation method
 
 		setContentView(gv);
