@@ -1,20 +1,20 @@
 package dadeindustries.game.gc.view;
 
-import com.example.gc.R;
-
-import dadeindustries.game.gc.logic.Core;
-
-import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.view.Menu;
+
+import com.example.gc.R;
+
+import dadeindustries.game.gc.logic.Core;
 
 public class Start extends Activity {
 
 	private GalaxyView gv;
 	private Core core;
-	
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

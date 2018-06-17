@@ -5,9 +5,8 @@ import java.util.ArrayList;
 
 public class System {
 
-	private String name;
 	protected ArrayList<Planet> planets = null;
-
+	private String name;
 	private int x, y;
 
 	public System(String name, int x, int y) {

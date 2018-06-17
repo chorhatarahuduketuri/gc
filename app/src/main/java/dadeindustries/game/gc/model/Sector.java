@@ -1,15 +1,15 @@
 package dadeindustries.game.gc.model;
 
 public class Sector {
-	
+
 	private System system = null;
 
 	/**
-	 * TODO: flesh out this class. 
-	 * create method to take in a System, and any other data necessary to define 
-	 * factors of a system. 
+	 * TODO: flesh out this class.
+	 * create method to take in a System, and any other data necessary to define
+	 * factors of a system.
 	 */
-	
+
 	private int x;
 	private int y;
 
@@ -35,10 +35,11 @@ public class Sector {
 	public System getSystem() {
 		return system;
 	}
-	
+
 	public int getX() {
 		return x;
 	}
+
 	public int getY() {
 		return y;
 	}
