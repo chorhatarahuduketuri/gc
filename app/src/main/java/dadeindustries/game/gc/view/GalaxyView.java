@@ -34,6 +34,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	static final int PADDING = 10;
 	// Display details
 	private final static int NUM_SQUARES_IN_ROW = 5;
+	private static int NUM_SQUARES_IN_COLUMN = 0;
 	// Gesture stuff
 	private static final int SWIPE_MIN_DISTANCE = 120;
 	private static final int SWIPE_MAX_OFF_PATH = 250;
@@ -70,6 +71,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		displayWidth = metrics.widthPixels;
 		displayHeight = metrics.heightPixels;
 		SQUARE_SIZE = displayWidth / NUM_SQUARES_IN_ROW;
+		NUM_SQUARES_IN_COLUMN = displayHeight / SQUARE_SIZE;
 		setBackgroundColor(Color.BLACK);
 		paint.setColor(Color.WHITE);
 		paint.setStrokeWidth(3);
@@ -88,6 +90,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		setFocusable(true);
 		requestFocus();
+
+        setViewPortPosition(0,0);
 	}
 
 	private void loadBitmaps() {
@@ -97,6 +101,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		p2 = BitmapFactory.decodeResource(getResources(), R.drawable.planet2);
 	}
 
+	/* TODO: Add stricter parameter checking. */
 	public void setViewPortPosition(int x, int y) {
 		if (x >= 0 && y >= 0 && x < GlobalGameData.galaxySizeX & y < GlobalGameData.galaxySizeY) {
 			viewPort.x = x;
@@ -250,7 +255,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	void moveGridDown() {
-		if (viewPort.y < GlobalGameData.galaxySizeY) {
+	    Log.e("Number of squares ", "" + NUM_SQUARES_IN_COLUMN);
+		if (viewPort.y < (GlobalGameData.galaxySizeY - (NUM_SQUARES_IN_COLUMN+1)) ) {
 			viewPort.y++;
 		}
 	}
@@ -262,7 +268,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	void moveGridRight() {
-		if (viewPort.x < GlobalGameData.galaxySizeX) {
+		if (viewPort.x < (GlobalGameData.galaxySizeX - NUM_SQUARES_IN_ROW)) {
 			viewPort.x++;
 		}
 	}
@@ -290,6 +296,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	boolean isSystemSelected(int x, int y) {
 		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
+		Log.e("Co-od translation","view coods (" + x + "," + y + ")" + "-> (" + gameCoods.x + "," + gameCoods.y + ")");
 
 		if (sectors[gameCoods.x][gameCoods.y].hasSystem()) {
 			return true;
