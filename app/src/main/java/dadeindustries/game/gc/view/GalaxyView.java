@@ -1,14 +1,8 @@
 package dadeindustries.game.gc.view;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import com.example.gc.R;
-
-import dadeindustries.game.gc.logic.Core;
-import dadeindustries.game.gc.model.Sector;
-import dadeindustries.game.gc.model.Ship;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -27,43 +21,48 @@ import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.widget.Toast;
 
+import com.example.gc.R;
+
+import java.util.ArrayList;
+
+import dadeindustries.game.gc.logic.Core;
+import dadeindustries.game.gc.model.GlobalGameData;
+import dadeindustries.game.gc.model.Sector;
+import dadeindustries.game.gc.model.Ship;
+
 public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
-	private Context ctxt; // needed for Toast debugging
-
+	static final int PADDING = 10;
 	// Display details
 	private final static int NUM_SQUARES_IN_ROW = 5;
-	private Paint paint = new Paint();
-	private int displayWidth = 0;
-	private int displayHeight = 0;
-	private static int SQUARE_SIZE;
-
-	// co-ordinates of the top left of the viewport
-	// in real world co-ordinates
-	protected Point viewPort = new Point(2, 2);
-
-	// Map details
-	//TODO: move the data of 'space' to a class in the model package. 
-	protected static final int MAP_HEIGHT = 50;
-	protected static final int MAP_WIDTH = 50;
-
-	// Global Bitmaps
-	private Bitmap up = null; // UP emblem bitmap
-	private Bitmap mo = null; // Morphers emblem bitmap
-
-	// Game data structures REFERENCE
-	ArrayList<Ship> ships;
-	Collection<Sector> sectors;
-
 	// Gesture stuff
 	private static final int SWIPE_MIN_DISTANCE = 120;
 	private static final int SWIPE_MAX_OFF_PATH = 250;
 	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+	private static int SQUARE_SIZE;
+	public Sector[][] sectors;
+	// co-ordinates of the top left of the viewport
+	// in real world co-ordinates
+	protected Point viewPort = new Point(2, 2);
+	// Game data structures REFERENCE
+	ArrayList<Ship> ships;
+	private Context ctxt; // needed for Toast debugging
+	private Paint paint = new Paint();
+	private int displayWidth = 0;
+	private int displayHeight = 0;
+	// Global Bitmaps
+	private Bitmap up = null; // UP emblem bitmap
+	private Bitmap mo = null; // Morphers emblem bitmap
+	private Bitmap p1, p2 = null;
 	private GestureDetector gestureDetector;
 
 	// View.OnTouchListener gestureListener;
 
 	private Core core;
+
+	private int currentX = -1;
+	private int currentY = -1;
+	private Rect r = new Rect();
 
 	public GalaxyView(Context context, Core c) {
 		super(context);
@@ -78,11 +77,16 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		loadBitmaps();
 		core = c;
 		ships = (ArrayList<Ship>) c.getShips();
+		sectors = c.sectors;
 
-		// Gesture detection
+		// Enable gesture detection
 		gestureDetector = new GestureDetector(ctxt, new GestureListener());
+
 		setOnTouchListener(this);
+
+		// Enable keyboard detection
 		setOnKeyListener(this);
+
 		setFocusable(true);
 		requestFocus();
 	}
@@ -90,17 +94,17 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private void loadBitmaps() {
 		up = BitmapFactory.decodeResource(getResources(), R.drawable.up);
 		mo = BitmapFactory.decodeResource(getResources(), R.drawable.morphers);
+		p1 = BitmapFactory.decodeResource(getResources(), R.drawable.planet1);
+		p2 = BitmapFactory.decodeResource(getResources(), R.drawable.planet2);
 	}
 
 	public void setViewPortPosition(int x, int y) {
-		if (x >= 0 && y >= 0 && x < MAP_WIDTH & y < MAP_HEIGHT) {
+		if (x >= 0 && y >= 0 && x < GlobalGameData.galaxySizeX & y < GlobalGameData.galaxySizeY) {
 			viewPort.x = x;
 			viewPort.y = y;
 			invalidate();
 		}
 	}
-
-	Rect r = new Rect();
 
 	@Override
 	public void onDraw(Canvas canvas) {
@@ -117,8 +121,39 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					paint);
 		}
 
+		// TODO: Draw purple squares for all unexplored areas
+		int j = 0;
+		int i = 0;
+
+		// Draw System bitmaps
+		for (i = 0; i < GlobalGameData.galaxySizeX; i++) {
+			for (j = 0; j < GlobalGameData.galaxySizeY; j++) {
+				if (sectors[i][j].hasSystem()) {
+					int planetX = sectors[i][j].getX();
+					int planetY = sectors[i][j].getY();
+
+					if ((planetX >= viewPort.x)
+							&& (planetX <= viewPort.x + NUM_SQUARES_IN_ROW)
+							&& (planetY >= viewPort.y)) {
+
+						int x = (planetX - viewPort.x) * SQUARE_SIZE;
+						int y = (planetY - viewPort.y) * SQUARE_SIZE;
+						r.left = x + (SQUARE_SIZE / 2);
+						r.top = y + (SQUARE_SIZE / 2);
+						r.right = x + (SQUARE_SIZE / 2) * 2;
+						r.bottom = y + (SQUARE_SIZE / 2) * 2;
+
+						canvas.drawBitmap(p2, null, r, paint);
+						paint.setTextSize(16 * getResources().getDisplayMetrics().density);
+						canvas.drawText(sectors[i][j].getSystem().getName(), x + PADDING, y
+								+ (SQUARE_SIZE / 2), paint);
+					}
+				}
+			}
+		}
+
 		// ships
-		for (int i = 0; i < ships.size(); i++) {
+		for (i = 0; i < ships.size(); i++) {
 
 			int shipx = ships.get(i).getX();
 			int shipy = ships.get(i).getY();
@@ -138,24 +173,24 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				// system
 				switch (ships.get(i).getFaction()) {
 
-				case UNITED_PLANETS:
-					canvas.drawBitmap(up, null, r, paint);
-					break;
+					case UNITED_PLANETS:
+						canvas.drawBitmap(up, null, r, paint);
+						break;
 
-				case MORPHERS:
-					canvas.drawBitmap(mo, null, r, paint);
-					break;
+					case MORPHERS:
+						canvas.drawBitmap(mo, null, r, paint);
+						break;
 
-				default:
-					// do nothing
+					default:
+						// do nothing
 
 				}
 				// might be nice to be able to centre the text
-				canvas.drawText(ships.get(i).getShipName(), x, y
+				canvas.drawText(ships.get(i).getShipName(), x + PADDING, y + (PADDING * 3)
 						+ (SQUARE_SIZE / 2), paint);
 			}
 		}
-		
+
 		// highlight current selection
 		if (currentX >= 0 && currentY >= 0) {
 			paint.setColor(Color.RED);
@@ -171,8 +206,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		}
 	}
 
-	private int currentX = -1;
-	private int currentY = -1;
 
 	@Override
 	public boolean onTouch(View view, MotionEvent motion) {
@@ -193,7 +226,13 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 						.show();
 				// TODO: display options/commands
 			}
+
+			if (isSystemSelected(currentX, currentY)) {
+				Toast.makeText(ctxt, "System selected", Toast.LENGTH_SHORT)
+						.show();
+			}
 		}
+
 		invalidate();
 
 		return true;
@@ -206,19 +245,27 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	void moveGridUp() {
-		viewPort.y--;
+		if (viewPort.y > 0) {
+			viewPort.y--;
+		}
 	}
 
 	void moveGridDown() {
-		viewPort.y++;
+		if (viewPort.y < GlobalGameData.galaxySizeY) {
+			viewPort.y++;
+		}
 	}
 
 	void moveGridLeft() {
-		viewPort.x--;
+		if (viewPort.x > 0) {
+			viewPort.x--;
+		}
 	}
 
 	void moveGridRight() {
-		viewPort.x++;
+		if (viewPort.x < GlobalGameData.galaxySizeX) {
+			viewPort.x++;
+		}
 	}
 
 	private void makeToast(String s) {
@@ -242,41 +289,92 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		return false;
 	}
 
+	boolean isSystemSelected(int x, int y) {
+		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
+
+		if (sectors[gameCoods.x][gameCoods.y].hasSystem()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 
-		// TODO: Update highlighted square
-
+		Log.wtf("Current co-ords", "" + viewPort.x + " " + viewPort.y);
 		switch (keyCode) {
 
-		case 19:
-			viewPort.y--;
-			break;
+			case 19:
+				moveGridUp();
+				break;
 
-		case 20:
-			viewPort.y++;
-			break;
+			case 20:
+				moveGridDown();
+				break;
 
-		case 21:
-			viewPort.x--;
-			break;
+			case 21:
+				moveGridLeft();
+				break;
 
-		case 22:
-			viewPort.x++;
-			break;
+			case 22:
+				moveGridRight();
+				break;
 
-		default:
-			return false;
+			default:
+				return false;
 		}
 
 		invalidate();
 		return true;
 	}
 
+	/**
+	 * A popup menu that gives the player some options about the entity
+	 * TODO: This should eventually be generic to handle ships, planets, and other
+	 * things.
+	 */
+	void showMenu() {
+
+		CharSequence colors[] = new CharSequence[]{
+				"Move", "Attack", "Raid", "Build", "Colonise", "Suicide"};
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
+		builder.setTitle("Menu");
+		builder.setItems(colors, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// the user clicked on colors[which]
+				switch (which) {
+					case 0:
+						Toast.makeText(ctxt, "Move where?", Toast.LENGTH_LONG).show();
+					default:
+						Log.wtf("Clicked ", "" + which);
+
+				}
+			}
+		});
+
+		// If a ship is selected then show the menu
+		if (isShipSelected(currentX, currentY)) {
+			builder.show();
+		}
+	}
+
 	class GestureListener extends SimpleOnGestureListener {
+
+		@Override
+		public void onLongPress(MotionEvent e) {
+			int x = (int) (e.getX() / SQUARE_SIZE);
+			int y = (int) (e.getY() / SQUARE_SIZE);
+			currentX = x;
+			currentY = y;
+			showMenu();
+		}
+
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
+		                       float velocityY) {
 			try {
 				Log.i("Gesture", "Gesture call");
 				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
