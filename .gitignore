@@ -8,6 +8,9 @@
 # Java class files
 *.class
 
+# IML files
+*.iml
+
 # Generated files
 bin/
 gen/
@@ -64,3 +67,6 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
+
+# Mac OS X
+.DS_Store
