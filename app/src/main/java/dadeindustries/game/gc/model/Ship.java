@@ -4,7 +4,7 @@ package dadeindustries.game.gc.model;
 public class Ship extends Unit {
 
 
-	public Ship(Sector currentLocation, GlobalGameData.Faction faction, String shipname) {
+	public Ship(Sector currentLocation, Faction faction, String shipname) {
 		super(currentLocation, faction, shipname);
 	}
 }

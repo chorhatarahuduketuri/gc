@@ -25,7 +25,6 @@ import com.example.gc.R;
 
 import java.util.ArrayList;
 
-import dadeindustries.game.gc.logic.Core;
 import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.Sector;
 import dadeindustries.game.gc.model.Ship;
@@ -58,13 +57,13 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	// View.OnTouchListener gestureListener;
 
-	private Core core;
+	private GlobalGameData globalGameData;
 
 	private int currentX = -1;
 	private int currentY = -1;
 	private Rect r = new Rect();
 
-	public GalaxyView(Context context, Core c) {
+	public GalaxyView(Context context, GlobalGameData ggd) {
 		super(context);
 		ctxt = context;
 		DisplayMetrics metrics = getResources().getDisplayMetrics();
@@ -75,9 +74,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		paint.setColor(Color.WHITE);
 		paint.setStrokeWidth(3);
 		loadBitmaps();
-		core = c;
-		ships = (ArrayList<Ship>) c.getShips();
-		sectors = c.sectors;
+		globalGameData = ggd;
+		ships = (ArrayList<Ship>) ggd.getShips();
+		sectors = ggd.sectors;
 
 		// Enable gesture detection
 		gestureDetector = new GestureDetector(ctxt, new GestureListener());

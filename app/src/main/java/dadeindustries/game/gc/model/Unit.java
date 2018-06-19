@@ -4,12 +4,12 @@ package dadeindustries.game.gc.model;
 public abstract class Unit {
 	//FIELDS
 	protected Sector currentLocation;
-	protected GlobalGameData.Faction side;
+	protected Faction side;
 	protected String unitName = null;
 	private int[] targetArea = new int[2];
 
 	//CONSTRUCTORS
-	public Unit(Sector currentLocation, GlobalGameData.Faction faction, String shipname) {
+	public Unit(Sector currentLocation, Faction faction, String shipname) {
 		side = faction;
 		unitName = shipname;
 		this.currentLocation = currentLocation;
@@ -42,7 +42,7 @@ public abstract class Unit {
 		return currentLocation.getY();
 	}
 
-	public GlobalGameData.Faction getFaction() {
+	public Faction getFaction() {
 		return side;
 	}
 
