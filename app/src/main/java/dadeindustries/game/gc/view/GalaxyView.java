@@ -26,8 +26,8 @@ import com.example.gc.R;
 import java.util.ArrayList;
 
 import dadeindustries.game.gc.model.GlobalGameData;
-import dadeindustries.game.gc.model.Sector;
-import dadeindustries.game.gc.model.Ship;
+import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
+import dadeindustries.game.gc.model.FactionArtifacts.Ship;
 
 public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 

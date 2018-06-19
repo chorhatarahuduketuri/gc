@@ -5,6 +5,11 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import dadeindustries.game.gc.model.FactionArtifacts.Ship;
+import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
+import dadeindustries.game.gc.model.StellarPhenomenon.Phenomena.System;
+import dadeindustries.game.gc.model.Enums.Faction;
+
 /**
  * whereupon the overall definition of the universe is held.
  * races, galaxy size,

@@ -1,4 +1,8 @@
-package dadeindustries.game.gc.model;
+package dadeindustries.game.gc.model.FactionArtifacts;
+
+import dadeindustries.game.gc.model.GlobalGameData;
+import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
+import dadeindustries.game.gc.model.Enums.Faction;
 
 //all controllable units
 public abstract class Unit {
