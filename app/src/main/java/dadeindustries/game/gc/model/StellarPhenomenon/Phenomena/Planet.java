@@ -1,4 +1,4 @@
-package dadeindustries.game.gc.model;
+package dadeindustries.game.gc.model.StellarPhenomenon.Phenomena;
 
 public class Planet {
 

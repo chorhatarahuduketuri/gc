@@ -1,4 +1,6 @@
-package dadeindustries.game.gc.model;
+package dadeindustries.game.gc.model.StellarPhenomenon;
+
+import dadeindustries.game.gc.model.StellarPhenomenon.Phenomena.System;
 
 public class Sector {
 
