@@ -1,6 +1,20 @@
 language: android
+jdk: oraclejdk10
+
 android:
   components:
     - build-tools-28.0.0
     - android-17
     - extra
+    - addon
+    - sys-img-armeabi-v7a-android-17
+
+before_script:
+  # make and run and emulator
+  - echo no | android create avd --force -n test -t android-17 --abi armeabi-v7a
+  - emulator -avd test -no-skin -no-window &
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
+
+script:
+  - ./gradlew connectAndroidTest
