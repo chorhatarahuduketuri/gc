@@ -10,15 +10,18 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.gc.R;
@@ -31,7 +34,7 @@ import dadeindustries.game.gc.model.FactionArtifacts.Ship;
 
 public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
-	static final int PADDING = 10;
+	private static final int PADDING = 10;
 	// Display details
 	private final static int NUM_SQUARES_IN_ROW = 5;
 	private static int NUM_SQUARES_IN_COLUMN = 0;
@@ -40,6 +43,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private static final int SWIPE_MAX_OFF_PATH = 250;
 	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 	private static int SQUARE_SIZE;
+
 	public Sector[][] sectors;
 	// co-ordinates of the top left of the viewport
 	// in real world co-ordinates
@@ -55,6 +59,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private Bitmap mo = null; // Morphers emblem bitmap
 	private Bitmap p1, p2 = null;
 	private GestureDetector gestureDetector;
+	private GlobalGameData ggd;
 
 	// View.OnTouchListener gestureListener;
 
@@ -64,37 +69,53 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private int currentY = -1;
 	private Rect r = new Rect();
 
-	public GalaxyView(Context context, GlobalGameData ggd) {
-		super(context);
-		ctxt = context;
-		DisplayMetrics metrics = getResources().getDisplayMetrics();
-		displayWidth = metrics.widthPixels;
-		displayHeight = metrics.heightPixels;
-		SQUARE_SIZE = displayWidth / NUM_SQUARES_IN_ROW;
-		NUM_SQUARES_IN_COLUMN = displayHeight / SQUARE_SIZE;
-		setBackgroundColor(Color.BLACK);
-		paint.setColor(Color.WHITE);
-		paint.setStrokeWidth(3);
-		loadBitmaps();
-		globalGameData = ggd;
-		ships = (ArrayList<Ship>) ggd.getShips();
-		sectors = ggd.sectors;
+	public GalaxyView(Context context) {
+        super(context);
+        init(context);
+    }
 
-		// Enable gesture detection
-		gestureDetector = new GestureDetector(ctxt, new GestureListener());
-
-		setOnTouchListener(this);
-
-		// Enable keyboard detection
-		setOnKeyListener(this);
-
-		setFocusable(true);
-		requestFocus();
-
-        setViewPortPosition(0,0);
+    /* This constructor is needed for "inflating" the UI from the XML layout */
+	public GalaxyView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+        init(context);
 	}
 
-	private void loadBitmaps() {
+    public void init(Context context) {
+        GlobalGameData ggd = new GlobalGameData(10,10);
+        ctxt = context;
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        displayWidth = metrics.widthPixels;
+        displayHeight = metrics.heightPixels;
+        SQUARE_SIZE = displayWidth / NUM_SQUARES_IN_ROW;
+        NUM_SQUARES_IN_COLUMN = displayHeight / SQUARE_SIZE;
+        setBackgroundColor(Color.BLACK);
+        paint.setColor(Color.WHITE);
+        paint.setStrokeWidth(3);
+        loadBitmaps();
+        globalGameData = ggd;
+        ships = (ArrayList<Ship>) ggd.getShips();
+        sectors = ggd.sectors;
+
+        // Enable gesture detection
+        gestureDetector = new GestureDetector(ctxt, new GestureListener());
+
+        setOnTouchListener(this);
+
+        // Enable keyboard detection
+        setOnKeyListener(this);
+
+        setFocusable(true);
+        requestFocus();
+
+        setViewPortPosition(0,0);
+    }
+
+    public void endTurn() {
+	    makeToast("Ended turn!");
+        globalGameData.processTurn();
+    }
+
+    private void loadBitmaps() {
 		up = BitmapFactory.decodeResource(getResources(), R.drawable.up);
 		mo = BitmapFactory.decodeResource(getResources(), R.drawable.morphers);
 		p1 = BitmapFactory.decodeResource(getResources(), R.drawable.planet1);
@@ -363,7 +384,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		// If a ship is selected then show the menu
 		if (isShipSelected(currentX, currentY)) {
-			builder.show();
+			AlertDialog dialog = builder.create();
+			int WRAP_CONTENT = ViewGroup.LayoutParams.WRAP_CONTENT;
+			dialog.getWindow().setLayout(100, WRAP_CONTENT);
+			//dialog.getWindow().setGravity(Gravity.CENTER);
+			dialog.show();
 		}
 	}
 

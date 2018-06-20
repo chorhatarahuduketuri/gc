@@ -6,33 +6,35 @@ import android.content.DialogInterface;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 
 import com.example.gc.R;
 
-import dadeindustries.game.gc.model.GlobalGameData;
-
-import static dadeindustries.game.gc.model.GlobalGameData.galaxySizeX;
-import static dadeindustries.game.gc.model.GlobalGameData.galaxySizeY;
-
 public class Start extends Activity {
 
-	MediaPlayer mediaPlayer;
+	private MediaPlayer mediaPlayer;
 	private GalaxyView gv;
-	private GlobalGameData ggd;
+	private Button button;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		ggd = new GlobalGameData(galaxySizeX, galaxySizeY);
-		gv = new GalaxyView(this, ggd);
+		gv = (GalaxyView) findViewById(R.id.myview);
+        button = (Button)findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gv.endTurn();
+            }
+        });
 
 		mediaPlayer = MediaPlayer.create(this, R.raw.lj_kruzer_chantiers_navals);
 		mediaPlayer.setLooping(true);
 		mediaPlayer.start(); // TODO: switch to async preparation method
 
-		setContentView(gv);
 	}
 
 	@Override
