@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import dadeindustries.game.gc.model.FactionArtifacts.Ship;
+import dadeindustries.game.gc.model.FactionArtifacts.Unit;
 import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 import dadeindustries.game.gc.model.StellarPhenomenon.Phenomena.System;
 import dadeindustries.game.gc.model.Enums.Faction;
@@ -23,7 +24,6 @@ public class GlobalGameData {
 	public static int galaxySizeY = 10;
 	// Game data structures REFERENCE
 	public Sector[][] sectors = new Sector[GlobalGameData.galaxySizeX][GlobalGameData.galaxySizeY];
-	private Collection<Ship> ships = new ArrayList<Ship>();
 
 
 	//CONSTRUCTORS
@@ -42,13 +42,53 @@ public class GlobalGameData {
 	//FUNCTIONS
 	public boolean processTurn() {
 
-		//if turn fails, return false
+        ArrayList<PendingMove> pendingMoves = new ArrayList<PendingMove>();
+
+        /* For each sector of the galaxy */
+        for (int x = 0; x < galaxySizeX; x++) {
+            for (int y = 0; y < galaxySizeY; y++ ) {
+
+                /* Get the list of ships within the sector */
+                ArrayList<Unit> localships = sectors[x][y].getShips();
+
+                /* If there are any ships */
+                if (localships.size() > 0) {
+
+                    /* Then find ships with a set course */
+                    for (int u = 0; u < localships.size(); u++) {
+                        Cood currentCoods = new Cood(x, y);
+                        Cood destCoods = localships.get(u).continueCourse();
+
+                        /* If any ship has a course set */
+                        if (destCoods != null) {
+                            Unit unit = localships.get(u);
+
+                            /* Prepare the move for this ship */
+                            pendingMoves.add(new PendingMove(unit, destCoods.x, destCoods.y));
+                            /* Remove ship from this sector */
+                            localships.remove(u);
+                        }
+                    }
+                }
+            }
+        }
+
+        for (PendingMove p : pendingMoves) {
+            Unit unit = p.unit;
+            unit.setSector(sectors[p.x][p.y]);
+            Log.wtf("Next: ", ""+p.x + "," +p.y);
+            sectors[p.x][p.y].addShip(unit);
+        }
+
+
+        //if turn fails, return false
 		return true;
 	}
 
 	private void loadTestShips() {
-		addShip(new Ship(sectors[2][2], Faction.UNITED_PLANETS, "HMS Douglas"));
-		addShip(new Ship(sectors[3][4], Faction.MORPHERS, "ISS Yuri"));
+		sectors[2][2].addShip( new Ship(sectors[2][2], Faction.UNITED_PLANETS, "HMS Douglas"));
+		sectors[3][4].addShip( new Ship(sectors[0][0], Faction.MORPHERS, "ISS Yuri"));
+		sectors[1][1].addShip( new Ship(sectors[1][1], Faction.UNITED_PLANETS, "USS Dade"));
 	}
 
 	private void loadTestPlanets() {
@@ -64,16 +104,22 @@ public class GlobalGameData {
 		}
 	}
 
-	public void addShip(Ship newship) {
-		ships.add(newship);
-	}
-
-	public Collection<Ship> getShips() {
-		return ships;
-	}
-
 	public Sector[][] getSectors() {
 		return sectors;
 	}
+
+
+    class PendingMove {
+        Unit unit;
+        public int x, y;
+
+
+        public PendingMove(Unit u, int destX, int destY) {
+            unit = u;
+            x = destX;
+            y = destY;
+        }
+    }
+
 
 }
