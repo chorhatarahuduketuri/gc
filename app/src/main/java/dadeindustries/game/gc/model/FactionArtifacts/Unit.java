@@ -1,10 +1,10 @@
 package dadeindustries.game.gc.model.FactionArtifacts;
 
 import android.util.Log;
-import dadeindustries.game.gc.model.GlobalGameData;
+
 import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 import dadeindustries.game.gc.model.Enums.Faction;
-import dadeindustries.game.gc.model.Cood;
+import dadeindustries.game.gc.model.Coordinate;
 import java.util.ArrayDeque;
 
 //all controllable units
@@ -19,7 +19,7 @@ public abstract class Unit {
 		side = faction;
 		unitName = shipname;
 		this.currentLocation = currentLocation;
-        course = new ArrayDeque<Cood>();
+        course = new ArrayDeque<Coordinate>();
     }
 
 	public int getX() {
@@ -47,7 +47,7 @@ public abstract class Unit {
 //		,RAID
 	}
 
-    private ArrayDeque<Cood> course;
+    private ArrayDeque<Coordinate> course;
 
     public void setCourse(int destX, int destY) {
 
@@ -73,7 +73,7 @@ public abstract class Unit {
                 srcX++;
             }
             Log.wtf("Plotting", srcX + "," + srcY);
-            course.add(new Cood(srcX, srcY));
+            course.add(new Coordinate(srcX, srcY));
         }
 
         while (destX <= srcX) {
@@ -93,13 +93,13 @@ public abstract class Unit {
             }
 
             Log.wtf("Plotting",  srcX + "," + srcY);
-            course.add(new Cood(srcX, srcY));
+            course.add(new Coordinate(srcX, srcY));
 
         }
         Log.wtf("Plotting", "Finished");
     }
 
-    public Cood continueCourse() {
+    public Coordinate continueCourse() {
         if (!course.isEmpty()) {
             return course.remove();
         } else {

@@ -3,7 +3,6 @@ package dadeindustries.game.gc.model;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import dadeindustries.game.gc.model.FactionArtifacts.Ship;
 import dadeindustries.game.gc.model.FactionArtifacts.Unit;
@@ -56,8 +55,8 @@ public class GlobalGameData {
 
                     /* Then find ships with a set course */
                     for (int u = 0; u < localships.size(); u++) {
-                        Cood currentCoods = new Cood(x, y);
-                        Cood destCoods = localships.get(u).continueCourse();
+                        Coordinate currentCoods = new Coordinate(x, y);
+                        Coordinate destCoods = localships.get(u).continueCourse();
 
                         /* If any ship has a course set */
                         if (destCoods != null) {
