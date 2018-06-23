@@ -56,6 +56,8 @@ public abstract class Unit {
         int srcX = getX();
         int srcY = getY();
 
+        course.clear(); // Remove any previous course
+
         while (srcX < destX) {
 
             if (srcY == destY) {
