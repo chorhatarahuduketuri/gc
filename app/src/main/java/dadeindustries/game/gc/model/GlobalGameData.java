@@ -55,8 +55,8 @@ public class GlobalGameData {
 
                     /* Then find ships with a set course */
                     for (int u = 0; u < localships.size(); u++) {
-                        Coordinate currentCoods = new Coordinate(x, y);
-                        Coordinate destCoods = localships.get(u).continueCourse();
+                        Coordinates currentCoods = new Coordinates(x, y);
+                        Coordinates destCoods = localships.get(u).continueCourse();
 
                         /* If any ship has a course set */
                         if (destCoods != null) {

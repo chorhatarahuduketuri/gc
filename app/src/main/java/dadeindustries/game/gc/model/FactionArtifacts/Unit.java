@@ -4,7 +4,7 @@ import android.util.Log;
 
 import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 import dadeindustries.game.gc.model.Enums.Faction;
-import dadeindustries.game.gc.model.Coordinate;
+import dadeindustries.game.gc.model.Coordinates;
 import java.util.ArrayDeque;
 
 //all controllable units
@@ -19,7 +19,7 @@ public abstract class Unit {
 		side = faction;
 		unitName = shipname;
 		this.currentLocation = currentLocation;
-        course = new ArrayDeque<Coordinate>();
+        course = new ArrayDeque<Coordinates>();
     }
 
 	public int getX() {
@@ -47,7 +47,7 @@ public abstract class Unit {
 //		,RAID
 	}
 
-    private ArrayDeque<Coordinate> course;
+    private ArrayDeque<Coordinates> course;
 
     public void setCourse(int destX, int destY) {
 
@@ -73,7 +73,7 @@ public abstract class Unit {
                 srcX++;
             }
             Log.wtf("Plotting", srcX + "," + srcY);
-            course.add(new Coordinate(srcX, srcY));
+            course.add(new Coordinates(srcX, srcY));
         }
 
         while (destX <= srcX) {
@@ -93,13 +93,13 @@ public abstract class Unit {
             }
 
             Log.wtf("Plotting",  srcX + "," + srcY);
-            course.add(new Coordinate(srcX, srcY));
+            course.add(new Coordinates(srcX, srcY));
 
         }
         Log.wtf("Plotting", "Finished");
     }
 
-    public Coordinate continueCourse() {
+    public Coordinates continueCourse() {
         if (!course.isEmpty()) {
             return course.remove();
         } else {
