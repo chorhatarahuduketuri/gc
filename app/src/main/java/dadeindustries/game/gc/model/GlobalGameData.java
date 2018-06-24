@@ -21,6 +21,8 @@ public class GlobalGameData {
 	//FIELDS
 	public static int galaxySizeX = 10;
 	public static int galaxySizeY = 10;
+	private static int turn = 0;
+	private static int playerCredits = 0;
 	// Game data structures REFERENCE
 	public Sector[][] sectors = new Sector[GlobalGameData.galaxySizeX][GlobalGameData.galaxySizeY];
 
@@ -40,6 +42,8 @@ public class GlobalGameData {
 
 	//FUNCTIONS
 	public boolean processTurn() {
+
+		turn++;
 
         ArrayList<PendingMove> pendingMoves = new ArrayList<PendingMove>();
 
@@ -120,5 +124,11 @@ public class GlobalGameData {
         }
     }
 
+    public int getTurn() {
+		return turn;
+	}
 
+	public int getPlayerCredits() {
+		return playerCredits;
+	}
 }
