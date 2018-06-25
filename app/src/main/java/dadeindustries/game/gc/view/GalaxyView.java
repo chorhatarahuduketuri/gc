@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.media.MediaPlayer;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -64,9 +65,17 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private int currentY = -1;
 	private Rect r = new Rect();
 
+	private MediaPlayer sound_yessir, sound_reporting, sound_setting_course;
+
 	public GalaxyView(Context context, GlobalGameData ggd) {
 		super(context);
 		ctxt = context;
+
+		/* Load sound effects */
+		sound_yessir = MediaPlayer.create(context, R.raw.yessir);
+		sound_reporting = MediaPlayer.create(context, R.raw.reporting);
+		sound_setting_course = MediaPlayer.create(context, R.raw.setting_course);
+
 		DisplayMetrics metrics = getResources().getDisplayMetrics();
 		displayWidth = metrics.widthPixels;
 		displayHeight = metrics.heightPixels;
@@ -354,6 +363,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				switch (which) {
 					case 0:
 						Toast.makeText(ctxt, "Move where?", Toast.LENGTH_LONG).show();
+						sound_setting_course.start();
 					default:
 						Log.wtf("Clicked ", "" + which);
 
@@ -364,6 +374,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		// If a ship is selected then show the menu
 		if (isShipSelected(currentX, currentY)) {
 			builder.show();
+			sound_yessir.start();
 		}
 	}
 
