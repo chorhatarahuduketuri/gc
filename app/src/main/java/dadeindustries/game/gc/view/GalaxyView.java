@@ -11,6 +11,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.media.MediaPlayer;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -61,7 +62,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
     // View.OnTouchListener gestureListener;
 
-	private GlobalGameData globalGameData;
+	private MediaPlayer sound_yessir, sound_reporting, sound_setting_course;
+
+    private GlobalGameData globalGameData;
 
     private int currentX = -1;
     private int currentY = -1;
@@ -85,6 +88,12 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
     public void init(Context context) {
         GlobalGameData globalGameData = new GlobalGameData(10, 10);
         ctxt = context;
+
+        /* Load sound effects */
+        sound_yessir = MediaPlayer.create(context, R.raw.yessir);
+        sound_reporting = MediaPlayer.create(context, R.raw.reporting);
+        sound_setting_course = MediaPlayer.create(context, R.raw.setting_course);
+
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         displayWidth = metrics.widthPixels;
         displayHeight = metrics.heightPixels;
@@ -410,6 +419,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
                     case 0:
                         SELECT_MODE = 1;
                         selectedShip = getSelectedShip(currentX, currentY);
+                        sound_setting_course.start();
                     default:
                         Log.wtf("Clicked ", "" + which);
 
@@ -424,6 +434,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
             dialog.getWindow().setLayout(100, WRAP_CONTENT);
             //dialog.getWindow().setGravity(Gravity.CENTER);
             dialog.show();
+            sound_yessir.start();
         }
     }
 
