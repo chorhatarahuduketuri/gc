@@ -282,6 +282,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
                 selectedShip.setCourse(gameCoods.x, gameCoods.y);
                 SELECT_MODE = 0;
                 makeToast("Set a course for " + currentX + "," + currentY + "!");
+                sound_setting_course.start();
             }
 
             // if ship is selected
@@ -419,7 +420,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
                     case 0:
                         SELECT_MODE = 1;
                         selectedShip = getSelectedShip(currentX, currentY);
-                        sound_setting_course.start();
                     default:
                         Log.wtf("Clicked ", "" + which);
 
