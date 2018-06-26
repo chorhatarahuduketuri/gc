@@ -17,7 +17,7 @@ public class Sector {
 	private int x;
 	private int y;
 
-	public ArrayList<Unit> ships = new ArrayList<Unit>();
+	public ArrayList<Unit> units = new ArrayList<Unit>();
 
 	public Sector(int x, int y) {
 		this.x = x;
@@ -51,15 +51,15 @@ public class Sector {
 	}
 
 	public void addShip(Unit s) {
-		ships.add(s);
+		units.add(s);
 	}
 
-	public ArrayList<Unit> getShips() {
-		return ships;
+	public ArrayList<Unit> getUnits() {
+		return units;
 	}
 
 	public boolean hasShips() {
-		if (ships.size() > 0) {
+		if (units.size() > 0) {
 			return true;
 		} else {
 			return false;

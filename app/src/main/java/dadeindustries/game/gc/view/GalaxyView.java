@@ -15,7 +15,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,13 +27,10 @@ import com.example.gc.R;
 
 import java.util.ArrayList;
 
+import dadeindustries.game.gc.mechanics.turn.TurnProcessor;
 import dadeindustries.game.gc.model.FactionArtifacts.Unit;
 import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
-import dadeindustries.game.gc.model.FactionArtifacts.Ship;
-
-import static dadeindustries.game.gc.model.Enums.Faction.MORPHERS;
-import static dadeindustries.game.gc.model.Enums.Faction.UNITED_PLANETS;
 
 public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
@@ -62,11 +58,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
     private Bitmap mo = null; // Morphers emblem bitmap
     private Bitmap p1, p2 = null;
     private GestureDetector gestureDetector;
-    private GlobalGameData ggd;
 
     // View.OnTouchListener gestureListener;
 
-    private GlobalGameData globalGameData;
+	private GlobalGameData globalGameData;
 
     private int currentX = -1;
     private int currentY = -1;
@@ -88,7 +83,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
     }
 
     public void init(Context context) {
-        GlobalGameData ggd = new GlobalGameData(10, 10);
+        GlobalGameData globalGameData = new GlobalGameData(10, 10);
         ctxt = context;
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         displayWidth = metrics.widthPixels;
@@ -99,8 +94,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
         paint.setColor(Color.WHITE);
         paint.setStrokeWidth(3);
         loadBitmaps();
-        globalGameData = ggd;
-        sectors = ggd.sectors;
+        this.globalGameData = globalGameData;
+        sectors = globalGameData.sectors;
 
         // Enable gesture detection
         gestureDetector = new GestureDetector(ctxt, new GestureListener());
@@ -116,10 +111,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
         setViewPortPosition(0, 0);
     }
 
-    public void endTurn() {
-        globalGameData.processTurn();
-        invalidate();
-    }
+	public GlobalGameData getGlobalGameData() {
+		return globalGameData;
+	}
 
     private void loadBitmaps() {
         up = BitmapFactory.decodeResource(getResources(), R.drawable.up);
@@ -183,7 +177,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
             }
         }
 
-        // ships
+        // units
         for (i = 0; i < GlobalGameData.galaxySizeX; i++) {
             for (j = 0; j < GlobalGameData.galaxySizeY; j++) {
 
@@ -207,10 +201,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
                     r.right = x + SQUARE_SIZE / 2;
                     r.bottom = y + SQUARE_SIZE / 2;
 
-                    // TODO: Need to handle case where multiple ships in the same
+                    // TODO: Need to handle case where multiple units in the same
                     // system
 
-                    ArrayList<Unit> ships = sectors[i][j].getShips();
+                    ArrayList<Unit> ships = sectors[i][j].getUnits();
                     for (Unit ship : ships) {
 
                         switch (ship.getFaction()) {
@@ -351,7 +345,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
     Unit getSelectedShip(int x, int y) {
         Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
 
-        return sectors[gameCoods.x][gameCoods.y].getShips().get(0);
+        return sectors[gameCoods.x][gameCoods.y].getUnits().get(0);
     }
 
     boolean isSystemSelected(int x, int y) {
@@ -398,7 +392,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
     /**
      * A popup menu that gives the player some options about the entity
-     * TODO: This should eventually be generic to handle ships, planets, and other
+     * TODO: This should eventually be generic to handle units, planets, and other
      * things.
      */
     void showMenu() {
