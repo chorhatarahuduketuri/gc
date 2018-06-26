@@ -2,13 +2,11 @@ package dadeindustries.game.gc.model;
 
 import android.util.Log;
 
-import java.util.ArrayList;
-
+import dadeindustries.game.gc.model.Enums.Faction;
 import dadeindustries.game.gc.model.FactionArtifacts.Ship;
 import dadeindustries.game.gc.model.FactionArtifacts.Unit;
-import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 import dadeindustries.game.gc.model.StellarPhenomenon.Phenomena.System;
-import dadeindustries.game.gc.model.Enums.Faction;
+import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 
 /**
  * whereupon the overall definition of the universe is held.
@@ -19,6 +17,7 @@ import dadeindustries.game.gc.model.Enums.Faction;
 public class GlobalGameData {
 
 	//FIELDS
+
 	public static int galaxySizeX = 10;
 	public static int galaxySizeY = 10;
 	private static int turn = 0;
@@ -28,6 +27,7 @@ public class GlobalGameData {
 
 
 	//CONSTRUCTORS
+
 	public GlobalGameData(int x, int y) {
 		galaxySizeX = x;
 		galaxySizeY = y;
@@ -41,57 +41,11 @@ public class GlobalGameData {
 	}
 
 	//FUNCTIONS
-	public boolean processTurn() {
-
-		turn++;
-
-        ArrayList<PendingMove> pendingMoves = new ArrayList<PendingMove>();
-
-        /* For each sector of the galaxy */
-        for (int x = 0; x < galaxySizeX; x++) {
-            for (int y = 0; y < galaxySizeY; y++ ) {
-
-                /* Get the list of ships within the sector */
-                ArrayList<Unit> localships = sectors[x][y].getShips();
-
-                /* If there are any ships */
-                if (localships.size() > 0) {
-
-                    /* Then find ships with a set course */
-                    for (int u = 0; u < localships.size(); u++) {
-                        Coordinates currentCoods = new Coordinates(x, y);
-                        Coordinates destCoods = localships.get(u).continueCourse();
-
-                        /* If any ship has a course set */
-                        if (destCoods != null) {
-                            Unit unit = localships.get(u);
-
-                            /* Prepare the move for this ship */
-                            pendingMoves.add(new PendingMove(unit, destCoods.x, destCoods.y));
-                            /* Remove ship from this sector */
-                            localships.remove(u);
-                        }
-                    }
-                }
-            }
-        }
-
-        for (PendingMove p : pendingMoves) {
-            Unit unit = p.unit;
-            unit.setSector(sectors[p.x][p.y]);
-            Log.wtf("Next: ", ""+p.x + "," +p.y);
-            sectors[p.x][p.y].addShip(unit);
-        }
-
-
-        //if turn fails, return false
-		return true;
-	}
 
 	private void loadTestShips() {
-		sectors[2][2].addShip( new Ship(sectors[2][2], Faction.UNITED_PLANETS, "HMS Douglas"));
-		sectors[3][4].addShip( new Ship(sectors[0][0], Faction.MORPHERS, "ISS Yuri"));
-		sectors[1][1].addShip( new Ship(sectors[1][1], Faction.UNITED_PLANETS, "USS Dade"));
+		sectors[2][2].addShip(new Ship(sectors[2][2], Faction.UNITED_PLANETS, "HMS Douglas"));
+		sectors[3][4].addShip(new Ship(sectors[0][0], Faction.MORPHERS, "ISS Yuri"));
+		sectors[1][1].addShip(new Ship(sectors[1][1], Faction.UNITED_PLANETS, "USS Dade"));
 	}
 
 	private void loadTestPlanets() {
@@ -100,7 +54,7 @@ public class GlobalGameData {
 
 		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
-				if (sectors[i][j].hasSystem() == true) {
+				if (sectors[i][j].hasSystem()) {
 					Log.wtf("Planet loaded", "Planet loaded at " + i + "," + j);
 				}
 			}
@@ -111,24 +65,17 @@ public class GlobalGameData {
 		return sectors;
 	}
 
-
-    class PendingMove {
-        Unit unit;
-        public int x, y;
-
-
-        public PendingMove(Unit u, int destX, int destY) {
-            unit = u;
-            x = destX;
-            y = destY;
-        }
-    }
-
-    public int getTurn() {
+	public int getTurn() {
 		return turn;
+	}
+
+	public static void setTurn(int turn) {
+		GlobalGameData.turn = turn;
 	}
 
 	public int getPlayerCredits() {
 		return playerCredits;
 	}
+
+
 }

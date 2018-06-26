@@ -11,23 +11,28 @@ import android.widget.Button;
 
 import com.example.gc.R;
 
+import dadeindustries.game.gc.mechanics.turn.TurnProcessor;
+
 public class Start extends Activity {
 
 	private MediaPlayer mediaPlayer;
-	private GalaxyView gv;
+	private GalaxyView galaxyView;
 	private Button button;
+	private TurnProcessor turnProcessor;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		gv = (GalaxyView) findViewById(R.id.myview);
+		galaxyView = (GalaxyView) findViewById(R.id.myview);
         button = (Button)findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                gv.endTurn();
+				turnProcessor = new TurnProcessor();
+                turnProcessor.endTurn(galaxyView.getGlobalGameData());
+                galaxyView.invalidate();
             }
         });
 
