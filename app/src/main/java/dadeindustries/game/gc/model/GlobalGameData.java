@@ -4,7 +4,6 @@ import android.util.Log;
 
 import dadeindustries.game.gc.model.Enums.Faction;
 import dadeindustries.game.gc.model.FactionArtifacts.Ship;
-import dadeindustries.game.gc.model.FactionArtifacts.Unit;
 import dadeindustries.game.gc.model.StellarPhenomenon.Phenomena.System;
 import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 
@@ -36,21 +35,21 @@ public class GlobalGameData {
 				sectors[i][j] = new Sector(i, j);
 			}
 		}
-		loadTestShips();
-		loadTestPlanets();
+		insertTestShips();
+		insertTestSystems();
 	}
 
 	//FUNCTIONS
 
-	private void loadTestShips() {
+	private void insertTestShips() {
 		sectors[2][2].addShip(new Ship(sectors[2][2], Faction.UNITED_PLANETS, "HMS Douglas"));
-		sectors[3][4].addShip(new Ship(sectors[0][0], Faction.MORPHERS, "ISS Yuri"));
+		sectors[2][3].addShip(new Ship(sectors[2][3], Faction.MORPHERS, "ISS Yuri"));
 		sectors[1][1].addShip(new Ship(sectors[1][1], Faction.UNITED_PLANETS, "USS Dade"));
 	}
 
-	private void loadTestPlanets() {
-		sectors[3][4] = new Sector(2, 3, new System("Planet X", 3, 4));
-		sectors[4][4] = new Sector(3, 3, new System("Planet Y", 3, 4));
+	private void insertTestSystems() {
+		sectors[2][3].setSystem(new System("Planet X", 2, 3));
+		sectors[3][3].setSystem(new System("Planet Y", 3, 3));
 
 		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
