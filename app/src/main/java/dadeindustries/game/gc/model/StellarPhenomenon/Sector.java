@@ -42,6 +42,10 @@ public class Sector {
 		return system;
 	}
 
+	public void setSystem(System system) {
+		this.system = system;
+	}
+
 	public int getX() {
 		return x;
 	}
