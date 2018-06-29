@@ -259,7 +259,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
         // Put text in top left corner indicating the current turn number
         canvas.drawText("Turn " + globalGameData.getTurn(), viewPort.x + PADDING, viewPort.y + PADDING*3, paint);
-        canvas.drawText("Credits " + globalGameData.getPlayerCredits(), viewPort.x + PADDING, viewPort.y + PADDING*3*2, paint);
+	    canvas.drawText("Credits " + globalGameData.getHumanPlayerCredits(), viewPort.x + PADDING, viewPort.y + PADDING * 3 * 2, paint);
 
     }
 
@@ -418,11 +418,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
                 // the user clicked on colors[which]
                 switch (which) {
                     case 0:
-                        SELECT_MODE = 1;
-                        selectedShip = getSelectedShip(currentX, currentY);
+						selectedShip = (GlobalGameData.isHumanFaction(getSelectedShip(currentX, currentY).getFaction()) ? getSelectedShip(currentX, currentY) : null);
+						SELECT_MODE = (selectedShip != null) ? 1 : 0;
                     default:
                         Log.wtf("Clicked ", "" + which);
-
                 }
             }
         });

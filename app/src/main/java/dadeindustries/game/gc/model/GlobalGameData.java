@@ -2,8 +2,13 @@ package dadeindustries.game.gc.model;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+
+import dadeindustries.game.gc.model.Enums.Extant;
 import dadeindustries.game.gc.model.Enums.Faction;
+import dadeindustries.game.gc.model.Enums.Intelligence;
 import dadeindustries.game.gc.model.FactionArtifacts.Ship;
+import dadeindustries.game.gc.model.Players.Player;
 import dadeindustries.game.gc.model.StellarPhenomenon.Phenomena.System;
 import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 
@@ -19,11 +24,9 @@ public class GlobalGameData {
 
 	public static int galaxySizeX = 10;
 	public static int galaxySizeY = 10;
+	public static Sector[][] sectors = new Sector[GlobalGameData.galaxySizeX][GlobalGameData.galaxySizeY];
+	public static ArrayList<Player> players = new ArrayList<Player>();
 	private static int turn = 0;
-	private static int playerCredits = 0;
-	// Game data structures REFERENCE
-	public Sector[][] sectors = new Sector[GlobalGameData.galaxySizeX][GlobalGameData.galaxySizeY];
-
 
 	//CONSTRUCTORS
 
@@ -37,9 +40,15 @@ public class GlobalGameData {
 		}
 		insertTestShips();
 		insertTestSystems();
+		createTestPlayers();
 	}
 
 	//FUNCTIONS
+
+	private void createTestPlayers() {
+		players.add(new Player(Faction.UNITED_PLANETS, Intelligence.HUMAN, Extant.EXISTENT, 10));
+		players.add(new Player(Faction.MORPHERS, Intelligence.ARTIFICIAL, Extant.EXISTENT, 10));
+	}
 
 	private void insertTestShips() {
 		sectors[2][2].addShip(new Ship(sectors[2][2], Faction.UNITED_PLANETS, "HMS Douglas"));
@@ -72,9 +81,22 @@ public class GlobalGameData {
 		GlobalGameData.turn = turn;
 	}
 
-	public int getPlayerCredits() {
-		return playerCredits;
+	// Assumes there is exactly one human player.
+	public int getHumanPlayerCredits() {
+		for (Player p : players) {
+			if (p.getIntelligence().equals(Intelligence.HUMAN)) {
+				return p.getCredits();
+			}
+		}
+		return 0;
 	}
 
-
+	public static boolean isHumanFaction(Faction faction) {
+		for (Player p : players) {
+			if (p.getFaction().equals(faction)) {
+				return p.getIntelligence().equals(Intelligence.HUMAN);
+			}
+		}
+		return false;
+	}
 }
