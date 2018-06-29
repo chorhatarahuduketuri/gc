@@ -17,7 +17,7 @@ public class Sector {
 	private int x;
 	private int y;
 
-	public ArrayList<Unit> units = new ArrayList<Unit>();
+	private ArrayList<Unit> units = new ArrayList<Unit>();
 
 	public Sector(int x, int y) {
 		this.x = x;

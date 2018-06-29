@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
+import dadeindustries.game.gc.ai.Mind;
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.FactionArtifacts.Unit;
@@ -13,11 +14,25 @@ import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 public class TurnProcessor {
 
 	public void endTurn(GlobalGameData globalGameData) {
-		processTurn(globalGameData, globalGameData.sectors);
+		computeAiTurns(globalGameData);
+		processTurn(globalGameData);
 	}
 
-	//FUNCTIONS
-	public boolean processTurn(GlobalGameData globalGameData, Sector[][] sectors) {
+	private void computeAiTurns(GlobalGameData globalGameData) {
+		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
+			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
+				for (Unit u : globalGameData.getSectors()[x][y].getUnits()) {
+					for (Mind m : globalGameData.getMinds()) {
+						if (m.getPlayer().getFaction().equals(u.getFaction())) {
+							m.giveOrder(u);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public boolean processTurn(GlobalGameData globalGameData) {
 
 		GlobalGameData.setTurn(globalGameData.getTurn() + 1);
 
@@ -26,17 +41,15 @@ public class TurnProcessor {
 		/* For each sector of the galaxy */
 		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
 			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
-				processUnitActions(sectors[x][y], pendingMoves, x, y);
-
-
+				processUnitActions(globalGameData.getSectors()[x][y], pendingMoves, x, y);
 			}
 		}
 
 		for (PendingMove p : pendingMoves) {
 			Unit unit = p.getUnit();
-			unit.setSector(sectors[p.getX()][p.getY()]);
+			unit.setSector(globalGameData.getSectors()[p.getX()][p.getY()]);
 			Log.wtf("Next: ", "" + p.getX() + "," + p.getY());
-			sectors[p.getX()][p.getY()].addShip(unit);
+			globalGameData.getSectors()[p.getX()][p.getY()].addShip(unit);
 		}
 
 
@@ -68,6 +81,10 @@ public class TurnProcessor {
 		}
 	}
 
+	/**
+	 * PendingMove
+	 * This describes a move that a unit has been ordered to make, and is yet to be executed.
+	 */
 	public class PendingMove {
 		private Unit unit;
 		private int x, y;
@@ -83,24 +100,12 @@ public class TurnProcessor {
 			return unit;
 		}
 
-		public void setUnit(Unit unit) {
-			this.unit = unit;
-		}
-
 		public int getX() {
 			return x;
 		}
 
-		public void setX(int x) {
-			this.x = x;
-		}
-
 		public int getY() {
 			return y;
-		}
-
-		public void setY(int y) {
-			this.y = y;
 		}
 	}
 }
