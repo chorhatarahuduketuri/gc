@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
+import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.FactionArtifacts.Unit;
 import dadeindustries.game.gc.model.GlobalGameData;
@@ -52,8 +53,7 @@ public class TurnProcessor {
 
 			/* Then find units with a set course */
 			for (int u = 0; u < localShips.size(); u++) {
-				Coordinates currentCoordinates = new Coordinates(x, y);
-				Coordinates destinationCoordinates = localShips.get(u).continueCourse();
+				Coordinates destinationCoordinates = UnitActions.continueCourse(localShips.get(u));
 
 				/* If any ship has a course set */
 				if (destinationCoordinates != null) {

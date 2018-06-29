@@ -10,8 +10,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.util.AttributeSet;
 import android.media.MediaPlayer;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -28,7 +28,7 @@ import com.example.gc.R;
 
 import java.util.ArrayList;
 
-import dadeindustries.game.gc.mechanics.turn.TurnProcessor;
+import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.FactionArtifacts.Unit;
 import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
@@ -279,7 +279,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
             if (SELECT_MODE == 1) {
                 Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
-                selectedShip.setCourse(gameCoods.x, gameCoods.y);
+				UnitActions.setCourse(selectedShip, gameCoods.x, gameCoods.y);
                 SELECT_MODE = 0;
                 makeToast("Set a course for " + currentX + "," + currentY + "!");
                 sound_setting_course.start();
