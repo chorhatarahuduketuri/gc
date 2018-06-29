@@ -259,7 +259,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
         // Put text in top left corner indicating the current turn number
         canvas.drawText("Turn " + globalGameData.getTurn(), viewPort.x + PADDING, viewPort.y + PADDING*3, paint);
-        canvas.drawText("Credits " + globalGameData.getPlayerCredits(), viewPort.x + PADDING, viewPort.y + PADDING*3*2, paint);
+	    canvas.drawText("Credits " + globalGameData.getHumanPlayerCredits(), viewPort.x + PADDING, viewPort.y + PADDING * 3 * 2, paint);
 
     }
 
