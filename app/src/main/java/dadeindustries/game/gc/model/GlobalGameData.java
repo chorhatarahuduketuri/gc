@@ -24,9 +24,9 @@ public class GlobalGameData {
 
 	public static int galaxySizeX = 10;
 	public static int galaxySizeY = 10;
+	public static Sector[][] sectors = new Sector[GlobalGameData.galaxySizeX][GlobalGameData.galaxySizeY];
+	public static ArrayList<Player> players = new ArrayList<Player>();
 	private static int turn = 0;
-	public Sector[][] sectors = new Sector[GlobalGameData.galaxySizeX][GlobalGameData.galaxySizeY];
-	public ArrayList<Player> players = new ArrayList<Player>();
 
 	//CONSTRUCTORS
 
@@ -89,5 +89,14 @@ public class GlobalGameData {
 			}
 		}
 		return 0;
+	}
+
+	public static boolean isHumanFaction(Faction faction) {
+		for (Player p : players) {
+			if (p.getFaction().equals(faction)) {
+				return p.getIntelligence().equals(Intelligence.HUMAN);
+			}
+		}
+		return false;
 	}
 }

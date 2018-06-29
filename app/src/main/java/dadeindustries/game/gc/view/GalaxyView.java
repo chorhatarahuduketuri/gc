@@ -418,11 +418,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
                 // the user clicked on colors[which]
                 switch (which) {
                     case 0:
-                        SELECT_MODE = 1;
-                        selectedShip = getSelectedShip(currentX, currentY);
+						selectedShip = (GlobalGameData.isHumanFaction(getSelectedShip(currentX, currentY).getFaction()) ? getSelectedShip(currentX, currentY) : null);
+						SELECT_MODE = (selectedShip != null) ? 1 : 0;
                     default:
                         Log.wtf("Clicked ", "" + which);
-
                 }
             }
         });
