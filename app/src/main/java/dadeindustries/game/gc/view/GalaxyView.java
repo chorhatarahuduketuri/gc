@@ -104,7 +104,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
         paint.setStrokeWidth(3);
         loadBitmaps();
         this.globalGameData = globalGameData;
-        sectors = globalGameData.sectors;
+        sectors = globalGameData.getSectors();
 
         // Enable gesture detection
         gestureDetector = new GestureDetector(ctxt, new GestureListener());
