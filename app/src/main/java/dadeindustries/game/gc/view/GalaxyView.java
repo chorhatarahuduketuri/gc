@@ -37,7 +37,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
     private static final int PADDING = 10;
     // Display details
-    private final static int NUM_SQUARES_IN_ROW = 5;
+    private static int NUM_SQUARES_IN_ROW = 4;
     private static int NUM_SQUARES_IN_COLUMN = 0;
     // Gesture stuff
     private static final int SWIPE_MIN_DISTANCE = 120;
@@ -97,6 +97,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         displayWidth = metrics.widthPixels;
         displayHeight = metrics.heightPixels;
+
+        NUM_SQUARES_IN_ROW = NUM_SQUARES_IN_ROW + ((displayWidth / 500) * 2);
+
         SQUARE_SIZE = displayWidth / NUM_SQUARES_IN_ROW;
         NUM_SQUARES_IN_COLUMN = displayHeight / SQUARE_SIZE;
         setBackgroundColor(Color.BLACK);
@@ -337,8 +340,14 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
         Toast.makeText(ctxt, s, Toast.LENGTH_SHORT).show();
     }
 
-    Point translateViewCoodsToGameCoods(int viewx, int viewy) {
+    private Point translateViewCoodsToGameCoods(int viewx, int viewy) {
         Point p = new Point(viewx + viewPort.x, viewy + viewPort.y);
+        if (p.x >= GlobalGameData.galaxySizeX) {
+            p.x = GlobalGameData.galaxySizeX - 1;
+        }
+        if (p.y >= GlobalGameData.galaxySizeY) {
+            p.y = GlobalGameData.galaxySizeY - 1;
+        }
         return p;
     }
 
@@ -347,7 +356,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
         Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
 
         if (sectors[gameCoods.x][gameCoods.y].hasShips()) {
-            return true;
+            for (Unit u : sectors[gameCoods.x][gameCoods.y].getUnits()) {
+                if (GlobalGameData.isHumanFaction((u.getFaction()))) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -362,6 +375,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
         Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
         Log.e("Co-od translation", "view coods (" + x + "," + y + ")" + "-> (" +
                 gameCoods.x + "," + gameCoods.y + ")");
+
+        if (gameCoods.x > GlobalGameData.galaxySizeX || gameCoods.y > GlobalGameData.galaxySizeY) {
+            return false;
+        }
 
         if (sectors[gameCoods.x][gameCoods.y].hasSystem()) {
             return true;
@@ -431,7 +448,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
             AlertDialog dialog = builder.create();
             int WRAP_CONTENT = ViewGroup.LayoutParams.WRAP_CONTENT;
             dialog.getWindow().setLayout(100, WRAP_CONTENT);
-            //dialog.getWindow().setGravity(Gravity.CENTER);
             dialog.show();
             sound_yessir.start();
         }
