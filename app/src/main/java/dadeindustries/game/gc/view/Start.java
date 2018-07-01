@@ -26,15 +26,15 @@ public class Start extends Activity {
 		setContentView(R.layout.activity_main);
 
 		galaxyView = (GalaxyView) findViewById(R.id.myview);
-        button = (Button)findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+		button = (Button) findViewById(R.id.button);
+		button.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
 				turnProcessor = new TurnProcessor();
-                turnProcessor.endTurn(galaxyView.getGlobalGameData());
-                galaxyView.invalidate();
-            }
-        });
+				turnProcessor.endTurn(galaxyView.getGlobalGameData());
+				galaxyView.invalidate();
+			}
+		});
 
 		mediaPlayer = MediaPlayer.create(this, R.raw.lj_kruzer_chantiers_navals);
 		mediaPlayer.setLooping(true);
