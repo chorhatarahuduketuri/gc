@@ -62,7 +62,7 @@ public class Start extends Activity {
 						event.getCoordinates().x + "," +
 						event.getCoordinates().y + ")")
 				.setMessage(event.getDescription())
-				.setIcon(R.drawable.up)
+				.setIcon(android.R.drawable.ic_dialog_alert)
 				.setPositiveButton("OK",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
