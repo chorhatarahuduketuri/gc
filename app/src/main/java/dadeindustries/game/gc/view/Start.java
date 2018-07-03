@@ -11,6 +11,9 @@ import android.widget.Button;
 
 import com.example.gc.R;
 
+import java.util.ArrayList;
+
+import dadeindustries.game.gc.mechanics.turn.Event;
 import dadeindustries.game.gc.mechanics.turn.TurnProcessor;
 
 public class Start extends Activity {
@@ -26,20 +29,48 @@ public class Start extends Activity {
 		setContentView(R.layout.activity_main);
 
 		galaxyView = (GalaxyView) findViewById(R.id.myview);
-        button = (Button)findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+		button = (Button) findViewById(R.id.button);
+		button.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
 				turnProcessor = new TurnProcessor();
-                turnProcessor.endTurn(galaxyView.getGlobalGameData());
-                galaxyView.invalidate();
-            }
-        });
+				ArrayList<Event> events = turnProcessor.endTurn(galaxyView.getGlobalGameData());
+				for (Event event : events) {
+					if (event.getEventType() == Event.EventType.BATTLE) {
+						showBattleReport(event);
+					}
+				}
+				galaxyView.invalidate();
+			}
+		});
 
 		mediaPlayer = MediaPlayer.create(this, R.raw.lj_kruzer_chantiers_navals);
 		mediaPlayer.setLooping(true);
 		mediaPlayer.start(); // TODO: switch to async preparation method
 
+	}
+
+	/**
+	 * Display information about event in GUI popup window (such as a battle report)
+	 *
+	 * @param event The event object with all the information
+	 */
+	public void showBattleReport(Event event) {
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+		alertDialogBuilder
+				.setTitle("Battle report (" +
+						event.getCoordinates().x + "," +
+						event.getCoordinates().y + ")")
+				.setMessage(event.getDescription())
+				.setIcon(R.drawable.up)
+				.setPositiveButton("OK",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								// Deliberately empty. Just dismisses the popup.
+							}
+						})
+				.create()
+				.show();
 	}
 
 	@Override
@@ -66,7 +97,6 @@ public class Start extends Activity {
 				.setPositiveButton("Yes",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-
 								finish();
 							}
 						})

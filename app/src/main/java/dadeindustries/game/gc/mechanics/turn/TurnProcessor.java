@@ -7,15 +7,16 @@ import java.util.ArrayList;
 import dadeindustries.game.gc.ai.Mind;
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.Coordinates;
+import dadeindustries.game.gc.model.Enums.Faction;
 import dadeindustries.game.gc.model.FactionArtifacts.Unit;
 import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 
 public class TurnProcessor {
 
-	public void endTurn(GlobalGameData globalGameData) {
+	public ArrayList<Event> endTurn(GlobalGameData globalGameData) {
 		computeAiTurns(globalGameData);
-		processTurn(globalGameData);
+		return processTurn(globalGameData);
 	}
 
 	private void computeAiTurns(GlobalGameData globalGameData) {
@@ -32,9 +33,35 @@ public class TurnProcessor {
 		}
 	}
 
-	public boolean processTurn(GlobalGameData globalGameData) {
+	private ArrayList<String> battleSummaries = new ArrayList<String>();
+
+	private Event processBattle(Sector s) {
+
+		int numberOfFactions = Faction.values().length;
+
+		// Create a separate unit list for each faction
+		ArrayList factions[] = new ArrayList[numberOfFactions];
+		for (int i = 0; i < numberOfFactions; i++) {
+			factions[i] = new ArrayList();
+		}
+
+		for (Unit u : s.getUnits()) {
+			factions[u.getFaction().ordinal()].add(u);
+		}
+
+		// TODO: add code here to pick: who shoots first, reduce ship health, remove ships, etc.
+
+		// Put result in an Event object and return it
+		Event result = new Event(Event.EventType.BATTLE, "Enemy ships encountered",
+				new Coordinates(s.getX(), s.getY()));
+		return result;
+	}
+
+	public ArrayList<Event> processTurn(GlobalGameData globalGameData) {
 
 		GlobalGameData.setTurn(globalGameData.getTurn() + 1);
+
+		ArrayList<Event> events = new ArrayList<Event>();
 
 		ArrayList<PendingMove> pendingMoves = new ArrayList<PendingMove>();
 
@@ -50,11 +77,19 @@ public class TurnProcessor {
 			unit.setSector(globalGameData.getSectors()[p.getX()][p.getY()]);
 			Log.wtf("Next: ", "" + p.getX() + "," + p.getY());
 			globalGameData.getSectors()[p.getX()][p.getY()].addShip(unit);
+
+			/* Detect if battles occur */
+			for (Unit u : globalGameData.getSectors()[p.getX()][p.getY()].getUnits()) {
+				/* If there are two opposing factions */
+				if (u.getFaction() != unit.getFaction()) {
+					events.add(processBattle(globalGameData.getSectors()[p.getX()][p.getY()]));
+				}
+			}
 		}
 
 
 		//if turn fails, return false
-		return true;
+		return events;
 	}
 
 	private void processUnitActions(Sector sector, ArrayList<PendingMove> pendingMoves, int x, int y) {
