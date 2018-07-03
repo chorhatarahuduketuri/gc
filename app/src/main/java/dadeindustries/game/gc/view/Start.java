@@ -18,7 +18,7 @@ import dadeindustries.game.gc.mechanics.turn.TurnProcessor;
 
 public class Start extends Activity {
 
-	private MediaPlayer mediaPlayer;
+	private MediaPlayer mediaPlayer, battleAlert;
 	private GalaxyView galaxyView;
 	private Button button;
 	private TurnProcessor turnProcessor;
@@ -45,6 +45,7 @@ public class Start extends Activity {
 		});
 
 		mediaPlayer = MediaPlayer.create(this, R.raw.lj_kruzer_chantiers_navals);
+		battleAlert = MediaPlayer.create(this, R.raw.redalert_klaxon_sttos_recreated_178032);
 		mediaPlayer.setLooping(true);
 		mediaPlayer.start(); // TODO: switch to async preparation method
 
@@ -71,6 +72,7 @@ public class Start extends Activity {
 						})
 				.create()
 				.show();
+		battleAlert.start();
 	}
 
 	@Override
