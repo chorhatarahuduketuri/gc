@@ -1,8 +1,9 @@
 package dadeindustries.game.gc.model.StellarPhenomenon;
 
+import java.util.ArrayList;
+
 import dadeindustries.game.gc.model.FactionArtifacts.Unit;
 import dadeindustries.game.gc.model.StellarPhenomenon.Phenomena.System;
-import java.util.ArrayList;
 
 public class Sector {
 
