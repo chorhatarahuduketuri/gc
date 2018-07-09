@@ -3,6 +3,8 @@ package dadeindustries.game.gc.mechanics.turn;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Random;
 
 import dadeindustries.game.gc.ai.Mind;
 import dadeindustries.game.gc.mechanics.units.UnitActions;
@@ -39,21 +41,41 @@ public class TurnProcessor {
 
 		int numberOfFactions = Faction.values().length;
 
-		// Create a separate unit list for each faction
-		ArrayList factions[] = new ArrayList[numberOfFactions];
-		for (int i = 0; i < numberOfFactions; i++) {
-			factions[i] = new ArrayList();
+		Event result = new Event(Event.EventType.BATTLE, "Enemy ships encountered",
+				new Coordinates(s.getX(), s.getY()));
+
+		assert(s.getUnits().size() > 1);
+
+		for (int i = 0; i < s.getUnits().size(); i++) {
+			int attack = s.getUnits().get(i).getAttackLevel();
+			int target = 0;
+
+			int j=i;
+
+			while (s.getUnits().get(j).getFaction() == s.getUnits().get(i).getFaction()) {
+				j++;
+				if (j >= s.getUnits().size()) {
+					target = 0;
+					j = 0;
+				}
+				else {
+					target = j;
+				}
+			}
+			s.getUnits().get(target).damage(attack);
+
+			// Put result in an Event object and return it
+			String log = s.getUnits().get(i).getShipName() + " attacked " +
+					s.getUnits().get(target).getShipName() + " with " + attack + " damage";
+			result.appendDescription(log);
+			Log.wtf("Battle", log);
 		}
 
 		for (Unit u : s.getUnits()) {
-			factions[u.getFaction().ordinal()].add(u);
+			if (u.getCurrentHP() <= 0) {
+				result.appendDescription(u.getShipName() + " was destroyed");
+			}
 		}
-
-		// TODO: add code here to pick: who shoots first, reduce ship health, remove ships, etc.
-
-		// Put result in an Event object and return it
-		Event result = new Event(Event.EventType.BATTLE, "Enemy ships encountered",
-				new Coordinates(s.getX(), s.getY()));
 		return result;
 	}
 
@@ -85,8 +107,19 @@ public class TurnProcessor {
 					events.add(processBattle(globalGameData.getSectors()[p.getX()][p.getY()]));
 				}
 			}
-		}
 
+			/* Remove dead ships */
+			Iterator<Unit> iterator = globalGameData.getSectors()[p.getX()][p.getY()].getUnits().iterator();
+
+			while(iterator.hasNext()) {
+				Unit aUnit = iterator.next();
+				if (aUnit.getCurrentHP() <= 0) {
+					Log.wtf("Battle", aUnit.getShipName()+" destroyed");
+
+					iterator.remove();
+				}
+			}
+		}
 
 		//if turn fails, return false
 		return events;

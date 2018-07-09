@@ -13,6 +13,8 @@ public abstract class Unit {
 	protected Faction faction;
 	protected String unitName = null;
 	private ArrayDeque<Coordinates> course;
+	private int attackLevel = 2;
+	private int currentHP = 4;
 
 	//CONSTRUCTORS
 	public Unit(Sector currentLocation, Faction faction, String shipname) {
@@ -57,6 +59,14 @@ public abstract class Unit {
 	public void clearCourse() {
 		course.clear();
 	}
+
+	public int getAttackLevel() { return attackLevel; };
+
+	public void damage(int hp) {
+		currentHP = currentHP - hp;
+	}
+
+	public int getCurrentHP() { return currentHP; };
 
 	private enum Order {
 		MOVE, SCUTTLE, COLONISE, BUILD_STARBASE, ATTACK_SYSTEM

@@ -25,6 +25,8 @@ public class Event {
 		return description;
 	}
 
+	public void appendDescription(String string) { description = description + "\n* " + string; };
+
 	public Coordinates getCoordinates() {
 		return coordinates;
 	}
