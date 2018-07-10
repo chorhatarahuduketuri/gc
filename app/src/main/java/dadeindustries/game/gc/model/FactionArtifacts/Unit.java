@@ -1,5 +1,7 @@
 package dadeindustries.game.gc.model.FactionArtifacts;
 
+import android.util.Log;
+
 import java.util.ArrayDeque;
 
 import dadeindustries.game.gc.model.Coordinates;
@@ -67,6 +69,8 @@ public abstract class Unit {
 	}
 
 	public int getCurrentHP() {
+
+		Log.wtf("Battle", getShipName() + " has " + currentHP + " HP");
 		return currentHP;
 	}
 }

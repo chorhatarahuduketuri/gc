@@ -88,13 +88,20 @@ public class UnitActions {
 					target = j;
 				}
 			}
-			sector.getUnits().get(target).damage(attack);
 
-			// Put result in an Event object
-			String log = sector.getUnits().get(i).getShipName() + " attacked " +
-					sector.getUnits().get(target).getShipName() + " with " + attack + " damage";
-			result.appendDescription(log);
-			Log.wtf("Battle", log);
+			/* If attacker is alive and well and if target is alive */
+			if ((sector.getUnits().get(i).getCurrentHP() > 0) &&
+					(sector.getUnits().get(target).getCurrentHP() > 0)) {
+
+				/* Damage the target */
+				sector.getUnits().get(target).damage(attack);
+
+				/* Put result in an Event object */
+				String log = sector.getUnits().get(i).getShipName() + " attacked " +
+						sector.getUnits().get(target).getShipName() + " with " + attack + " damage";
+				result.appendDescription(log);
+				Log.wtf("Battle", log);
+			}
 		}
 
 		for (Unit unit : sector.getUnits()) {
