@@ -8,7 +8,6 @@ import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 
 //all controllable units
 public abstract class Unit {
-	//FIELDS
 	protected Sector currentLocation;
 	protected Faction faction;
 	protected String unitName = null;
@@ -16,7 +15,6 @@ public abstract class Unit {
 	private int attackLevel = 2;
 	private int currentHP = 4;
 
-	//CONSTRUCTORS
 	public Unit(Sector currentLocation, Faction faction, String shipname) {
 		this.faction = faction;
 		unitName = shipname;
@@ -60,17 +58,15 @@ public abstract class Unit {
 		course.clear();
 	}
 
-	public int getAttackLevel() { return attackLevel; };
+	public int getAttackLevel() {
+		return attackLevel;
+	}
 
 	public void damage(int hp) {
 		currentHP = currentHP - hp;
 	}
 
-	public int getCurrentHP() { return currentHP; };
-
-	private enum Order {
-		MOVE, SCUTTLE, COLONISE, BUILD_STARBASE, ATTACK_SYSTEM
-//		,RAID
+	public int getCurrentHP() {
+		return currentHP;
 	}
-
 }

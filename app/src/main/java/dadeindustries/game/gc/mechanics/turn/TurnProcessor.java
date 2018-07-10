@@ -4,12 +4,10 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Random;
 
 import dadeindustries.game.gc.ai.Mind;
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.Coordinates;
-import dadeindustries.game.gc.model.Enums.Faction;
 import dadeindustries.game.gc.model.FactionArtifacts.Unit;
 import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
@@ -35,45 +33,38 @@ public class TurnProcessor {
 		}
 	}
 
-	private ArrayList<String> battleSummaries = new ArrayList<String>();
-
-	private Event processBattle(Sector s) {
-
-		int numberOfFactions = Faction.values().length;
+	private Event processBattle(Sector sector) {
 
 		Event result = new Event(Event.EventType.BATTLE, "Enemy ships encountered",
-				new Coordinates(s.getX(), s.getY()));
+				new Coordinates(sector.getX(), sector.getY()));
 
-		assert(s.getUnits().size() > 1);
-
-		for (int i = 0; i < s.getUnits().size(); i++) {
-			int attack = s.getUnits().get(i).getAttackLevel();
+		for (int i = 0; i < sector.getUnits().size(); i++) {
+			int attack = sector.getUnits().get(i).getAttackLevel();
 			int target = 0;
 
-			int j=i;
+			int j = i;
 
-			while (s.getUnits().get(j).getFaction() == s.getUnits().get(i).getFaction()) {
+			while (sector.getUnits().get(j).getFaction() == sector.getUnits().get(i).getFaction()) {
 				j++;
-				if (j >= s.getUnits().size()) {
+				if (j >= sector.getUnits().size()) {
 					target = 0;
 					j = 0;
-				}
-				else {
+				} else {
 					target = j;
 				}
 			}
-			s.getUnits().get(target).damage(attack);
+			sector.getUnits().get(target).damage(attack);
 
 			// Put result in an Event object and return it
-			String log = s.getUnits().get(i).getShipName() + " attacked " +
-					s.getUnits().get(target).getShipName() + " with " + attack + " damage";
+			String log = sector.getUnits().get(i).getShipName() + " attacked " +
+					sector.getUnits().get(target).getShipName() + " with " + attack + " damage";
 			result.appendDescription(log);
 			Log.wtf("Battle", log);
 		}
 
-		for (Unit u : s.getUnits()) {
-			if (u.getCurrentHP() <= 0) {
-				result.appendDescription(u.getShipName() + " was destroyed");
+		for (Unit unit : sector.getUnits()) {
+			if (unit.getCurrentHP() <= 0) {
+				result.appendDescription(unit.getShipName() + " was destroyed");
 			}
 		}
 		return result;
@@ -90,31 +81,31 @@ public class TurnProcessor {
 		/* For each sector of the galaxy */
 		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
 			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
-				processUnitActions(globalGameData.getSectors()[x][y], pendingMoves, x, y);
+				processUnitActions(globalGameData.getSectors()[x][y], pendingMoves);
 			}
 		}
 
-		for (PendingMove p : pendingMoves) {
-			Unit unit = p.getUnit();
-			unit.setSector(globalGameData.getSectors()[p.getX()][p.getY()]);
-			Log.wtf("Next: ", "" + p.getX() + "," + p.getY());
-			globalGameData.getSectors()[p.getX()][p.getY()].addShip(unit);
+		for (PendingMove pendingMove : pendingMoves) {
+			Unit pendingMoveUnit = pendingMove.getUnit();
+			pendingMoveUnit.setSector(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]);
+			Log.wtf("Next: ", "" + pendingMove.getX() + "," + pendingMove.getY());
+			globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].addShip(pendingMoveUnit);
 
 			/* Detect if battles occur */
-			for (Unit u : globalGameData.getSectors()[p.getX()][p.getY()].getUnits()) {
+			for (Unit unit : globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].getUnits()) {
 				/* If there are two opposing factions */
-				if (u.getFaction() != unit.getFaction()) {
-					events.add(processBattle(globalGameData.getSectors()[p.getX()][p.getY()]));
+				if (unit.getFaction() != pendingMoveUnit.getFaction()) {
+					events.add(processBattle(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]));
 				}
 			}
 
 			/* Remove dead ships */
-			Iterator<Unit> iterator = globalGameData.getSectors()[p.getX()][p.getY()].getUnits().iterator();
+			Iterator<Unit> iterator = globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].getUnits().iterator();
 
-			while(iterator.hasNext()) {
+			while (iterator.hasNext()) {
 				Unit aUnit = iterator.next();
 				if (aUnit.getCurrentHP() <= 0) {
-					Log.wtf("Battle", aUnit.getShipName()+" destroyed");
+					Log.wtf("Battle", aUnit.getShipName() + " destroyed");
 
 					iterator.remove();
 				}
@@ -125,7 +116,7 @@ public class TurnProcessor {
 		return events;
 	}
 
-	private void processUnitActions(Sector sector, ArrayList<PendingMove> pendingMoves, int x, int y) {
+	private void processUnitActions(Sector sector, ArrayList<PendingMove> pendingMoves) {
 		/* Get the list of units within the sector */
 		ArrayList<Unit> localShips = sector.getUnits();
 
