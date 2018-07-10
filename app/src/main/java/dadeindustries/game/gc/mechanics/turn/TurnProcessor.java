@@ -28,9 +28,9 @@ public class TurnProcessor {
 
 		ArrayList<PendingMove> pendingMoves = new ArrayList<PendingMove>();
 
-		processUnitActions(globalGameData, pendingMoves);
+		processUnitActions(globalGameData, pendingMoves); // handle unit movements
 
-		processPendingMoves(globalGameData, events, pendingMoves);
+		processPendingMoves(globalGameData, events, pendingMoves); // handle unit battles
 
 		return events;
 	}
@@ -49,6 +49,13 @@ public class TurnProcessor {
 		}
 	}
 
+	/**
+	 * The UI creates a finite number of "pending moves" per turn.
+	 * This method handles pending battles.
+	 * @param globalGameData The global state with all the sectors (there is only one instance)
+	 * @param events An existing list of events that can be appended to with new events.
+	 * @param pendingMoves A list of actions a player has made this turn.
+	 */
 	private void processPendingMoves(GlobalGameData globalGameData, ArrayList<Event> events, ArrayList<PendingMove> pendingMoves) {
 		for (PendingMove pendingMove : pendingMoves) {
 			Unit pendingMoveUnit = pendingMove.getUnit();
@@ -78,6 +85,13 @@ public class TurnProcessor {
 		}
 	}
 
+	/**
+	 * The UI creates a finite number of "pending moves" per turn.
+	 * A pending move may, for example, be a command to move a unit from sector to another.
+	 * This method look for units that require moving and adds them to the provided list.
+	 * @param globalGameData The global state with all the sectors (there is only one instance)
+	 * @param pendingMoves A list of actions a player has made this turn.
+	 */
 	private void processUnitActions(GlobalGameData globalGameData, ArrayList<PendingMove> pendingMoves) {
 		// For each sector of the galaxy
 		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
