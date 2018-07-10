@@ -13,7 +13,7 @@ import com.example.gc.R;
 
 import java.util.ArrayList;
 
-import dadeindustries.game.gc.mechanics.turn.Event;
+import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.mechanics.turn.TurnProcessor;
 
 public class Start extends Activity {

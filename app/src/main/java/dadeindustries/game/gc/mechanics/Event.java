@@ -1,4 +1,4 @@
-package dadeindustries.game.gc.mechanics.turn;
+package dadeindustries.game.gc.mechanics;
 
 import dadeindustries.game.gc.model.Coordinates;
 
