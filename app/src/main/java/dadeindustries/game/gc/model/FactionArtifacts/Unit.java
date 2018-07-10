@@ -8,16 +8,15 @@ import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 
 //all controllable units
 public abstract class Unit {
-	//FIELDS
+
 	protected Sector currentLocation;
 	protected Faction faction;
-	protected String unitName = null;
+	protected String unitName;
 	private ArrayDeque<Coordinates> course;
 
-	//CONSTRUCTORS
-	public Unit(Sector currentLocation, Faction faction, String shipname) {
+	public Unit(Sector currentLocation, Faction faction, String shipName) {
 		this.faction = faction;
-		unitName = shipname;
+		unitName = shipName;
 		this.currentLocation = currentLocation;
 		course = new ArrayDeque<Coordinates>();
 	}

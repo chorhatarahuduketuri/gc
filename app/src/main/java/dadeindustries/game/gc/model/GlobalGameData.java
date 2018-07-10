@@ -21,16 +21,12 @@ import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
  */
 public class GlobalGameData {
 
-	//FIELDS
-
 	public static int galaxySizeX = 10;
 	public static int galaxySizeY = 10;
 	private static Sector[][] sectors = new Sector[GlobalGameData.galaxySizeX][GlobalGameData.galaxySizeY];
 	private static ArrayList<Player> players = new ArrayList<Player>();
 	private static ArrayList<Mind> minds = new ArrayList<Mind>();
 	private static int turn = 0;
-
-	//CONSTRUCTORS
 
 	public GlobalGameData(int x, int y) {
 		galaxySizeX = x;
@@ -45,8 +41,6 @@ public class GlobalGameData {
 		createTestPlayers();
 		createTestMinds();
 	}
-
-	//FUNCTIONS
 
 	public static ArrayList<Player> getPlayers() {
 		return players;
