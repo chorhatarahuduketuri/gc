@@ -35,43 +35,32 @@ import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 
 public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
-	private static final int PADDING = 10;
-	// Gesture stuff
-	private static final int SWIPE_MIN_DISTANCE = 120;
-	private static final int SWIPE_MAX_OFF_PATH = 250;
-	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 	// Display details
 	private static int NUM_SQUARES_IN_ROW = 4;
 	private static int NUM_SQUARES_IN_COLUMN = 0;
 	private static int SQUARE_SIZE;
 
 	public Sector[][] sectors;
+
 	// co-ordinates of the top left of the viewport
 	// in real world co-ordinates
 	protected Point viewPort = new Point(2, 2);
-	// Game data structures REFERENCE
 	private Context ctxt; // needed for Toast debugging
 	private Paint paint = new Paint();
-	private int displayWidth = 0;
-	private int displayHeight = 0;
-	// Global Bitmaps
-	private Bitmap up = null; // UP emblem bitmap
-	private Bitmap mo = null; // Morphers emblem bitmap
-	private Bitmap p1, p2 = null;
-	private GestureDetector gestureDetector;
 
-	// View.OnTouchListener gestureListener;
+	// Global Bitmaps
+	private Bitmap up, mo, p1, p2; // Bitmap variables
+	private GestureDetector gestureDetector;
 
 	private MediaPlayer sound_yessir, sound_reporting, sound_setting_course;
 
 	private GlobalGameData globalGameData;
 
-	private int currentX = -1;
-	private int currentY = -1;
+	private int currentX, currentY;
 	private Rect r = new Rect();
 
 	private int SELECT_MODE = 0;
-	private Unit selectedShip = null;
+	private Unit selectedShip;
 
 
 	public GalaxyView(Context context) {
@@ -95,8 +84,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		sound_setting_course = MediaPlayer.create(context, R.raw.setting_course);
 
 		DisplayMetrics metrics = getResources().getDisplayMetrics();
-		displayWidth = metrics.widthPixels;
-		displayHeight = metrics.heightPixels;
+		int displayWidth = metrics.widthPixels;
+		int displayHeight = metrics.heightPixels;
 
 		NUM_SQUARES_IN_ROW = NUM_SQUARES_IN_ROW + ((displayWidth / 500) * 2);
 
@@ -146,25 +135,28 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	@Override
 	public void onDraw(Canvas canvas) {
 
+		final int PADDING = 10;
+
 		// vertical lines
-		for (int i = 1; i <= displayWidth; i++) {
-			canvas.drawLine(i * SQUARE_SIZE, 0, i * SQUARE_SIZE, displayHeight,
+		for (int i = 1; i <= getResources().getDisplayMetrics().widthPixels; i++) {
+			canvas.drawLine(i * SQUARE_SIZE, 0, i * SQUARE_SIZE,
+					getResources().getDisplayMetrics().heightPixels,
 					paint);
 		}
 
 		// horizontal lines
-		for (int k = 1; k < displayHeight; k++) {
-			canvas.drawLine(0, k * SQUARE_SIZE, displayWidth, k * SQUARE_SIZE,
+		for (int k = 1; k < getResources().getDisplayMetrics().heightPixels; k++) {
+			canvas.drawLine(0, k * SQUARE_SIZE,
+					getResources().getDisplayMetrics().heightPixels,
+					k * SQUARE_SIZE,
 					paint);
 		}
 
 		// TODO: Draw purple squares for all unexplored areas
-		int j = 0;
-		int i = 0;
 
-		// Draw System bitmaps
-		for (i = 0; i < GlobalGameData.galaxySizeX; i++) {
-			for (j = 0; j < GlobalGameData.galaxySizeY; j++) {
+		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
+			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
+				// Draw System bitmaps
 				if (sectors[i][j].hasSystem()) {
 					int planetX = sectors[i][j].getX();
 					int planetY = sectors[i][j].getY();
@@ -186,12 +178,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 								+ (SQUARE_SIZE / 2), paint);
 					}
 				}
-			}
-		}
 
-		// units
-		for (i = 0; i < GlobalGameData.galaxySizeX; i++) {
-			for (j = 0; j < GlobalGameData.galaxySizeY; j++) {
+				// Units
 
 				if (sectors[i][j].hasShips() == false) {
 					continue;
@@ -230,11 +218,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 							default:
 								// do nothing
-
-								// might be nice to be able to centre the text
-								//
-
-
 						}
 
 						canvas.drawText(ship.getShipName(), x + PADDING, y + (PADDING * 3)
@@ -260,8 +243,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		}
 
 		// Put text in top left corner indicating the current turn number
-		canvas.drawText("Turn " + globalGameData.getTurn(), viewPort.x + PADDING, viewPort.y + PADDING * 3, paint);
-		canvas.drawText("Credits " + globalGameData.getHumanPlayerCredits(), viewPort.x + PADDING, viewPort.y + PADDING * 3 * 2, paint);
+		canvas.drawText("Turn " + globalGameData.getTurn(),
+				viewPort.x + PADDING, viewPort.y + PADDING * 3, paint);
+		canvas.drawText("Credits " + globalGameData.getHumanPlayerCredits(),
+				viewPort.x + PADDING, viewPort.y + PADDING * 3 * 2, paint);
 
 	}
 
@@ -289,13 +274,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 			// if ship is selected
 			if (isShipSelected(currentX, currentY)) {
-				//Toast.makeText(ctxt, "Ship selected", Toast.LENGTH_SHORT).show();
-				// TODO: display options/commands
-
+				Log.wtf("Ship selected", currentX + " " + currentY);
 			}
 
 			if (isSystemSelected(currentX, currentY)) {
-				//Toast.makeText(ctxt, "System selected", Toast.LENGTH_SHORT).show();
+				Log.wtf("System selected", currentX + " " + currentY);
 			}
 		}
 
@@ -434,7 +417,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				// the user clicked on colors[which]
 				switch (which) {
 					case 0:
-						selectedShip = (GlobalGameData.isHumanFaction(getSelectedShip(currentX, currentY).getFaction()) ? getSelectedShip(currentX, currentY) : null);
+						selectedShip = (GlobalGameData.isHumanFaction(
+								getSelectedShip(currentX, currentY).getFaction()) ?
+								getSelectedShip(currentX, currentY) :
+								null);
 						SELECT_MODE = (selectedShip != null) ? 1 : 0;
 					default:
 						Log.wtf("Clicked ", "" + which);
@@ -466,6 +452,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 		                       float velocityY) {
+
+			final int SWIPE_MIN_DISTANCE = 120;
+			final int SWIPE_MAX_OFF_PATH = 250;
+			final int SWIPE_THRESHOLD_VELOCITY = 200;
+
 			try {
 				Log.i("Gesture", "Gesture call");
 				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
