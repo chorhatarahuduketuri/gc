@@ -1,7 +1,7 @@
 package dadeindustries.game.gc.ai;
 
 import dadeindustries.game.gc.model.Coordinates;
-import dadeindustries.game.gc.model.factionartifacts.Unit;
+import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
 
 /**
@@ -21,7 +21,7 @@ public class Mind {
 		return player;
 	}
 
-	public void giveOrder(Unit u) {
+	public void giveOrder(Spaceship u) {
 		if (!u.hasCourse() && (u.getX() != 3 || u.getY() != 3)) {
 			int destX = u.getX();
 			int destY = u.getY();

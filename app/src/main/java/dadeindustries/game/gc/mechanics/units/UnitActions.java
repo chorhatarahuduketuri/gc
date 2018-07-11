@@ -4,12 +4,12 @@ import android.util.Log;
 
 import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.model.Coordinates;
-import dadeindustries.game.gc.model.factionartifacts.Unit;
+import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 public class UnitActions {
 
-	public static void setCourse(Unit unit, int destX, int destY) {
+	public static void setCourse(Spaceship unit, int destX, int destY) {
 
 		Log.wtf("Plotting", "...");
 
@@ -60,7 +60,7 @@ public class UnitActions {
 		Log.wtf("Plotting", "Finished");
 	}
 
-	public static Coordinates continueCourse(Unit unit) {
+	public static Coordinates continueCourse(Spaceship unit) {
 		if (unit.hasCourse()) {
 			return unit.getNextCoordinatesInCourse();
 		} else {
@@ -104,7 +104,7 @@ public class UnitActions {
 			}
 		}
 
-		for (Unit unit : sector.getUnits()) {
+		for (Spaceship unit : sector.getUnits()) {
 			if (unit.getCurrentHP() <= 0) {
 				result.appendDescription(unit.getShipName() + " was destroyed");
 			}
