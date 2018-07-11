@@ -5,13 +5,13 @@ import android.util.Log;
 import java.util.ArrayList;
 
 import dadeindustries.game.gc.ai.Mind;
-import dadeindustries.game.gc.model.Enums.Extant;
-import dadeindustries.game.gc.model.Enums.Faction;
-import dadeindustries.game.gc.model.Enums.Intelligence;
-import dadeindustries.game.gc.model.FactionArtifacts.Ship;
-import dadeindustries.game.gc.model.Players.Player;
-import dadeindustries.game.gc.model.StellarPhenomenon.Phenomena.System;
-import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
+import dadeindustries.game.gc.model.enums.Extant;
+import dadeindustries.game.gc.model.enums.Faction;
+import dadeindustries.game.gc.model.enums.Intelligence;
+import dadeindustries.game.gc.model.factionartifacts.Ship;
+import dadeindustries.game.gc.model.players.Player;
+import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
+import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 /**
  * whereupon the overall definition of the universe is held.

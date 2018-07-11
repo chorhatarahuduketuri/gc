@@ -1,7 +1,7 @@
-package dadeindustries.game.gc.model.FactionArtifacts;
+package dadeindustries.game.gc.model.factionartifacts;
 
-import dadeindustries.game.gc.model.Enums.Faction;
-import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
+import dadeindustries.game.gc.model.enums.Faction;
+import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 //to be made a subclass of 'commandableUnits' or some such, to that units and starbases are similar
 public class Ship extends Unit {

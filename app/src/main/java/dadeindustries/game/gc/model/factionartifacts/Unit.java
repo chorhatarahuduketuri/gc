@@ -1,12 +1,12 @@
-package dadeindustries.game.gc.model.FactionArtifacts;
+package dadeindustries.game.gc.model.factionartifacts;
 
 import android.util.Log;
 
 import java.util.ArrayDeque;
 
 import dadeindustries.game.gc.model.Coordinates;
-import dadeindustries.game.gc.model.Enums.Faction;
-import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
+import dadeindustries.game.gc.model.enums.Faction;
+import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 //all controllable units
 public abstract class Unit {
