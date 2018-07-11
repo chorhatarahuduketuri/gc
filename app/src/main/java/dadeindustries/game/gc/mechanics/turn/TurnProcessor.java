@@ -9,7 +9,7 @@ import dadeindustries.game.gc.ai.Mind;
 import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.Coordinates;
-import dadeindustries.game.gc.model.factionartifacts.Unit;
+import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
@@ -53,7 +53,7 @@ public class TurnProcessor {
 	private void computeAiTurns(GlobalGameData globalGameData) {
 		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
 			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
-				for (Unit u : globalGameData.getSectors()[x][y].getUnits()) {
+				for (Spaceship u : globalGameData.getSectors()[x][y].getUnits()) {
 					for (Mind m : globalGameData.getMinds()) {
 						if (m.getPlayer().getFaction().equals(u.getFaction())) {
 							m.giveOrder(u);
@@ -73,13 +73,13 @@ public class TurnProcessor {
 	 */
 	private void processPendingMoves(GlobalGameData globalGameData, ArrayList<Event> events, ArrayList<PendingMove> pendingMoves) {
 		for (PendingMove pendingMove : pendingMoves) {
-			Unit pendingMoveUnit = pendingMove.getUnit();
+			Spaceship pendingMoveUnit = pendingMove.getUnit();
 			pendingMoveUnit.setSector(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]);
 			Log.wtf("Next: ", "" + pendingMove.getX() + "," + pendingMove.getY());
 			globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].addShip(pendingMoveUnit);
 
 			/* Detect if battles occur */
-			for (Unit unit : globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].getUnits()) {
+			for (Spaceship unit : globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].getUnits()) {
 				/* If there are two opposing factions */
 				if (unit.getFaction() != pendingMoveUnit.getFaction()) {
 					events.add(UnitActions.processBattle(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]));
@@ -87,10 +87,10 @@ public class TurnProcessor {
 			}
 
 			/* Remove dead ships */
-			Iterator<Unit> iterator = globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].getUnits().iterator();
+			Iterator<Spaceship> iterator = globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].getUnits().iterator();
 
 			while (iterator.hasNext()) {
-				Unit aUnit = iterator.next();
+				Spaceship aUnit = iterator.next();
 				if (aUnit.getCurrentHP() <= 0) {
 					Log.wtf("Battle", aUnit.getShipName() + " destroyed");
 
@@ -113,7 +113,7 @@ public class TurnProcessor {
 			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
 				Sector sector = globalGameData.getSectors()[x][y];
 				/* Get the list of units within the sector */
-				ArrayList<Unit> localShips = sector.getUnits();
+				ArrayList<Spaceship> localShips = sector.getUnits();
 
 				/* If there are any units */
 				if (localShips.size() > 0) {
@@ -124,7 +124,7 @@ public class TurnProcessor {
 
 						/* If any ship has a course set */
 						if (destinationCoordinates != null) {
-							Unit unit = localShips.get(u);
+							Spaceship unit = localShips.get(u);
 
 							/* Prepare the move for this ship */
 							pendingMoves.add(new PendingMove(unit, destinationCoordinates.x, destinationCoordinates.y));
@@ -143,17 +143,17 @@ public class TurnProcessor {
 	 * This describes a move that a unit has been ordered to make, and is yet to be executed.
 	 */
 	public class PendingMove {
-		private Unit unit;
+		private Spaceship unit;
 		private int x, y;
 
 
-		public PendingMove(Unit u, int destX, int destY) {
+		public PendingMove(Spaceship u, int destX, int destY) {
 			unit = u;
 			x = destX;
 			y = destY;
 		}
 
-		public Unit getUnit() {
+		public Spaceship getUnit() {
 			return unit;
 		}
 

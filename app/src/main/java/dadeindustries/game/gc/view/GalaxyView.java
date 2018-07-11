@@ -29,7 +29,7 @@ import com.example.gc.R;
 import java.util.ArrayList;
 
 import dadeindustries.game.gc.mechanics.units.UnitActions;
-import dadeindustries.game.gc.model.factionartifacts.Unit;
+import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
@@ -60,7 +60,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private Rect r = new Rect();
 
 	private int SELECT_MODE = 0;
-	private Unit selectedShip;
+	private Spaceship selectedShip;
 
 
 	public GalaxyView(Context context) {
@@ -203,8 +203,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					// TODO: Need to handle case where multiple units in the same
 					// system
 
-					ArrayList<Unit> ships = sectors[i][j].getUnits();
-					for (Unit ship : ships) {
+					ArrayList<Spaceship> ships = sectors[i][j].getUnits();
+					for (Spaceship ship : ships) {
 
 						switch (ship.getFaction()) {
 
@@ -338,7 +338,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
 
 		if (sectors[gameCoods.x][gameCoods.y].hasShips()) {
-			for (Unit u : sectors[gameCoods.x][gameCoods.y].getUnits()) {
+			for (Spaceship u : sectors[gameCoods.x][gameCoods.y].getUnits()) {
 				if (GlobalGameData.isHumanFaction((u.getFaction()))) {
 					return true;
 				}
@@ -347,7 +347,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		return false;
 	}
 
-	Unit getSelectedShip(int x, int y) {
+	Spaceship getSelectedShip(int x, int y) {
 		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
 
 		return sectors[gameCoods.x][gameCoods.y].getUnits().get(0);

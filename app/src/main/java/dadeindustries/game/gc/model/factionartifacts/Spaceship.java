@@ -3,24 +3,29 @@ package dadeindustries.game.gc.model.factionartifacts;
 import android.util.Log;
 
 import java.util.ArrayDeque;
+import java.util.List;
 
 import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.enums.Faction;
+import dadeindustries.game.gc.model.enums.SpacecraftOrder;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 //all controllable units
-public abstract class Unit {
+public abstract class Spaceship implements Spacecraft {
 	protected Sector currentLocation;
 	protected Faction faction;
 	protected String unitName;
+	protected List<SpacecraftOrder> validOrders;
 	private ArrayDeque<Coordinates> course;
-	private int attackLevel = 2;
-	private int currentHP = 4;
+	private int attackLevel;
+	private int currentHP;
 
-	public Unit(Sector currentLocation, Faction faction, String shipName) {
+	public Spaceship(Sector currentLocation, Faction faction, String shipName, int attackLevel, int startingHP) {
 		this.faction = faction;
 		unitName = shipName;
 		this.currentLocation = currentLocation;
+		this.attackLevel = attackLevel;
+		this.currentHP = startingHP;
 		course = new ArrayDeque<Coordinates>();
 	}
 
@@ -69,8 +74,11 @@ public abstract class Unit {
 	}
 
 	public int getCurrentHP() {
-
 		Log.wtf("Battle", getShipName() + " has " + currentHP + " HP");
 		return currentHP;
+	}
+
+	public List<SpacecraftOrder> getValidOrders() {
+		return validOrders;
 	}
 }

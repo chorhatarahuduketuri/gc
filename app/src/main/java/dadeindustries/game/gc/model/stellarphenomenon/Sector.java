@@ -2,7 +2,7 @@ package dadeindustries.game.gc.model.stellarphenomenon;
 
 import java.util.ArrayList;
 
-import dadeindustries.game.gc.model.factionartifacts.Unit;
+import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 
 public class Sector {
@@ -18,7 +18,7 @@ public class Sector {
 	private int x;
 	private int y;
 
-	private ArrayList<Unit> units = new ArrayList<Unit>();
+	private ArrayList<Spaceship> units = new ArrayList<Spaceship>();
 
 	public Sector(int x, int y) {
 		this.x = x;
@@ -55,11 +55,11 @@ public class Sector {
 		return y;
 	}
 
-	public void addShip(Unit s) {
+	public void addShip(Spaceship s) {
 		units.add(s);
 	}
 
-	public ArrayList<Unit> getUnits() {
+	public ArrayList<Spaceship> getUnits() {
 		return units;
 	}
 
