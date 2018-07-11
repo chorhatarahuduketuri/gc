@@ -140,8 +140,7 @@ public class TurnProcessor {
 	/**
 	 * PendingMove
 	 *
-	 * This describes an atomic move action that is part of a course that a unit has been ordered
-	 * to travel, and is yet to be executed.
+	 * This describes a move that a unit has been ordered to make, and is yet to be executed.
 	 */
 	public class PendingMove {
 		private Unit unit;
