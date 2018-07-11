@@ -3,8 +3,10 @@ package dadeindustries.game.gc.mechanics.turn;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import dadeindustries.game.gc.ai.Mind;
+import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.FactionArtifacts.Unit;
@@ -20,9 +22,24 @@ public class TurnProcessor {
 	 *
 	 * @param globalGameData This is the game state to process into the next turn.
 	 */
-	public void endTurn(GlobalGameData globalGameData) {
+	public ArrayList<Event> endTurn(GlobalGameData globalGameData) {
 		computeAiTurns(globalGameData);
-		processTurn(globalGameData);
+		return processTurn(globalGameData);
+	}
+
+	public ArrayList<Event> processTurn(GlobalGameData globalGameData) {
+
+		GlobalGameData.setTurn(globalGameData.getTurn() + 1);
+
+		ArrayList<Event> events = new ArrayList<Event>();
+
+		ArrayList<PendingMove> pendingMoves = new ArrayList<PendingMove>();
+
+		processUnitActions(globalGameData, pendingMoves); // handle unit movements
+
+		processPendingMoves(globalGameData, events, pendingMoves); // handle unit battles
+
+		return events;
 	}
 
 	/**
@@ -48,78 +65,82 @@ public class TurnProcessor {
 	}
 
 	/**
-	 * processTurn executes the pending moves and other actions listed in the GlobalGameData object.
-	 * <p>
-	 * First, it increments the turn counter by 1.
-	 * <p>
-	 * Second, it iterates through the sectors of the game space and finds all the ships, and makes
-	 * a list of the move orders they're going to execute in this turn.
-	 * <p>
-	 * Third, it iterates through all the ships and moves them to new sectors.
-	 *
-	 * @param globalGameData The game state to be moved on by one turn
+	 * The UI creates a finite number of "pending moves" per turn.
+	 * This method handles pending battles.
+	 * @param globalGameData The global state with all the sectors (there is only one instance)
+	 * @param events An existing list of events that can be appended to with new events.
+	 * @param pendingMoves A list of actions a player has made this turn.
 	 */
-	public void processTurn(GlobalGameData globalGameData) {
+	private void processPendingMoves(GlobalGameData globalGameData, ArrayList<Event> events, ArrayList<PendingMove> pendingMoves) {
+		for (PendingMove pendingMove : pendingMoves) {
+			Unit pendingMoveUnit = pendingMove.getUnit();
+			pendingMoveUnit.setSector(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]);
+			Log.wtf("Next: ", "" + pendingMove.getX() + "," + pendingMove.getY());
+			globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].addShip(pendingMoveUnit);
 
-		GlobalGameData.setTurn(globalGameData.getTurn() + 1);
-
-		ArrayList<PendingMove> pendingMoves = new ArrayList<PendingMove>();
-
-		/* For each sector of the galaxy */
-		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
-			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
-				pendingMoves = processUnitActions(globalGameData.getSectors()[x][y]);
+			/* Detect if battles occur */
+			for (Unit unit : globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].getUnits()) {
+				/* If there are two opposing factions */
+				if (unit.getFaction() != pendingMoveUnit.getFaction()) {
+					events.add(UnitActions.processBattle(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]));
+				}
 			}
-		}
 
-		for (PendingMove p : pendingMoves) {
-			Unit unit = p.getUnit();
-			unit.setSector(globalGameData.getSectors()[p.getX()][p.getY()]);
-			Log.wtf("Next: ", "" + p.getX() + "," + p.getY());
-			globalGameData.getSectors()[p.getX()][p.getY()].addShip(unit);
+			/* Remove dead ships */
+			Iterator<Unit> iterator = globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].getUnits().iterator();
+
+			while (iterator.hasNext()) {
+				Unit aUnit = iterator.next();
+				if (aUnit.getCurrentHP() <= 0) {
+					Log.wtf("Battle", aUnit.getShipName() + " destroyed");
+
+					iterator.remove();
+				}
+			}
 		}
 	}
 
 	/**
-	 * processUnitActions collects the PendingMove orders of ships in the galaxy
-	 * <p>
-	 * This method makes a list of the next PendingMove objects in the courses of all units in the
-	 * sector passed as the parameter.
-	 *
-	 * @param sector The sector that the units are in
-	 * @return ArrayList of PendingMove objects that represent the moves executed this turn
+	 * The UI creates a finite number of "pending moves" per turn.
+	 * A pending move may, for example, be a command to move a unit from sector to another.
+	 * This method look for units that require moving and adds them to the provided list.
+	 * @param globalGameData The global state with all the sectors (there is only one instance)
+	 * @param pendingMoves A list of actions a player has made this turn.
 	 */
-	private ArrayList<PendingMove> processUnitActions(Sector sector) {
-		ArrayList<PendingMove> pendingMoves = new ArrayList<PendingMove>();
-		/* Get the list of units within the sector */
-		ArrayList<Unit> localShips = sector.getUnits();
+	private void processUnitActions(GlobalGameData globalGameData, ArrayList<PendingMove> pendingMoves) {
+		// For each sector of the galaxy
+		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
+			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
+				Sector sector = globalGameData.getSectors()[x][y];
+				/* Get the list of units within the sector */
+				ArrayList<Unit> localShips = sector.getUnits();
 
-		/* If there are any units */
-		if (localShips.size() > 0) {
+				/* If there are any units */
+				if (localShips.size() > 0) {
 
-			/* Then find units with a set course */
-			for (int u = 0; u < localShips.size(); u++) {
-				Coordinates destinationCoordinates = UnitActions.continueCourse(localShips.get(u));
+					/* Then find units with a set course */
+					for (int u = 0; u < localShips.size(); u++) {
+						Coordinates destinationCoordinates = UnitActions.continueCourse(localShips.get(u));
 
-				/* If any ship has a course set */
-				if (destinationCoordinates != null) {
-					Unit unit = localShips.get(u);
+						/* If any ship has a course set */
+						if (destinationCoordinates != null) {
+							Unit unit = localShips.get(u);
 
-					/* Prepare the move for this ship */
-					pendingMoves.add(new PendingMove(unit, destinationCoordinates.x, destinationCoordinates.y));
-					/* Remove ship from this sector */
-					localShips.remove(u);
+							/* Prepare the move for this ship */
+							pendingMoves.add(new PendingMove(unit, destinationCoordinates.x, destinationCoordinates.y));
+							/* Remove ship from this sector */
+							localShips.remove(u);
+						}
+					}
 				}
 			}
 		}
-		return pendingMoves;
 	}
 
 	/**
 	 * PendingMove
 	 *
-	 * This describes an atomic move action that is part of a course that a unit has been ordered
-	 * to travel, and is yet to be executed.
+	 * This describes a move that a unit has been ordered to make, and is yet to be executed.
 	 */
 	public class PendingMove {
 		private Unit unit;

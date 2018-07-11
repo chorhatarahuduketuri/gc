@@ -1,5 +1,7 @@
 package dadeindustries.game.gc.model.FactionArtifacts;
 
+import android.util.Log;
+
 import java.util.ArrayDeque;
 
 import dadeindustries.game.gc.model.Coordinates;
@@ -8,11 +10,12 @@ import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
 
 //all controllable units
 public abstract class Unit {
-
 	protected Sector currentLocation;
 	protected Faction faction;
 	protected String unitName;
 	private ArrayDeque<Coordinates> course;
+	private int attackLevel = 2;
+	private int currentHP = 4;
 
 	public Unit(Sector currentLocation, Faction faction, String shipName) {
 		this.faction = faction;
@@ -57,9 +60,17 @@ public abstract class Unit {
 		course.clear();
 	}
 
-	private enum Order {
-		MOVE, SCUTTLE, COLONISE, BUILD_STARBASE, ATTACK_SYSTEM
-//		,RAID
+	public int getAttackLevel() {
+		return attackLevel;
 	}
 
+	public void damage(int hp) {
+		currentHP = currentHP - hp;
+	}
+
+	public int getCurrentHP() {
+
+		Log.wtf("Battle", getShipName() + " has " + currentHP + " HP");
+		return currentHP;
+	}
 }
