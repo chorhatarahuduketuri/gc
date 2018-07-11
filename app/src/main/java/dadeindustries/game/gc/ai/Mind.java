@@ -1,8 +1,8 @@
 package dadeindustries.game.gc.ai;
 
 import dadeindustries.game.gc.model.Coordinates;
-import dadeindustries.game.gc.model.FactionArtifacts.Unit;
-import dadeindustries.game.gc.model.Players.Player;
+import dadeindustries.game.gc.model.factionartifacts.Unit;
+import dadeindustries.game.gc.model.players.Player;
 
 /**
  * A mind is a proxy for a human being with respect to the game, and as such they contain a player

@@ -1,4 +1,4 @@
-package dadeindustries.game.gc.model.StellarPhenomenon.Phenomena;
+package dadeindustries.game.gc.model.stellarphenomenon.phenomena;
 
 import java.util.ArrayList;
 

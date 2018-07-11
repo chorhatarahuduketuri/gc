@@ -1,8 +1,8 @@
-package dadeindustries.game.gc.model.Players;
+package dadeindustries.game.gc.model.players;
 
-import dadeindustries.game.gc.model.Enums.Extant;
-import dadeindustries.game.gc.model.Enums.Faction;
-import dadeindustries.game.gc.model.Enums.Intelligence;
+import dadeindustries.game.gc.model.enums.Extant;
+import dadeindustries.game.gc.model.enums.Faction;
+import dadeindustries.game.gc.model.enums.Intelligence;
 
 public class Player {
 

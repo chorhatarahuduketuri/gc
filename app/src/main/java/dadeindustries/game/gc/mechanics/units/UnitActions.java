@@ -4,8 +4,8 @@ import android.util.Log;
 
 import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.model.Coordinates;
-import dadeindustries.game.gc.model.FactionArtifacts.Unit;
-import dadeindustries.game.gc.model.StellarPhenomenon.Sector;
+import dadeindustries.game.gc.model.factionartifacts.Unit;
+import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 public class UnitActions {
 
