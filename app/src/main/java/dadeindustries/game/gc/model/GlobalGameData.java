@@ -51,7 +51,6 @@ public class GlobalGameData {
 		return minds;
 	}
 
-
 	public static boolean isHumanFaction(Faction faction) {
 		for (Player p : players) {
 			if (p.getFaction().equals(faction)) {
@@ -118,5 +117,15 @@ public class GlobalGameData {
 			}
 		}
 		return 0;
+	}
+
+	// Assumes there is exactly one human player
+	public Faction getHumanFaction() {
+		for (Player p : players) {
+			if (p.getIntelligence().equals(Intelligence.HUMAN)) {
+				return p.getFaction();
+			}
+		}
+		return null; // this must never happen
 	}
 }

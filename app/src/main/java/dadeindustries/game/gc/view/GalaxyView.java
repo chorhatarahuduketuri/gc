@@ -26,10 +26,13 @@ import android.widget.Toast;
 
 import com.example.gc.R;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.GlobalGameData;
+import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.enums.SpacecraftOrder;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
@@ -349,10 +352,25 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		return false;
 	}
 
+	Sector getSelectedSector(int x, int y) {
+		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
+		return sectors[gameCoods.x][gameCoods.y];
+	}
+
 	Spaceship getSelectedShip(int x, int y) {
 		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
 
 		return sectors[gameCoods.x][gameCoods.y].getUnits().get(0);
+	}
+
+	ArrayList<Spaceship> getSelectedShips(int x, int y) {
+		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
+		return sectors[gameCoods.x][gameCoods.y].getUnits();
+	}
+
+	System getSelectedSystem(int x, int y) {
+		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
+		return sectors[gameCoods.x][gameCoods.y].getSystem();
 	}
 
 	boolean isSystemSelected(int x, int y) {
@@ -369,6 +387,18 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		} else {
 			return false;
 		}
+	}
+
+	boolean isSystemSelectedMine(Faction faction, int x, int y) {
+		if (isSystemSelected(x, y) == false) {
+			return false;
+		}
+
+		if (globalGameData.getSectors()[x][y].getSystem().getFaction() == faction) {
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
@@ -401,13 +431,16 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		return true;
 	}
 
-	/**
-	 * A popup menu that gives the player some options about the entity
-	 * TODO: This should eventually be generic to handle units, planets, and other
-	 * things.
-	 */
-	void showMenu() {
 
+
+	private void setSelectedShipForOnClick() {
+		selectedShip = (GlobalGameData.isHumanFaction(
+				getSelectedShip(currentX, currentY).getFaction()) ?
+				getSelectedShip(currentX, currentY) :
+				null);
+	}
+
+	public void showShipMenu(final Spaceship ship) {
 		CharSequence colors[] = new CharSequence[]{
 				SpacecraftOrder.MOVE.name(),
 				SpacecraftOrder.ATTACK.name(),
@@ -421,7 +454,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				// the user clicked on colors[which]
 				switch (which) {
 					case 0:
-						setSelectedShipForOnClick();
+						selectedShip = ship;
+						// new
+
 						SELECT_MODE = (selectedShip != null) ? 1 : 0;
 						break;
 					case 1:
@@ -438,21 +473,90 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			}
 		});
 
-		// If a ship is selected then show the menu
-		if (isShipSelected(currentX, currentY)) {
-			AlertDialog dialog = builder.create();
-			int WRAP_CONTENT = ViewGroup.LayoutParams.WRAP_CONTENT;
-			dialog.getWindow().setLayout(100, WRAP_CONTENT);
-			dialog.show();
-			sound_yessir.start();
-		}
+		AlertDialog shipDialog = builder.create();
+		int WRAP_CONTENT = ViewGroup.LayoutParams.WRAP_CONTENT;
+		shipDialog.getWindow().setLayout(100, WRAP_CONTENT);
+		shipDialog.show();
+		sound_yessir.start();
 	}
 
-	private void setSelectedShipForOnClick() {
-		selectedShip = (GlobalGameData.isHumanFaction(
-				getSelectedShip(currentX, currentY).getFaction()) ?
-				getSelectedShip(currentX, currentY) :
-				null);
+	public void showMultipleShipMenu(final Sector sector) {
+		CharSequence items[] = new CharSequence[sector.getUnits().size()];
+		for (int i = 0; i < sector.getUnits().size(); i++) {
+			items[i] = sector.getUnits().get(i).getShipName();
+		}
+		AlertDialog.Builder menu = new AlertDialog.Builder(ctxt);
+		menu.setTitle("Select a ship");
+		menu.setItems(items, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int option) {
+				dialog.dismiss();
+				Log.wtf("GUI", "Multiple to single");
+				showShipMenu(sector.getUnits().get(option));
+			}
+		}).show();
+	}
+
+	public void showSystemMenu(System system) {
+		AlertDialog.Builder sysMenu = new AlertDialog.Builder(ctxt);
+		sysMenu.setTitle("" + system.getName());
+		if (system.hasFaction()) {
+			if (equals(GlobalGameData.isHumanFaction(system.getFaction()))) {
+				sysMenu.setMessage("Latest in build queue: " + system.getQueueHead());
+			}
+		} else {
+			sysMenu.setMessage("No information to show ... yet");
+		}
+		sysMenu.show();
+	}
+
+	/**
+	 * A popup menu that gives the player some options about the entity
+	 * TODO: This should eventually be generic to handle units, planets, and other
+	 * things.
+	 */
+	public void showMenu() {
+
+		if (isShipSelected(currentX, currentY) &&
+				isSystemSelected(currentX, currentY)) {
+
+			CharSequence menuOptions[] = new CharSequence[]{
+					"SYSTEM",
+					"SHIPS"};
+
+			AlertDialog.Builder topMenu = new AlertDialog.Builder(ctxt);
+			topMenu.setTitle("Menu");
+			topMenu.setItems(menuOptions, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int option) {
+
+					switch (option) {
+						// SYSTEM
+						case 0:
+							makeToast("Selected system menu!");
+							showSystemMenu(getSelectedSystem(currentX, currentY));
+							break;
+
+						// SHIPS
+						case 1:
+							showMultipleShipMenu(getSelectedSector(currentX, currentY));
+							break;
+						default:
+							Log.wtf("Clicked ", "" + option + " on global menu");
+					}
+				}
+			}).show();
+		} else if (isShipSelected(currentX, currentY)){
+			Log.wtf("GUI", "ship selected");
+			if (getSelectedShips(currentX, currentY).size() > 1) {
+				showMultipleShipMenu(getSelectedSector(currentX, currentY));
+			} else {
+				showShipMenu(getSelectedShip(currentX, currentY));
+			}
+		} else if (isSystemSelected(currentX, currentY)) {
+			showSystemMenu(getSelectedSystem(currentX, currentY));
+			Log.wtf("GUI", "system selected");
+		}
 	}
 
 	class GestureListener extends SimpleOnGestureListener {

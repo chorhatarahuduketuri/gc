@@ -1,5 +1,8 @@
 package dadeindustries.game.gc.model.stellarphenomenon.phenomena;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
@@ -22,6 +25,16 @@ public class System {
 			return true;
 		} else {
 			return false;
+		}
+	}
+
+	private ArrayList<String> buildQueue = new ArrayList<String>();
+
+	public String getQueueHead() {
+		if (buildQueue.size() == 0) {
+			return "Empty";
+		} else {
+			return buildQueue.get(0);
 		}
 	}
 
