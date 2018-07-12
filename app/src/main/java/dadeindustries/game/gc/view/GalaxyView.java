@@ -29,8 +29,9 @@ import com.example.gc.R;
 import java.util.ArrayList;
 
 import dadeindustries.game.gc.mechanics.units.UnitActions;
-import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.GlobalGameData;
+import dadeindustries.game.gc.model.enums.SpacecraftOrder;
+import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
@@ -61,6 +62,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	private int SELECT_MODE = 0;
 	private Spaceship selectedShip;
+	private Sector selectedSector;
 
 
 	public GalaxyView(Context context) {
@@ -119,8 +121,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private void loadBitmaps() {
 		up = BitmapFactory.decodeResource(getResources(), R.drawable.up);
 		mo = BitmapFactory.decodeResource(getResources(), R.drawable.morphers);
-		p1 = BitmapFactory.decodeResource(getResources(), R.drawable.planet1);
-		p2 = BitmapFactory.decodeResource(getResources(), R.drawable.planet2);
+		p1 = BitmapFactory.decodeResource(getResources(), R.drawable.system1);
+		p2 = BitmapFactory.decodeResource(getResources(), R.drawable.system2);
 	}
 
 	/* TODO: Add stricter parameter checking. */
@@ -158,15 +160,15 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
 				// Draw System bitmaps
 				if (sectors[i][j].hasSystem()) {
-					int planetX = sectors[i][j].getX();
-					int planetY = sectors[i][j].getY();
+					int systemX = sectors[i][j].getX();
+					int systemY = sectors[i][j].getY();
 
-					if ((planetX >= viewPort.x)
-							&& (planetX <= viewPort.x + NUM_SQUARES_IN_ROW)
-							&& (planetY >= viewPort.y)) {
+					if ((systemX >= viewPort.x)
+							&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
+							&& (systemY >= viewPort.y)) {
 
-						int x = (planetX - viewPort.x) * SQUARE_SIZE;
-						int y = (planetY - viewPort.y) * SQUARE_SIZE;
+						int x = (systemX - viewPort.x) * SQUARE_SIZE;
+						int y = (systemY - viewPort.y) * SQUARE_SIZE;
 						r.left = x + (SQUARE_SIZE / 2);
 						r.top = y + (SQUARE_SIZE / 2);
 						r.right = x + (SQUARE_SIZE / 2) * 2;
@@ -407,7 +409,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	void showMenu() {
 
 		CharSequence colors[] = new CharSequence[]{
-				"Move", "Attack", "Raid", "Build", "Colonise", "Suicide"};
+				SpacecraftOrder.MOVE.name(),
+				SpacecraftOrder.ATTACK.name(),
+				SpacecraftOrder.COLONISE.name()};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
 		builder.setTitle("Menu");
@@ -417,11 +421,17 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				// the user clicked on colors[which]
 				switch (which) {
 					case 0:
-						selectedShip = (GlobalGameData.isHumanFaction(
-								getSelectedShip(currentX, currentY).getFaction()) ?
-								getSelectedShip(currentX, currentY) :
-								null);
+						setSelectedShipForOnClick();
 						SELECT_MODE = (selectedShip != null) ? 1 : 0;
+						break;
+					case 1:
+						setSelectedShipForOnClick();
+						UnitActions.attackSystem(selectedShip, globalGameData);
+						break;
+					case 2:
+						setSelectedShipForOnClick();
+						UnitActions.coloniseSystem(selectedShip, globalGameData);
+						break;
 					default:
 						Log.wtf("Clicked ", "" + which);
 				}
@@ -436,6 +446,13 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			dialog.show();
 			sound_yessir.start();
 		}
+	}
+
+	private void setSelectedShipForOnClick() {
+		selectedShip = (GlobalGameData.isHumanFaction(
+				getSelectedShip(currentX, currentY).getFaction()) ?
+				getSelectedShip(currentX, currentY) :
+				null);
 	}
 
 	class GestureListener extends SimpleOnGestureListener {

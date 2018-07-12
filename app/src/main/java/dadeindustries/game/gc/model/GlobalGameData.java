@@ -8,11 +8,11 @@ import dadeindustries.game.gc.ai.Mind;
 import dadeindustries.game.gc.model.enums.Extant;
 import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.enums.Intelligence;
+import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
 import dadeindustries.game.gc.model.factionartifacts.CombatShip;
-import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
-import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
+import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 
 /**
  * whereupon the overall definition of the universe is held.
@@ -34,7 +34,7 @@ public class GlobalGameData {
 		galaxySizeY = y;
 		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
-				sectors[i][j] = new Sector(i, j);
+				sectors[i][j] = new Sector(i, j, null);
 			}
 		}
 		insertTestShips();
@@ -78,18 +78,21 @@ public class GlobalGameData {
 	private void insertTestShips() {
 		sectors[2][2].addShip(new CombatShip(sectors[2][2], Faction.UNITED_PLANETS, "HMS Douglas", 2, 4));
 		sectors[1][1].addShip(new CombatShip(sectors[1][1], Faction.UNITED_PLANETS, "USS Dade", 2, 4));
+		sectors[1][2].addShip(new ColonyShip(sectors[1][2], Faction.UNITED_PLANETS, "USS Adrian", 0, 4));
 		sectors[1][3].addShip(new CombatShip(sectors[1][3], Faction.MORPHERS, "ISS Yuri", 2, 4));
 		sectors[7][7].addShip(new CombatShip(sectors[7][7], Faction.MORPHERS, "ISS Ensa", 2, 4));
 	}
 
 	private void insertTestSystems() {
-		sectors[1][1].setSystem(new System("Planet X", 1, 1));
-		sectors[3][3].setSystem(new System("Planet Y", 3, 3));
+		System.createNewSystem("United Planets Homeworld", 1, 1, Faction.UNITED_PLANETS, sectors);
+		System.createNewSystem("System X", 1, 2, null, sectors);
+		System.createNewSystem("Morphers Homeworld", 1, 6, Faction.MORPHERS, sectors);
+		System.createNewSystem("System Y", 3, 5, null, sectors);
 
 		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
 				if (sectors[i][j].hasSystem()) {
-					Log.wtf("Planet loaded", "Planet loaded at " + i + "," + j);
+					Log.wtf("System loaded", "System loaded at " + i + "," + j);
 				}
 			}
 		}
