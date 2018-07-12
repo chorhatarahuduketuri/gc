@@ -119,8 +119,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private void loadBitmaps() {
 		up = BitmapFactory.decodeResource(getResources(), R.drawable.up);
 		mo = BitmapFactory.decodeResource(getResources(), R.drawable.morphers);
-		p1 = BitmapFactory.decodeResource(getResources(), R.drawable.planet1);
-		p2 = BitmapFactory.decodeResource(getResources(), R.drawable.planet2);
+		p1 = BitmapFactory.decodeResource(getResources(), R.drawable.system1);
+		p2 = BitmapFactory.decodeResource(getResources(), R.drawable.system2);
 	}
 
 	/* TODO: Add stricter parameter checking. */
@@ -158,15 +158,15 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
 				// Draw System bitmaps
 				if (sectors[i][j].hasSystem()) {
-					int planetX = sectors[i][j].getX();
-					int planetY = sectors[i][j].getY();
+					int systemX = sectors[i][j].getX();
+					int systemY = sectors[i][j].getY();
 
-					if ((planetX >= viewPort.x)
-							&& (planetX <= viewPort.x + NUM_SQUARES_IN_ROW)
-							&& (planetY >= viewPort.y)) {
+					if ((systemX >= viewPort.x)
+							&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
+							&& (systemY >= viewPort.y)) {
 
-						int x = (planetX - viewPort.x) * SQUARE_SIZE;
-						int y = (planetY - viewPort.y) * SQUARE_SIZE;
+						int x = (systemX - viewPort.x) * SQUARE_SIZE;
+						int y = (systemY - viewPort.y) * SQUARE_SIZE;
 						r.left = x + (SQUARE_SIZE / 2);
 						r.top = y + (SQUARE_SIZE / 2);
 						r.right = x + (SQUARE_SIZE / 2) * 2;

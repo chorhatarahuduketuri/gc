@@ -83,13 +83,13 @@ public class GlobalGameData {
 	}
 
 	private void insertTestSystems() {
-		sectors[1][1].setSystem(new System("Planet X", 1, 1));
-		sectors[3][3].setSystem(new System("Planet Y", 3, 3));
+		sectors[1][1].setSystem(new System("System X", 1, 1));
+		sectors[3][3].setSystem(new System("System Y", 3, 3));
 
 		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
 				if (sectors[i][j].hasSystem()) {
-					Log.wtf("Planet loaded", "Planet loaded at " + i + "," + j);
+					Log.wtf("System loaded", "System loaded at " + i + "," + j);
 				}
 			}
 		}
