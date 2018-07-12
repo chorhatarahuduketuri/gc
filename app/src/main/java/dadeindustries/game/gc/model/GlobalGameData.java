@@ -33,7 +33,7 @@ public class GlobalGameData {
 		galaxySizeY = y;
 		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
-				sectors[i][j] = new Sector(i, j);
+				sectors[i][j] = new Sector(i, j, null);
 			}
 		}
 		insertTestShips();

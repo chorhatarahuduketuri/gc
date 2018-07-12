@@ -20,11 +20,6 @@ public class Sector {
 
 	private ArrayList<Spaceship> units = new ArrayList<Spaceship>();
 
-	public Sector(int x, int y) {
-		this.x = x;
-		this.y = y;
-	}
-
 	public Sector(int x, int y, System system) {
 		this.x = x;
 		this.y = y;
