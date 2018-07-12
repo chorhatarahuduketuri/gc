@@ -7,13 +7,13 @@ public class System {
 
 	private String name;
 	private int x, y;
-	private Faction owner;
+	private Faction faction;
 
-	private System(String name, int x, int y, Faction owner) {
+	private System(String name, int x, int y, Faction faction) {
 		this.x = x;
 		this.y = y;
 		this.name = name;
-		this.owner = owner;
+		this.faction = faction;
 	}
 
 	public static boolean createNewSystem(String name, int x, int y, Faction owner, Sector[][] sectors) {
@@ -37,15 +37,15 @@ public class System {
 		return name;
 	}
 
-	public boolean hasOwner() {
-		return owner != null;
+	public boolean hasFaction() {
+		return faction != null;
 	}
 
-	public Faction getOwner() {
-		return owner;
+	public Faction getFaction() {
+		return faction;
 	}
 
-	public void setOwner(Faction owner) {
-		this.owner = owner;
+	public void setFaction(Faction faction) {
+		this.faction = faction;
 	}
 }

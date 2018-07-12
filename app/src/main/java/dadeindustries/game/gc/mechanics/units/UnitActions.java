@@ -4,6 +4,8 @@ import android.util.Log;
 
 import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.model.Coordinates;
+import dadeindustries.game.gc.model.GlobalGameData;
+import dadeindustries.game.gc.model.factionartifacts.Spacecraft;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
@@ -110,5 +112,19 @@ public class UnitActions {
 			}
 		}
 		return result;
+	}
+
+	public static void coloniseSystem(Spacecraft selectedShip, GlobalGameData globalGameData) {
+		Sector selectedSector = globalGameData.getSectors()[selectedShip.getX()][selectedShip.getY()];
+		if (selectedSector.hasSystem() && !selectedSector.getSystem().hasFaction()) {
+			selectedSector.getSystem().setFaction(selectedShip.getFaction());
+		}
+	}
+
+	public static void attackSystem(Spacecraft selectedShip, GlobalGameData globalGameData) {
+		Sector selectedSector = globalGameData.getSectors()[selectedShip.getX()][selectedShip.getY()];
+		if (selectedSector.hasSystem() && selectedSector.getSystem().hasFaction() && selectedSector.getSystem().getFaction() != selectedShip.getFaction()) {
+			selectedSector.getSystem().setFaction(null);
+		}
 	}
 }

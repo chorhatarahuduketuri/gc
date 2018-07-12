@@ -29,8 +29,9 @@ import com.example.gc.R;
 import java.util.ArrayList;
 
 import dadeindustries.game.gc.mechanics.units.UnitActions;
-import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.GlobalGameData;
+import dadeindustries.game.gc.model.enums.SpacecraftOrder;
+import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
@@ -61,6 +62,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	private int SELECT_MODE = 0;
 	private Spaceship selectedShip;
+	private Sector selectedSector;
 
 
 	public GalaxyView(Context context) {
@@ -407,7 +409,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	void showMenu() {
 
 		CharSequence colors[] = new CharSequence[]{
-				"Move", "Attack", "Raid", "Build", "Colonise", "Suicide"};
+				SpacecraftOrder.MOVE.name(),
+				SpacecraftOrder.ATTACK.name(),
+				SpacecraftOrder.COLONISE.name()};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
 		builder.setTitle("Menu");
@@ -417,11 +421,17 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				// the user clicked on colors[which]
 				switch (which) {
 					case 0:
-						selectedShip = (GlobalGameData.isHumanFaction(
-								getSelectedShip(currentX, currentY).getFaction()) ?
-								getSelectedShip(currentX, currentY) :
-								null);
+						setSelectedShipForOnClick();
 						SELECT_MODE = (selectedShip != null) ? 1 : 0;
+						break;
+					case 1:
+						setSelectedShipForOnClick();
+						UnitActions.attackSystem(selectedShip, globalGameData);
+						break;
+					case 2:
+						setSelectedShipForOnClick();
+						UnitActions.coloniseSystem(selectedShip, globalGameData);
+						break;
 					default:
 						Log.wtf("Clicked ", "" + which);
 				}
@@ -436,6 +446,13 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			dialog.show();
 			sound_yessir.start();
 		}
+	}
+
+	private void setSelectedShipForOnClick() {
+		selectedShip = (GlobalGameData.isHumanFaction(
+				getSelectedShip(currentX, currentY).getFaction()) ?
+				getSelectedShip(currentX, currentY) :
+				null);
 	}
 
 	class GestureListener extends SimpleOnGestureListener {
