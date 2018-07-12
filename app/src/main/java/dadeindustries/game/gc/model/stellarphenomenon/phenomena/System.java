@@ -1,9 +1,9 @@
 package dadeindustries.game.gc.model.stellarphenomenon.phenomena;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import dadeindustries.game.gc.model.enums.Faction;
+import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 public class System {
@@ -28,14 +28,23 @@ public class System {
 		}
 	}
 
-	private ArrayList<String> buildQueue = new ArrayList<String>();
+	private ArrayList buildQueue = new ArrayList();
 
-	public String getQueueHead() {
+	public String peekQueueHead() {
 		if (buildQueue.size() == 0) {
 			return "Empty";
 		} else {
-			return buildQueue.get(0);
+			return buildQueue.get(0).toString();
 		}
+	}
+
+	/* Not working yet */
+	public Spaceship getQueueHead() {
+		return null;
+	}
+
+	public void addToQueue(Spaceship ship) {
+		buildQueue.add(ship);
 	}
 
 	public int getX() {

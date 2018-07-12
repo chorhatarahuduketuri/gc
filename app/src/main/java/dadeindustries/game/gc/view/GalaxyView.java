@@ -26,16 +26,19 @@ import android.widget.Toast;
 
 import com.example.gc.R;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.enums.SpacecraftOrder;
+import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
+import dadeindustries.game.gc.model.factionartifacts.CombatShip;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
+import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
+
+import static dadeindustries.game.gc.model.GlobalGameData.isHumanFaction;
 
 public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
@@ -344,7 +347,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		if (sectors[gameCoods.x][gameCoods.y].hasShips()) {
 			for (Spaceship u : sectors[gameCoods.x][gameCoods.y].getUnits()) {
-				if (GlobalGameData.isHumanFaction((u.getFaction()))) {
+				if (isHumanFaction((u.getFaction()))) {
 					return true;
 				}
 			}
@@ -432,9 +435,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 
-
 	private void setSelectedShipForOnClick() {
-		selectedShip = (GlobalGameData.isHumanFaction(
+		selectedShip = (isHumanFaction(
 				getSelectedShip(currentX, currentY).getFaction()) ?
 				getSelectedShip(currentX, currentY) :
 				null);
@@ -491,21 +493,46 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			@Override
 			public void onClick(DialogInterface dialog, int option) {
 				dialog.dismiss();
-				Log.wtf("GUI", "Multiple to single");
 				showShipMenu(sector.getUnits().get(option));
 			}
 		}).show();
 	}
 
-	public void showSystemMenu(System system) {
+	public void showSystemMenu(final System system) {
+		CharSequence items[] = new CharSequence[]{
+				"Build CombatShip", "Build ColonyShip"};
 		AlertDialog.Builder sysMenu = new AlertDialog.Builder(ctxt);
 		sysMenu.setTitle("" + system.getName());
-		if (system.hasFaction()) {
-			if (equals(GlobalGameData.isHumanFaction(system.getFaction()))) {
-				sysMenu.setMessage("Latest in build queue: " + system.getQueueHead());
-			}
+
+
+		if (isHumanFaction(system.getFaction())) {
+
+			sysMenu.setItems(items, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int option) {
+					dialog.dismiss();
+					switch (option) {
+						case 0:
+							// Build combatship
+							CombatShip combat = new CombatShip(globalGameData.getSectors()
+									[system.getX()][system.getY()],
+									system.getFaction(), "New CombatShip", 2, 4);
+							system.addToQueue(combat);
+							makeToast("Building combat ship");
+
+						case 1:
+							// Build Colonyship
+							ColonyShip colony = new ColonyShip(globalGameData.getSectors()
+									[system.getX()][system.getY()],
+									system.getFaction(), "New CombatShip", 0, 4);
+							system.addToQueue(colony);
+							makeToast("Building combat ship");
+					}
+				}
+			});
+
 		} else {
-			sysMenu.setMessage("No information to show ... yet");
+			sysMenu.setMessage("No information to display");
 		}
 		sysMenu.show();
 	}
@@ -546,7 +573,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					}
 				}
 			}).show();
-		} else if (isShipSelected(currentX, currentY)){
+		} else if (isShipSelected(currentX, currentY)) {
 			Log.wtf("GUI", "ship selected");
 			if (getSelectedShips(currentX, currentY).size() > 1) {
 				showMultipleShipMenu(getSelectedSector(currentX, currentY));
