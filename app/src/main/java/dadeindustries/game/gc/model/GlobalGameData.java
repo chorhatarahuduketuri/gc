@@ -9,10 +9,9 @@ import dadeindustries.game.gc.model.enums.Extant;
 import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.enums.Intelligence;
 import dadeindustries.game.gc.model.factionartifacts.CombatShip;
-import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
-import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
+import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 
 /**
  * whereupon the overall definition of the universe is held.
@@ -83,8 +82,10 @@ public class GlobalGameData {
 	}
 
 	private void insertTestSystems() {
-		sectors[1][1].setSystem(new System("System X", 1, 1));
-		sectors[3][3].setSystem(new System("System Y", 3, 3));
+		System.createNewSystem("United Planets Homeworld", 1, 1, Faction.UNITED_PLANETS, sectors);
+		System.createNewSystem("System X", 1, 2, null, sectors);
+		System.createNewSystem("Morphers Homeworld", 1, 6, Faction.MORPHERS, sectors);
+		System.createNewSystem("System Y", 3, 5, null, sectors);
 
 		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
