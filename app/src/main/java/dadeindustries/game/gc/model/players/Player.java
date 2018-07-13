@@ -10,6 +10,7 @@ public class Player {
 	private final Intelligence intelligence;
 	private Extant extant;
 	private int credits;
+	private boolean dead = false;
 
 	public Player(Faction faction, Intelligence intelligence, Extant extant, int credits) {
 		this.faction = faction;
@@ -41,5 +42,13 @@ public class Player {
 			this.credits -= subtractedCredits;
 			return true;
 		}
+	}
+
+	public boolean isDead() {
+		return dead;
+	}
+
+	public void surrender() {
+		dead = true;
 	}
 }

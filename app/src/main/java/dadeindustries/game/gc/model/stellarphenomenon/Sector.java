@@ -2,6 +2,7 @@ package dadeindustries.game.gc.model.stellarphenomenon;
 
 import java.util.ArrayList;
 
+import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 
@@ -48,6 +49,10 @@ public class Sector {
 
 	public int getY() {
 		return y;
+	}
+
+	public Coordinates getCoordinates() {
+		return new Coordinates(getX(), getY());
 	}
 
 	public void addShip(Spaceship s) {

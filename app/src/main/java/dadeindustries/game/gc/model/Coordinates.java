@@ -8,5 +8,10 @@ public class Coordinates<X, Y> {
 		this.x = x;
 		this.y = y;
 	}
+
+	@Override
+	public String toString() {
+		return "(" + x + ", " + y + ")";
+	}
 }
 

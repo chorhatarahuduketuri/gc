@@ -36,14 +36,26 @@ public class Start extends Activity {
 				turnProcessor = new TurnProcessor();
 				ArrayList<Event> events = turnProcessor.endTurn(galaxyView.getGlobalGameData());
 				for (Event event : events) {
-					if (event.getEventType() == Event.EventType.BATTLE) {
-						showBattleReport(event);
+
+					switch (event.getEventType()) {
+						case BATTLE:
+							showBattleReport(event);
+							break;
+						case UNIT_CONSTRUCTION_COMPLETE:
+							galaxyView.makeToast(event.getDescription());
+							break;
+						case RANDOM_EVENT:
+							break;
+						case WINNER:
+							showEndGamePopup(event.getDescription());
+							break;
 					}
 				}
 				galaxyView.invalidate();
 			}
 		});
 
+		/* Prepare music */
 		mediaPlayer = MediaPlayer.create(this, R.raw.lj_kruzer_chantiers_navals);
 		battleAlert = MediaPlayer.create(this, R.raw.redalert_klaxon_sttos_recreated_178032);
 		mediaPlayer.setLooping(true);
@@ -73,6 +85,19 @@ public class Start extends Activity {
 				.create()
 				.show();
 		battleAlert.start();
+	}
+
+	public void showEndGamePopup(String message) {
+		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+		dialog.setTitle("Game over");
+		dialog.setMessage(message);
+		dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				// Deliberately empty. Just dismisses the popup.
+				finish();
+			}
+		});
+		dialog.create().show();
 	}
 
 	@Override

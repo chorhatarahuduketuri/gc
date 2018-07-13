@@ -30,6 +30,6 @@ public class Event {
 	}
 
 	public enum EventType {
-		BATTLE, RANDOM_EVENT
+		BATTLE, UNIT_CONSTRUCTION_COMPLETE, RANDOM_EVENT, WINNER
 	}
 }

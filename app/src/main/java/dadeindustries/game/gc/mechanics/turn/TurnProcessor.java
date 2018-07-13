@@ -9,9 +9,13 @@ import dadeindustries.game.gc.ai.Mind;
 import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.Coordinates;
-import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.GlobalGameData;
+import dadeindustries.game.gc.model.enums.Faction;
+import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
+import dadeindustries.game.gc.model.factionartifacts.Spaceship;
+import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
+import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 
 public class TurnProcessor {
 
@@ -29,17 +33,142 @@ public class TurnProcessor {
 
 	public ArrayList<Event> processTurn(GlobalGameData globalGameData) {
 
-		GlobalGameData.setTurn(globalGameData.getTurn() + 1);
-
 		ArrayList<Event> events = new ArrayList<Event>();
 
 		ArrayList<PendingMove> pendingMoves = new ArrayList<PendingMove>();
+
+		GlobalGameData.setTurn(globalGameData.getTurn() + 1);
+
+		updateBuildQueues(globalGameData.getSectors(), events);
 
 		processUnitActions(globalGameData, pendingMoves); // handle unit movements
 
 		processPendingMoves(globalGameData, events, pendingMoves); // handle unit battles
 
+		// Detect if a player has won the game
+		Player didAnyoneWin = detectWinCondition(globalGameData);
+
+		if (didAnyoneWin != null) {
+			Event winevent = new Event(Event.EventType.WINNER, didAnyoneWin.getFaction()
+					+ " won the game!", null);
+			events.add(winevent);
+		}
+
 		return events;
+	}
+
+	private ArrayList<Spaceship> getAllShipsForFaction(Sector[][] sectors, Faction faction) {
+
+		ArrayList<Spaceship> returnShips = new ArrayList<Spaceship>();
+
+		for (int i = 0; i < sectors.length; i++) {
+			for (int j = 0; j < sectors.length; j++) {
+				for (Spaceship spaceship : sectors[i][j].getUnits()) {
+					if (spaceship.getFaction() == faction) {
+						returnShips.add(spaceship);
+					}
+				}
+			}
+		}
+		return returnShips;
+	}
+
+	private ArrayList<System> getAllSystemsForFaction(Sector[][] sectors, Faction faction) {
+
+		ArrayList returnSystems = new ArrayList();
+
+		for (int i = 0; i < sectors.length; i++) {
+			for (int j = 0; j < sectors.length; j++) {
+				if (sectors[i][j].hasSystem()) {
+					if (sectors[i][j].getSystem().hasFaction()) {
+						if (sectors[i][j].getSystem().getFaction() == faction) {
+							returnSystems.add(sectors[i][j].getSystem());
+						}
+					}
+				}
+			}
+		}
+		return returnSystems;
+	}
+
+	/**
+	 * Detect if someone has won the game
+	 *
+	 * @param globalGameData global game state
+	 * @return Player if someone has won
+	 */
+	private Player detectWinCondition(GlobalGameData globalGameData) {
+
+		Player winningPlayer = null;
+		int activePlayerCount = 0;
+
+		for (Player player : globalGameData.getPlayers()) {
+			boolean alive = false;
+
+			ArrayList<Spaceship> ships = getAllShipsForFaction(globalGameData.getSectors(), player.getFaction());
+			ArrayList<System> systems = getAllSystemsForFaction(globalGameData.getSectors(), player.getFaction());
+
+			/* If player has a colony ship then they can still win */
+			for (Spaceship ship : ships) {
+				if (ship instanceof ColonyShip) {
+					alive = true;
+				}
+			}
+
+			/* If player still has a system then they can still win */
+			if (systems.size() > 0) {
+				alive = true;
+			}
+
+			/* If they have none of these things then it's game over for them */
+			if (alive == false) {
+				player.surrender();
+			} else {
+				activePlayerCount++;
+			}
+		}
+
+		/* If one player is active, WE HAVE A WINNER */
+		if (activePlayerCount == 1) {
+			for (Player player : globalGameData.getPlayers()) {
+				if (player.isDead() == false) {
+					winningPlayer = player;
+				}
+			}
+		}
+
+		return winningPlayer;
+	}
+
+	/**
+	 * Go through each sector in the galaxy and advance the build queue.
+	 * If ships are ready then place them in their sector.
+	 *
+	 * @param sectors the game's sectors
+	 * @param events  a list of events that we can append to, which is eventually returned to player
+	 */
+	private void updateBuildQueues(Sector[][] sectors, ArrayList<Event> events) {
+
+		// For each sector
+		for (int i = 0; i < sectors.length; i++) {
+			for (int j = 0; j < sectors.length; j++) {
+
+				// If sector has a system
+				if (sectors[i][j].hasSystem()) {
+
+					Spaceship ship = sectors[i][j].getSystem().getBuildQueueHead();
+
+					// If ship is ready then add it to the system's list of ships
+					if (ship != null) {
+						sectors[i][j].addShip(ship);
+						// Create a notification for the player
+						events.add(new Event(Event.EventType.UNIT_CONSTRUCTION_COMPLETE,
+								"New ship at " + sectors[i][j].getSystem().getName(),
+								sectors[i][j].getCoordinates()));
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -67,9 +196,10 @@ public class TurnProcessor {
 	/**
 	 * The UI creates a finite number of "pending moves" per turn.
 	 * This method handles pending battles.
+	 *
 	 * @param globalGameData The global state with all the sectors (there is only one instance)
-	 * @param events An existing list of events that can be appended to with new events.
-	 * @param pendingMoves A list of actions a player has made this turn.
+	 * @param events         An existing list of events that can be appended to with new events.
+	 * @param pendingMoves   A list of actions a player has made this turn.
 	 */
 	private void processPendingMoves(GlobalGameData globalGameData, ArrayList<Event> events, ArrayList<PendingMove> pendingMoves) {
 		for (PendingMove pendingMove : pendingMoves) {
@@ -104,8 +234,9 @@ public class TurnProcessor {
 	 * The UI creates a finite number of "pending moves" per turn.
 	 * A pending move may, for example, be a command to move a unit from sector to another.
 	 * This method look for units that require moving and adds them to the provided list.
+	 *
 	 * @param globalGameData The global state with all the sectors (there is only one instance)
-	 * @param pendingMoves A list of actions a player has made this turn.
+	 * @param pendingMoves   A list of actions a player has made this turn.
 	 */
 	private void processUnitActions(GlobalGameData globalGameData, ArrayList<PendingMove> pendingMoves) {
 		// For each sector of the galaxy
@@ -139,7 +270,7 @@ public class TurnProcessor {
 
 	/**
 	 * PendingMove
-	 *
+	 * <p>
 	 * This describes a move that a unit has been ordered to make, and is yet to be executed.
 	 */
 	public class PendingMove {
