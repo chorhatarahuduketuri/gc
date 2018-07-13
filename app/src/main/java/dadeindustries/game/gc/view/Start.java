@@ -39,11 +39,16 @@ public class Start extends Activity {
 					if (event.getEventType() == Event.EventType.BATTLE) {
 						showBattleReport(event);
 					}
+
+					if (event.getEventType() == Event.EventType.UNIT_CONSTRUCTION_COMPLETE) {
+						galaxyView.makeToast(event.getDescription());
+					}
 				}
 				galaxyView.invalidate();
 			}
 		});
 
+		/* Prepare music */
 		mediaPlayer = MediaPlayer.create(this, R.raw.lj_kruzer_chantiers_navals);
 		battleAlert = MediaPlayer.create(this, R.raw.redalert_klaxon_sttos_recreated_178032);
 		mediaPlayer.setLooping(true);

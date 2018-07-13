@@ -11,6 +11,7 @@ public class System {
 	private String name;
 	private int x, y;
 	private Faction faction;
+	private ArrayList<QueueItem> buildQueue = new ArrayList<QueueItem>();
 
 	private System(String name, int x, int y, Faction faction) {
 		this.x = x;
@@ -28,23 +29,25 @@ public class System {
 		}
 	}
 
-	private ArrayList buildQueue = new ArrayList();
-
-	public String peekQueueHead() {
-		if (buildQueue.size() == 0) {
-			return "Empty";
-		} else {
-			return buildQueue.get(0).toString();
+	/**
+	 * Checks the head of the build queue for completion.
+	 * This method should be called on each turn.
+	 *
+	 * @return Returns ship when it has been completed
+	 */
+	public Spaceship getBuildQueueHead() {
+		if (buildQueue.size() > 0) {
+			if (buildQueue.get(0).countdown > 0) {
+				buildQueue.get(0).decrementCountdown();
+			} else {
+				return buildQueue.remove(0).ship;
+			}
 		}
-	}
-
-	/* Not working yet */
-	public Spaceship getQueueHead() {
 		return null;
 	}
 
 	public void addToQueue(Spaceship ship) {
-		buildQueue.add(ship);
+		buildQueue.add(new QueueItem(3, ship));
 	}
 
 	public int getX() {
@@ -69,5 +72,22 @@ public class System {
 
 	public void setFaction(Faction faction) {
 		this.faction = faction;
+	}
+
+	class QueueItem {
+
+		Spaceship ship;
+		int countdown;
+
+		public QueueItem(int countdown, Spaceship ship) {
+			this.countdown = countdown;
+			this.ship = ship;
+		}
+
+		public void decrementCountdown() {
+			if (countdown > 0) {
+				countdown = countdown - 1;
+			}
+		}
 	}
 }

@@ -326,7 +326,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		}
 	}
 
-	private void makeToast(String s) {
+	public void makeToast(String s) {
 		Toast.makeText(ctxt, s, Toast.LENGTH_SHORT).show();
 	}
 
@@ -502,8 +502,15 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		CharSequence items[] = new CharSequence[]{
 				"Build CombatShip", "Build ColonyShip"};
 		AlertDialog.Builder sysMenu = new AlertDialog.Builder(ctxt);
-		sysMenu.setTitle("" + system.getName());
+		String title = system.getName();
 
+		if (system.hasFaction()) {
+			title = title + " (" + system.getFaction().toString() + ")";
+		} else {
+			title = title + " (no faction)";
+		}
+
+		sysMenu.setTitle(title);
 
 		if (isHumanFaction(system.getFaction())) {
 
@@ -524,9 +531,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 							// Build Colonyship
 							ColonyShip colony = new ColonyShip(globalGameData.getSectors()
 									[system.getX()][system.getY()],
-									system.getFaction(), "New CombatShip", 0, 4);
+									system.getFaction(), "New ColonyShip", 0, 4);
 							system.addToQueue(colony);
-							makeToast("Building combat ship");
+							makeToast("Building colony ship");
 					}
 				}
 			});
@@ -560,7 +567,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					switch (option) {
 						// SYSTEM
 						case 0:
-							makeToast("Selected system menu!");
+							Log.wtf("Clicked","Selected system menu!");
 							showSystemMenu(getSelectedSystem(currentX, currentY));
 							break;
 
