@@ -567,7 +567,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					switch (option) {
 						// SYSTEM
 						case 0:
-							Log.wtf("Clicked","Selected system menu!");
+							Log.wtf("Clicked", "Selected system menu!");
 							showSystemMenu(getSelectedSystem(currentX, currentY));
 							break;
 

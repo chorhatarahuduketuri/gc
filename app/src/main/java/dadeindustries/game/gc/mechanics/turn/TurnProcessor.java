@@ -10,8 +10,12 @@ import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.GlobalGameData;
+import dadeindustries.game.gc.model.enums.Faction;
+import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
+import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
+import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 
 public class TurnProcessor {
 
@@ -41,7 +45,99 @@ public class TurnProcessor {
 
 		processPendingMoves(globalGameData, events, pendingMoves); // handle unit battles
 
+		// Detect if a player has won the game
+		Player didAnyoneWin = detectWinCondition(globalGameData);
+
+		if (didAnyoneWin != null) {
+			Event winevent = new Event(Event.EventType.WINNER, didAnyoneWin.getFaction()
+					+ " won the game!", null);
+			events.add(winevent);
+		}
+
 		return events;
+	}
+
+	private ArrayList<Spaceship> getAllShipsForFaction(Sector[][] sectors, Faction faction) {
+
+		ArrayList<Spaceship> returnShips = new ArrayList<Spaceship>();
+
+		for (int i = 0; i < sectors.length; i++) {
+			for (int j = 0; j < sectors.length; j++) {
+				for (Spaceship spaceship : sectors[i][j].getUnits()) {
+					if (spaceship.getFaction() == faction) {
+						returnShips.add(spaceship);
+					}
+				}
+			}
+		}
+		return returnShips;
+	}
+
+	private ArrayList<System> getAllSystemsForFaction(Sector[][] sectors, Faction faction) {
+
+		ArrayList returnSystems = new ArrayList();
+
+		for (int i = 0; i < sectors.length; i++) {
+			for (int j = 0; j < sectors.length; j++) {
+				if (sectors[i][j].hasSystem()) {
+					if (sectors[i][j].getSystem().hasFaction()) {
+						if (sectors[i][j].getSystem().getFaction() == faction) {
+							returnSystems.add(sectors[i][j].getSystem());
+						}
+					}
+				}
+			}
+		}
+		return returnSystems;
+	}
+
+	/**
+	 * Detect if someone has won the game
+	 *
+	 * @param globalGameData global game state
+	 * @return Player if someone has won
+	 */
+	private Player detectWinCondition(GlobalGameData globalGameData) {
+
+		Player winningPlayer = null;
+		int activePlayerCount = 0;
+
+		for (Player player : globalGameData.getPlayers()) {
+			boolean alive = false;
+
+			ArrayList<Spaceship> ships = getAllShipsForFaction(globalGameData.getSectors(), player.getFaction());
+			ArrayList<System> systems = getAllSystemsForFaction(globalGameData.getSectors(), player.getFaction());
+
+			/* If player has a colony ship then they can still win */
+			for (Spaceship ship : ships) {
+				if (ship instanceof ColonyShip) {
+					alive = true;
+				}
+			}
+
+			/* If player still has a system then they can still win */
+			if (systems.size() > 0) {
+				alive = true;
+			}
+
+			/* If they have none of these things then it's game over for them */
+			if (alive == false) {
+				player.surrender();
+			} else {
+				activePlayerCount++;
+			}
+		}
+
+		/* If one player is active, WE HAVE A WINNER */
+		if (activePlayerCount == 1) {
+			for (Player player : globalGameData.getPlayers()) {
+				if (player.isDead() == false) {
+					winningPlayer = player;
+				}
+			}
+		}
+
+		return winningPlayer;
 	}
 
 	/**
