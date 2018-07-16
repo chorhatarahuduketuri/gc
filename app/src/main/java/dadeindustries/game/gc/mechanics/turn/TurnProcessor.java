@@ -13,7 +13,6 @@ import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
-import dadeindustries.game.gc.model.factionartifacts.Spacecraft;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;

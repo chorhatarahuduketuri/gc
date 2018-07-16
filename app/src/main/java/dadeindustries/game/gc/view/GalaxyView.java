@@ -27,7 +27,6 @@ import android.widget.Toast;
 import com.example.gc.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.GlobalGameData;
