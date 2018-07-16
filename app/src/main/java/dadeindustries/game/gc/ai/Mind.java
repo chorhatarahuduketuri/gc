@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dadeindustries.game.gc.ai.concepts.Location;
+import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
 import dadeindustries.game.gc.model.factionartifacts.CombatShip;
@@ -19,8 +20,11 @@ import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
  */
 public class Mind {
 
+	private final int veryLongDistance = 100000;
 	private Player player;
 	private double combatColonyShipRatio = 0.8;
+	private int combatShipCounter = 0;
+	private int colonyShipCounter = 0;
 
 	public Mind(Player player) {
 		this.player = player;
@@ -36,62 +40,72 @@ public class Mind {
 	public void computeTurn(GlobalGameData globalGameData, List<System> systemList, List<Spaceship> spaceshipList) {
 		buildNewShips(globalGameData, systemList, spaceshipList);
 		List<Sector> inhabitedEnemySectors = getInhabitedEnemySectors(globalGameData);
-		List<ColonyShip> colonyShips = getColonyShips(spaceshipList);
-		if (colonyShips != null) {
-			// Search for uninhabited worlds
-			List<Sector> uninhabitedSectors = getSectorsWithUninhabitedSystems(globalGameData);
-			// If uninhabited worlds exist
-			if (uninhabitedSectors != null) {
-				for (Sector sector : uninhabitedSectors) {
-					// If colony ship there
-					for (ColonyShip colonyShip : colonyShips) {
-						if (colonyShip.getX() == sector.getX() && colonyShip.getY() == sector.getY()) {
-							// Colonise it
-							// TODO: order colony ship to colonise
-						} else {
-							// Move towards it.
-							// TODO: set colony ship course toward sector
-						}
-					}
-				}
+		computeAndGiveColonyShipOrders(globalGameData, spaceshipList, inhabitedEnemySectors);
+		computeAndGiveCombatShipOrders(globalGameData, spaceshipList, inhabitedEnemySectors);
+	}
 
-			} else {
-				// Find colony ships without courses
-				if (colonyShips != null) {
-					// Find inhabited enemy sectors
-					for (ColonyShip colonyShip : colonyShips) {
-						// Move them towards inhabited enemy world
-						// TODO: order colony ship to attack
-					}
-				}
-
-			}
-		}
+	private void computeAndGiveCombatShipOrders(GlobalGameData globalGameData, List<Spaceship> spaceshipList, List<Sector> inhabitedEnemySectors) {
 		// If combat ships exist
 		List<CombatShip> combatShips = getCombatShips(spaceshipList);
-		// If over enemy world
-		for (CombatShip combatShip : combatShips) {
-			for (Sector sector : inhabitedEnemySectors) {
-				if (combatShip.getX() == sector.getX() && combatShip.getY() == sector.getY()) {
-					// Kill enemy world
-					// TODO: order ship to attack
-				}
-			}
-		}
 		// Locate enemy ships
 		List<Spaceship> enemyShips = getEnemyShips(globalGameData);
-		// If enemy ships exist
-		if (enemyShips != null) {
-			// Move towards enemy ships
-			for (CombatShip combatShip : combatShips) {
-				// TODO: locate nearest enemy ship
+		for (CombatShip combatShip : combatShips) {
+			// If over enemy world, kill it
+			if (isShipInInhabitedEnemySector(combatShip, inhabitedEnemySectors)) {
+				UnitActions.attackSystem(combatShip, globalGameData);
+			} else if (!enemyShips.isEmpty()) {
+				// If there are enemy ships, find and kill them
+				// locate nearest enemy ship
 				Location nearestEnemyShip = calculateLocationOfNearestEnemyShip(combatShip, enemyShips);
-				// TODO: move ship towards it
+				// Set course towards it
+				UnitActions.setCourse(combatShip, nearestEnemyShip.getX(), nearestEnemyShip.getY());
+			} else {
+				// If there are inhabited enemy worlds, go there
+				// Locate nearest inhabited enemy sector
+				Location nearestInhabitedEnemySector = calculateLocationOfNearestSectorFromListOfSectors(new Location(combatShip.getX(), combatShip.getY()), inhabitedEnemySectors);
+				// Set course towards it
+				UnitActions.setCourse(combatShip, nearestInhabitedEnemySector.getX(), nearestInhabitedEnemySector.getY());
 			}
-		} else {
-			// Move towards enemy worlds
-			// TODO: locate nearest inhabited enemy sector
-			// TODO: move ship towards it
+		}
+	}
+
+	private boolean isShipInInhabitedEnemySector(CombatShip combatShip, List<Sector> inhabitedEnemySectors) {
+		for (Sector sector : inhabitedEnemySectors) {
+			if (combatShip.getX() == sector.getX() && combatShip.getY() == sector.getY()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void computeAndGiveColonyShipOrders(GlobalGameData globalGameData, List<Spaceship> spaceshipList, List<Sector> inhabitedEnemySectors) {
+		List<ColonyShip> colonyShips = getColonyShips(spaceshipList);
+		if (!colonyShips.isEmpty()) {
+			// Search for uninhabited worlds
+			List<Sector> uninhabitedSectors = getSectorsWithUninhabitedSystems(globalGameData);
+			for (ColonyShip colonyShip : colonyShips) {
+				if (!uninhabitedSectors.isEmpty()) {
+					// If uninhabited worlds exist, go colonise them
+					Location locationOfNearestUninhabitedSector = calculateLocationOfNearestSectorFromListOfSectors(new Location(colonyShip.getX(), colonyShip.getY()), uninhabitedSectors);
+					if (colonyShip.getX() == locationOfNearestUninhabitedSector.getX() && colonyShip.getY() == locationOfNearestUninhabitedSector.getY()) {
+						UnitActions.coloniseSystem(colonyShip, globalGameData);
+					} else {
+						UnitActions.setCourse(colonyShip, locationOfNearestUninhabitedSector.getX(), locationOfNearestUninhabitedSector.getY());
+					}
+				} else {
+					// If there are no uninhabited worlds, go kill some
+					Location colonyShipLocation = new Location(colonyShip.getX(), colonyShip.getY());
+					// Find nearest inhabited enemy sector
+					Location nearestInhabitedEnemyWorld = calculateLocationOfNearestSectorFromListOfSectors(colonyShipLocation, inhabitedEnemySectors);
+					if (nearestInhabitedEnemyWorld.equals(colonyShipLocation)) {
+						// Order colony ship to attack
+						UnitActions.attackSystem(colonyShip, globalGameData);
+					} else {
+						// Move them towards inhabited enemy world
+						UnitActions.setCourse(colonyShip, nearestInhabitedEnemyWorld.getX(), nearestInhabitedEnemyWorld.getY());
+					}
+				}
+			}
 		}
 	}
 
@@ -99,30 +113,69 @@ public class Mind {
 	 * Gets list of all enemy ships in the galaxy.
 	 *
 	 * @param globalGameData The galaxy
-	 * @return List of Spaceships that belong to enemies, null if no enemy ships exist.
+	 * @return List of Spaceships that belong to enemies
 	 */
 	private List<Spaceship> getEnemyShips(GlobalGameData globalGameData) {
-		return null;
+		List<Spaceship> enemyShips = new LinkedList<Spaceship>();
+		Sector[][] galaxy = globalGameData.getSectors();
+		for (int x = 0; x < galaxy.length; x++) {
+			for (int y = 0; y < galaxy[0].length; y++) {
+				if (galaxy[x][y].hasShips()) {
+					for (Spaceship spaceshipInSector :
+							galaxy[x][y].getUnits()) {
+						if (spaceshipInSector.getFaction() != getPlayer().getFaction()) {
+							enemyShips.add(spaceshipInSector);
+						}
+					}
+				}
+			}
+		}
+		return enemyShips;
 	}
 
 	/**
-	 * TODO: implement this
+	 * Returns a list of all sectors in the galaxy that have systems that are inhabited by enemies.
 	 *
 	 * @param globalGameData
-	 * @return List of Sectors that are inhabited by the enemy, null otherwise.
+	 * @return List of Sectors that are inhabited by the enemy
 	 */
 	private List<Sector> getInhabitedEnemySectors(GlobalGameData globalGameData) {
-		return null;
+		List<Sector> sectorsWithInhabitedEnemySystemsIn = new LinkedList<Sector>();
+		for (Sector sector : getSectorsWithSystemsIn(globalGameData)) {
+			if (sector.getSystem().hasFaction() && sector.getSystem().getFaction() != player.getFaction()) {
+				sectorsWithInhabitedEnemySystemsIn.add(sector);
+			}
+		}
+		return sectorsWithInhabitedEnemySystemsIn;
 	}
 
 	/**
-	 * TODO: implement this
+	 * Returns a list of all sectors in the galaxy that have systems that are uninhabited.
 	 *
 	 * @param globalGameData
-	 * @return List of Systems that are uninhabited, null if there are none
+	 * @return List of Systems that are uninhabited
 	 */
 	private List<Sector> getSectorsWithUninhabitedSystems(GlobalGameData globalGameData) {
-		return null;
+		List<Sector> sectorsWithUninhabitedSystemsIn = new LinkedList<Sector>();
+		for (Sector sector : getSectorsWithSystemsIn(globalGameData)) {
+			if (!sector.getSystem().hasFaction()) {
+				sectorsWithUninhabitedSystemsIn.add(sector);
+			}
+		}
+		return sectorsWithUninhabitedSystemsIn;
+	}
+
+	private List<Sector> getSectorsWithSystemsIn(GlobalGameData globalGameData) {
+		List<Sector> sectorsWithSystemsIn = new LinkedList<Sector>();
+		Sector[][] galaxy = globalGameData.getSectors();
+		for (Sector[] sectors : galaxy) {
+			for (Sector sector : sectors) {
+				if (sector.hasSystem()) {
+					sectorsWithSystemsIn.add(sector);
+				}
+			}
+		}
+		return sectorsWithSystemsIn;
 	}
 
 	private List<ColonyShip> getColonyShips(List<Spaceship> spaceshipList) {
@@ -147,30 +200,26 @@ public class Mind {
 
 	private void buildNewShips(GlobalGameData globalGameData, List<System> systemList, List<Spaceship> spaceshipList) {
 		// Determine spaceship ratio
-		boolean shouldBuildCombatShips = shouldBuildCombatShips(spaceshipList);
+		boolean shouldBuildCombatShips = shouldIBuildCombatShips(spaceshipList);
 		// If any system has empty build queue
 		for (System system : systemList) {
-			if (!system.isBuildQueueEmpty()) {
-				addOptimalShipToBuildQueue(globalGameData, spaceshipList, shouldBuildCombatShips, system);
+			if (system.isBuildQueueEmpty()) {
+				addOptimalShipToBuildQueue(globalGameData, shouldBuildCombatShips, system);
 			}
 		}
 	}
 
-	private void addOptimalShipToBuildQueue(GlobalGameData globalGameData, List<Spaceship> spaceshipList, boolean shouldBuildCombatShips, System system) {
+	private void addOptimalShipToBuildQueue(GlobalGameData globalGameData, boolean shouldBuildCombatShips, System system) {
 		Sector sectorSystemIsIn = globalGameData.getSectors()[system.getX()][system.getY()];
 		// Order any systems not already building a spaceship to build one of the most important type
 		system.addToQueue(shouldBuildCombatShips
 				?
-				new CombatShip(sectorSystemIsIn, getPlayer().getFaction(), "AutoShip" + spaceshipList.size() + 1, 2, 4)
+				new CombatShip(sectorSystemIsIn, getPlayer().getFaction(), getNextShipName(CombatShip.class), 2, 4)
 				:
-				new ColonyShip(sectorSystemIsIn, getPlayer().getFaction(), "AutoCol" + spaceshipList + 1, 0, 4));
+				new ColonyShip(sectorSystemIsIn, getPlayer().getFaction(), getNextShipName(ColonyShip.class), 0, 4));
 	}
 
-	public Player getPlayer() {
-		return player;
-	}
-
-	private boolean shouldBuildCombatShips(List<Spaceship> spaceshipList) {
+	private boolean shouldIBuildCombatShips(List<Spaceship> spaceshipList) {
 		double totalShips = spaceshipList.size();
 		double numberOfCombatShips = 0;
 		for (Spaceship spaceship : spaceshipList) {
@@ -181,30 +230,50 @@ public class Mind {
 		return numberOfCombatShips / totalShips < combatColonyShipRatio;
 	}
 
-	private int calculateShortestDistanceBetweenTwoSectors(Sector a, Sector b) {
-		int xDiff = Math.abs(a.getX() - b.getX());
-		int yDiff = Math.abs(a.getY() - b.getY());
-		return (xDiff < yDiff ? xDiff : yDiff) - Math.abs(xDiff - yDiff);
-	}
-
 	private int calculateShortestDistanceBetweenTwoLocations(Location a, Location b) {
 		int xDiff = Math.abs(a.getX() - b.getX());
 		int yDiff = Math.abs(a.getY() - b.getY());
-		return (xDiff < yDiff ? xDiff : yDiff) - Math.abs(xDiff - yDiff);
+		return Math.abs((xDiff < yDiff ? xDiff : yDiff) + Math.abs(xDiff - yDiff));
 	}
 
-	private Location calculateLocationOfNearestEnemyShip(Spaceship spaceship, List<Spaceship> enemyShips){
+	private Location calculateLocationOfNearestEnemyShip(Spaceship spaceship, List<Spaceship> enemyShips) {
 		Location nearestLocation = new Location(spaceship.getX(), spaceship.getY());
 		Location spaceshipLocation = new Location(spaceship.getX(), spaceship.getY());
-		int distanceToNearestEnemyShip = 100000;
+		int distanceToNearestEnemyShip = veryLongDistance;
 		for (Spaceship enemyShip : enemyShips) {
 			Location enemyShipLocation = new Location(enemyShip.getX(), enemyShip.getY());
 			int distanceToThisEnemyShip = calculateShortestDistanceBetweenTwoLocations(spaceshipLocation, enemyShipLocation);
-			if (distanceToThisEnemyShip <distanceToNearestEnemyShip){
+			if (distanceToThisEnemyShip < distanceToNearestEnemyShip) {
 				nearestLocation = enemyShipLocation;
 				distanceToNearestEnemyShip = distanceToThisEnemyShip;
 			}
 		}
 		return nearestLocation;
+	}
+
+	private Location calculateLocationOfNearestSectorFromListOfSectors(Location startLocation, List<Sector> sectors) {
+		Location nearestLocation = startLocation;
+		int distanceToNearestSector = veryLongDistance;
+		for (Sector sector : sectors) {
+			Location sectorLocation = new Location(sector.getX(), sector.getY());
+			int distanceToSector = calculateShortestDistanceBetweenTwoLocations(startLocation, sectorLocation);
+			if (distanceToSector < distanceToNearestSector) {
+				nearestLocation = sectorLocation;
+				distanceToNearestSector = distanceToSector;
+			}
+		}
+		return nearestLocation;
+	}
+
+	private String getNextShipName(Class clazz) {
+		if (clazz.equals(CombatShip.class)) {
+			return "MCombat" + combatShipCounter++;
+		} else {
+			return "MColony" + colonyShipCounter++;
+		}
+	}
+
+	public Player getPlayer() {
+		return player;
 	}
 }
