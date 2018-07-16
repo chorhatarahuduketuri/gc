@@ -128,4 +128,5 @@ public class GlobalGameData {
 		}
 		return null; // this must never happen
 	}
+
 }

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import dadeindustries.game.gc.ai.Mind;
 import dadeindustries.game.gc.mechanics.Event;
@@ -12,6 +13,7 @@ import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
+import dadeindustries.game.gc.model.factionartifacts.Spacecraft;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
@@ -180,16 +182,14 @@ public class TurnProcessor {
 	 * @param globalGameData The global game state to be computed on by the AIs
 	 */
 	private void computeAiTurns(GlobalGameData globalGameData) {
-		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
-			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
-				for (Spaceship u : globalGameData.getSectors()[x][y].getUnits()) {
-					for (Mind m : globalGameData.getMinds()) {
-						if (m.getPlayer().getFaction().equals(u.getFaction())) {
-							m.giveOrder(u);
-						}
-					}
-				}
-			}
+		ArrayList<Mind> minds = GlobalGameData.getMinds();
+		Sector[][] sectors = globalGameData.getSectors();
+
+		for (Mind mind : minds) {
+			Faction faction = mind.getPlayer().getFaction();
+			List<System> systemList = getAllSystemsForFaction(sectors, faction);
+			List<Spaceship> spaceshipList = getAllShipsForFaction(sectors, faction);
+			mind.computeTurn(globalGameData, systemList, spaceshipList);
 		}
 	}
 

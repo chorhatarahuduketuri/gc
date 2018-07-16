@@ -50,6 +50,10 @@ public class System {
 		buildQueue.add(new QueueItem(3, ship));
 	}
 
+	public boolean isBuildQueueEmpty() {
+		return buildQueue.isEmpty();
+	}
+
 	public int getX() {
 		return x;
 	}
