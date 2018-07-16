@@ -451,7 +451,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				SpacecraftOrder.COLONISE.name()};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
-		builder.setTitle("Menu");
+		builder.setTitle(ship.getShipName());
 		builder.setItems(colors, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
