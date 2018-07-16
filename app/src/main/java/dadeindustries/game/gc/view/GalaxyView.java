@@ -372,6 +372,18 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		return sectors[gameCoods.x][gameCoods.y].getUnits();
 	}
 
+	ArrayList<Spaceship> getSelectedFactionShips(int x, int y, Faction faction) {
+		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
+		ArrayList list = new ArrayList();
+		for (Spaceship ship : sectors[gameCoods.x][gameCoods.y].getUnits()) {
+			if (ship.getFaction() == faction) {
+				list.add(faction);
+			}
+		}
+
+		return list;
+	}
+
 	System getSelectedSystem(int x, int y) {
 		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
 		return sectors[gameCoods.x][gameCoods.y].getSystem();
@@ -582,7 +594,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 						// SHIPS
 						case 1:
-							if (getSelectedShips(currentX, currentY).size() > 1) {
+							if (getSelectedFactionShips(currentX, currentY,
+									globalGameData.getHumanFaction()).size() > 1) {
 								showMultipleShipMenu(getSelectedSector(currentX, currentY));
 							} else {
 								showShipMenu(getSelectedShip(currentX, currentY));
@@ -595,7 +608,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			}).show();
 		} else if (isShipSelected(currentX, currentY)) {
 			Log.wtf("GUI", "ship selected");
-			if (getSelectedShips(currentX, currentY).size() > 1) {
+			if (getSelectedFactionShips(currentX, currentY, globalGameData.getHumanFaction()).size() > 1) {
 				showMultipleShipMenu(getSelectedSector(currentX, currentY));
 			} else {
 				showShipMenu(getSelectedShip(currentX, currentY));
