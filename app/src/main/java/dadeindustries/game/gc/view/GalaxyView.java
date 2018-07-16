@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.example.gc.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.GlobalGameData;
@@ -392,6 +393,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		}
 	}
 
+
 	boolean isSystemSelectedMine(Faction faction, int x, int y) {
 		if (isSystemSelected(x, y) == false) {
 			return false;
@@ -483,10 +485,17 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	public void showMultipleShipMenu(final Sector sector) {
-		CharSequence items[] = new CharSequence[sector.getUnits().size()];
-		for (int i = 0; i < sector.getUnits().size(); i++) {
-			items[i] = sector.getUnits().get(i).getShipName();
+
+		Faction humanFaction = globalGameData.getHumanFaction();
+
+		CharSequence items[] = new CharSequence[sector.getUnits(humanFaction).size()];
+
+		for (int i = 0; i < sector.getUnits(humanFaction).size(); i++) {
+			if (globalGameData.isHumanFaction(sector.getUnits().get(i).getFaction())) {
+				items[i] = sector.getUnits().get(i).getShipName();
+			}
 		}
+
 		AlertDialog.Builder menu = new AlertDialog.Builder(ctxt);
 		menu.setTitle("Select a ship");
 		menu.setItems(items, new DialogInterface.OnClickListener() {
@@ -573,7 +582,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 						// SHIPS
 						case 1:
-							showMultipleShipMenu(getSelectedSector(currentX, currentY));
+							if (getSelectedShips(currentX, currentY).size() > 1) {
+								showMultipleShipMenu(getSelectedSector(currentX, currentY));
+							} else {
+								showShipMenu(getSelectedShip(currentX, currentY));
+							}
 							break;
 						default:
 							Log.wtf("Clicked ", "" + option + " on global menu");

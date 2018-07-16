@@ -60,6 +60,7 @@ public class GlobalGameData {
 		return false;
 	}
 
+
 	private void createTestPlayers() {
 		players.add(new Player(Faction.UNITED_PLANETS, Intelligence.HUMAN, Extant.EXISTENT, 10));
 		players.add(new Player(Faction.MORPHERS, Intelligence.ARTIFICIAL, Extant.EXISTENT, 10));
