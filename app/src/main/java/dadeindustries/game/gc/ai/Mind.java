@@ -44,6 +44,18 @@ public class Mind {
 		computeAndGiveCombatShipOrders(globalGameData, spaceshipList, inhabitedEnemySectors);
 	}
 
+	/**
+	 * This method will give order to all of the AIs combat ships with the following strategy:
+	 * <ul>
+	 * <li>If in an inhabited enemy system, kill it</li>
+	 * <li>If not, then go to the nearest enemy ship to engage it in battle</li>
+	 * <li>If there aren't any enemy ships, go to the nearest enemy world</li>
+	 * </ul>
+	 *
+	 * @param globalGameData        Global game state to look at and make decisions about
+	 * @param spaceshipList         List of it's own spaceships that it's going to give orders to
+	 * @param inhabitedEnemySectors List of enemy controlled sectors that this AI will kill as a second objective
+	 */
 	private void computeAndGiveCombatShipOrders(GlobalGameData globalGameData, List<Spaceship> spaceshipList, List<Sector> inhabitedEnemySectors) {
 		// If combat ships exist
 		List<CombatShip> combatShips = getCombatShips(spaceshipList);
@@ -69,15 +81,19 @@ public class Mind {
 		}
 	}
 
-	private boolean isShipInInhabitedEnemySector(CombatShip combatShip, List<Sector> inhabitedEnemySectors) {
-		for (Sector sector : inhabitedEnemySectors) {
-			if (combatShip.getX() == sector.getX() && combatShip.getY() == sector.getY()) {
-				return true;
-			}
-		}
-		return false;
-	}
-
+	/**
+	 * This method will give orders to all of the AIs colony ships with the following strategy:
+	 * <ul>
+	 * <li>If over an uninhabited system, colonise it</li>
+	 * <li>If not, move to the nearest uninhabited system to colonise it</li>
+	 * <li>If there are no uninhabited systems, and the colony ship is over an inhabited enemy system, kill it</li>
+	 * <li>If there are no uninhabited systems, and the colony ship isn't over an inhabited enemy system, then move towards the nearest inhabited enemy system. </li>
+	 * </ul>
+	 *
+	 * @param globalGameData        Global game state to look at and make decisions about
+	 * @param spaceshipList         List of it's own spaceships that it's going to give orders to
+	 * @param inhabitedEnemySectors List of enemy controlled sectors that this AI will kill and colonise as a second objective
+	 */
 	private void computeAndGiveColonyShipOrders(GlobalGameData globalGameData, List<Spaceship> spaceshipList, List<Sector> inhabitedEnemySectors) {
 		List<ColonyShip> colonyShips = getColonyShips(spaceshipList);
 		if (!colonyShips.isEmpty()) {
@@ -107,6 +123,15 @@ public class Mind {
 				}
 			}
 		}
+	}
+
+	private boolean isShipInInhabitedEnemySector(CombatShip combatShip, List<Sector> inhabitedEnemySectors) {
+		for (Sector sector : inhabitedEnemySectors) {
+			if (combatShip.getX() == sector.getX() && combatShip.getY() == sector.getY()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -142,7 +167,7 @@ public class Mind {
 	private List<Sector> getInhabitedEnemySectors(GlobalGameData globalGameData) {
 		List<Sector> sectorsWithInhabitedEnemySystemsIn = new LinkedList<Sector>();
 		for (Sector sector : getSectorsWithSystemsIn(globalGameData)) {
-			if (sector.getSystem().hasFaction() && sector.getSystem().getFaction() != player.getFaction()) {
+			if (sector.getSystem().hasFaction() && sector.getSystem().getFaction() != getPlayer().getFaction()) {
 				sectorsWithInhabitedEnemySystemsIn.add(sector);
 			}
 		}
