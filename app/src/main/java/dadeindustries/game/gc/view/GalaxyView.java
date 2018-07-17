@@ -467,7 +467,20 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 						break;
 					case 2:
 						setSelectedShipForOnClick();
-						UnitActions.coloniseSystem(selectedShip, globalGameData);
+						//UnitActions.coloniseSystem(selectedShip, globalGameData);
+						if (selectedShip instanceof ColonyShip) {
+							if (sectors[currentX][currentY].hasSystem()) {
+								if (sectors[currentX][currentY].getSystem().hasFaction() == false) {
+									selectedShip.clearCourse();
+									((ColonyShip) selectedShip).colonise();
+									makeToast("Colonising...");
+								} else {
+									makeToast("Already colonised " + sectors[currentX][currentY].getSystem().hasFaction());
+								}
+							} else {
+								makeToast("Nothing to colonise");
+							}
+						}
 						break;
 					default:
 						Log.wtf("Clicked ", "" + which);

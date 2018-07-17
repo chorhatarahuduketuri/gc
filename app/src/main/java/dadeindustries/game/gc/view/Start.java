@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.example.gc.R;
 
@@ -45,6 +47,9 @@ public class Start extends Activity {
 							galaxyView.makeToast(event.getDescription());
 							break;
 						case RANDOM_EVENT:
+							break;
+						case COLONISE:
+							showColonisationEvent(event.getDescription());
 							break;
 						case WINNER:
 							showEndGamePopup(event.getDescription());
@@ -85,6 +90,28 @@ public class Start extends Activity {
 				.create()
 				.show();
 		battleAlert.start();
+	}
+
+	public void showColonisationEvent(String s) {
+		ImageView image = new ImageView(this);
+		image.setMaxHeight(getResources().getDisplayMetrics().heightPixels / 2);
+		image.setImageResource(R.drawable.colonise);
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+		image.setLayoutParams(params);
+
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(this).
+						setMessage(s).
+						setPositiveButton("OK", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+							}
+						}).
+						setView(image);
+		builder.create().show();
 	}
 
 	public void showEndGamePopup(String message) {

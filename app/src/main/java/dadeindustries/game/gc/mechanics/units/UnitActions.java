@@ -5,11 +5,20 @@ import android.util.Log;
 import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.GlobalGameData;
+import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
 import dadeindustries.game.gc.model.factionartifacts.Spacecraft;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 public class UnitActions {
+
+	public static void setColonise(Spaceship unit) {
+		if (unit instanceof ColonyShip) {
+			((ColonyShip) unit).colonise();
+		} else {
+			Log.wtf("Info", "This ship cannot colonise");
+		}
+	}
 
 	public static void setCourse(Spaceship unit, int destX, int destY) {
 
