@@ -13,7 +13,6 @@ import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
-import dadeindustries.game.gc.model.factionartifacts.Spacecraft;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
@@ -45,7 +44,9 @@ public class TurnProcessor {
 
 		processUnitActions(globalGameData, pendingMoves); // handle unit movements
 
-		processPendingMoves(globalGameData, events, pendingMoves); // handle unit battles
+		processPendingMoves(globalGameData, events, pendingMoves);
+
+		processConflicts(globalGameData, events); // handle unit battles
 
 		// Detect if a player has won the game
 		Player didAnyoneWin = detectWinCondition(globalGameData);
@@ -195,7 +196,6 @@ public class TurnProcessor {
 
 	/**
 	 * The UI creates a finite number of "pending moves" per turn.
-	 * This method handles pending battles.
 	 *
 	 * @param globalGameData The global state with all the sectors (there is only one instance)
 	 * @param events         An existing list of events that can be appended to with new events.
@@ -207,24 +207,27 @@ public class TurnProcessor {
 			pendingMoveUnit.setSector(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]);
 			Log.wtf("Next: ", "" + pendingMove.getX() + "," + pendingMove.getY());
 			globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].addShip(pendingMoveUnit);
+		}
+	}
 
-			/* Detect if battles occur */
-			for (Spaceship unit : globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].getUnits()) {
-				/* If there are two opposing factions */
-				if (unit.getFaction() != pendingMoveUnit.getFaction()) {
-					events.add(UnitActions.processBattle(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]));
+	private void processConflicts(GlobalGameData globalGameData, ArrayList<Event> events) {
+
+		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
+			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
+				if (globalGameData.getSectors()[x][y].numberOfFactionsInSector() > 1) {
+					events.add(UnitActions.processBattle(globalGameData.getSectors()[x][y]));
 				}
-			}
 
-			/* Remove dead ships */
-			Iterator<Spaceship> iterator = globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].getUnits().iterator();
+				/* Remove dead ships */
+				Iterator<Spaceship> iterator = globalGameData.getSectors()[x][y].getUnits().iterator();
 
-			while (iterator.hasNext()) {
-				Spaceship aUnit = iterator.next();
-				if (aUnit.getCurrentHP() <= 0) {
-					Log.wtf("Battle", aUnit.getShipName() + " destroyed");
+				while (iterator.hasNext()) {
+					Spaceship aUnit = iterator.next();
+					if (aUnit.getCurrentHP() <= 0) {
+						Log.wtf("Battle", aUnit.getShipName() + " destroyed");
 
-					iterator.remove();
+						iterator.remove();
+					}
 				}
 			}
 		}

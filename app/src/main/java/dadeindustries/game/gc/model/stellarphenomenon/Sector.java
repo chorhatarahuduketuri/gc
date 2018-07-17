@@ -1,6 +1,8 @@
 package dadeindustries.game.gc.model.stellarphenomenon;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
@@ -61,6 +63,16 @@ public class Sector {
 
 	public ArrayList<Spaceship> getUnits() {
 		return units;
+	}
+
+	public int numberOfFactionsInSector() {
+		Set set = new HashSet();
+		for (Spaceship ship : getUnits()) {
+			if (!set.contains(ship.getFaction())) {
+				set.add(ship.getFaction());
+			}
+		}
+		return set.size();
 	}
 
 	public boolean hasShips() {
