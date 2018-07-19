@@ -35,7 +35,7 @@ public class Start extends Activity {
 		button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				turnProcessor = new TurnProcessor();
+				turnProcessor = new TurnProcessor();g
 				ArrayList<Event> events = turnProcessor.endTurn(galaxyView.getGlobalGameData());
 				for (Event event : events) {
 
@@ -117,6 +117,7 @@ public class Start extends Activity {
 	public void showEndGamePopup(String message) {
 		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 		dialog.setTitle("Game over");
+		dialog.setCancelable(false);
 		dialog.setMessage(message);
 		dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
