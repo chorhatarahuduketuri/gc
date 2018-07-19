@@ -3,6 +3,7 @@ package dadeindustries.game.gc.model.stellarphenomenon;
 import java.util.ArrayList;
 
 import dadeindustries.game.gc.model.Coordinates;
+import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 
@@ -61,6 +62,16 @@ public class Sector {
 
 	public ArrayList<Spaceship> getUnits() {
 		return units;
+	}
+
+	public ArrayList<Spaceship> getUnits(Faction faction) {
+		ArrayList<Spaceship> list = new ArrayList<Spaceship>();
+		for (Spaceship ship : getUnits()) {
+			if (ship.getFaction() == faction) {
+				list.add(ship);
+			}
+		}
+		return list;
 	}
 
 	public boolean hasShips() {

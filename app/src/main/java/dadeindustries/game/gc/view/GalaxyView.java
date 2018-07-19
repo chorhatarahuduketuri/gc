@@ -371,6 +371,18 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		return sectors[gameCoods.x][gameCoods.y].getUnits();
 	}
 
+	ArrayList<Spaceship> getSelectedFactionShips(int x, int y, Faction faction) {
+		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
+		ArrayList list = new ArrayList();
+		for (Spaceship ship : sectors[gameCoods.x][gameCoods.y].getUnits()) {
+			if (ship.getFaction() == faction) {
+				list.add(faction);
+			}
+		}
+
+		return list;
+	}
+
 	System getSelectedSystem(int x, int y) {
 		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
 		return sectors[gameCoods.x][gameCoods.y].getSystem();
@@ -391,6 +403,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			return false;
 		}
 	}
+
 
 	boolean isSystemSelectedMine(Faction faction, int x, int y) {
 		if (isSystemSelected(x, y) == false) {
@@ -449,7 +462,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				SpacecraftOrder.COLONISE.name()};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
-		builder.setTitle("Menu");
+		builder.setTitle(ship.getShipName());
 		builder.setItems(colors, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -483,10 +496,17 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	public void showMultipleShipMenu(final Sector sector) {
-		CharSequence items[] = new CharSequence[sector.getUnits().size()];
-		for (int i = 0; i < sector.getUnits().size(); i++) {
-			items[i] = sector.getUnits().get(i).getShipName();
+
+		Faction humanFaction = globalGameData.getHumanFaction();
+
+		CharSequence items[] = new CharSequence[sector.getUnits(humanFaction).size()];
+
+		for (int i = 0; i < sector.getUnits(humanFaction).size(); i++) {
+			if (globalGameData.isHumanFaction(sector.getUnits().get(i).getFaction())) {
+				items[i] = sector.getUnits().get(i).getShipName();
+			}
 		}
+
 		AlertDialog.Builder menu = new AlertDialog.Builder(ctxt);
 		menu.setTitle("Select a ship");
 		menu.setItems(items, new DialogInterface.OnClickListener() {
@@ -573,7 +593,12 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 						// SHIPS
 						case 1:
-							showMultipleShipMenu(getSelectedSector(currentX, currentY));
+							if (getSelectedFactionShips(currentX, currentY,
+									globalGameData.getHumanFaction()).size() > 1) {
+								showMultipleShipMenu(getSelectedSector(currentX, currentY));
+							} else {
+								showShipMenu(getSelectedShip(currentX, currentY));
+							}
 							break;
 						default:
 							Log.wtf("Clicked ", "" + option + " on global menu");
@@ -582,7 +607,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			}).show();
 		} else if (isShipSelected(currentX, currentY)) {
 			Log.wtf("GUI", "ship selected");
-			if (getSelectedShips(currentX, currentY).size() > 1) {
+			if (getSelectedFactionShips(currentX, currentY, globalGameData.getHumanFaction()).size() > 1) {
 				showMultipleShipMenu(getSelectedSector(currentX, currentY));
 			} else {
 				showShipMenu(getSelectedShip(currentX, currentY));
