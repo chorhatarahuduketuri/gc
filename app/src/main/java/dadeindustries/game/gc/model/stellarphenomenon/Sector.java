@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import dadeindustries.game.gc.model.Coordinates;
+import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 
@@ -73,6 +74,16 @@ public class Sector {
 			}
 		}
 		return set.size();
+	}
+
+	public ArrayList<Spaceship> getUnits(Faction faction) {
+		ArrayList<Spaceship> list = new ArrayList<Spaceship>();
+		for (Spaceship ship : getUnits()) {
+			if (ship.getFaction() == faction) {
+				list.add(ship);
+			}
+		}
+		return list;
 	}
 
 	public boolean hasShips() {
