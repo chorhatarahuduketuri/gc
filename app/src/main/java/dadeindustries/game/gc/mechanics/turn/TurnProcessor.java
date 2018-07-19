@@ -42,7 +42,7 @@ public class TurnProcessor {
 
 		updateBuildQueues(globalGameData.getSectors(), events);
 
-		processUnitActions(globalGameData, pendingMoves); // handle unit movements
+		processUnitActions(globalGameData, pendingMoves, events); // handle unit movements
 
 		processPendingMoves(globalGameData, events, pendingMoves); // handle unit battles
 
@@ -237,7 +237,7 @@ public class TurnProcessor {
 	 * @param globalGameData The global state with all the sectors (there is only one instance)
 	 * @param pendingMoves   A list of actions a player has made this turn.
 	 */
-	private void processUnitActions(GlobalGameData globalGameData, ArrayList<PendingMove> pendingMoves) {
+	private void processUnitActions(GlobalGameData globalGameData, ArrayList<PendingMove> pendingMoves, ArrayList<Event> events) {
 		// For each sector of the galaxy
 		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
 			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
@@ -260,6 +260,20 @@ public class TurnProcessor {
 							pendingMoves.add(new PendingMove(unit, destinationCoordinates.x, destinationCoordinates.y));
 							/* Remove ship from this sector */
 							localShips.remove(u);
+						} else if (localShips.get(u) instanceof ColonyShip) {
+							if (((ColonyShip) localShips.get(u)).isColonising()) {
+								if (sector.hasSystem()) {
+									if (sector.getSystem().hasFaction() == false) {
+										Log.wtf("Colony", "Colonised");
+										UnitActions.coloniseSystem(localShips.get(u), globalGameData);
+										/* Remove ship from this sector */
+										localShips.remove(u);
+										events.add(new Event(Event.EventType.COLONISE,
+												sector.getSystem().getName() +
+														" was colonised", new Coordinates(x, y)));
+									}
+								}
+							}
 						}
 					}
 				}
