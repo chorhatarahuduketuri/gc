@@ -117,6 +117,7 @@ public class Start extends Activity {
 	public void showEndGamePopup(String message) {
 		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 		dialog.setTitle("Game over");
+		dialog.setCancelable(false);
 		dialog.setMessage(message);
 		dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
