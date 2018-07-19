@@ -35,7 +35,7 @@ public class Start extends Activity {
 		button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				turnProcessor = new TurnProcessor();g
+				turnProcessor = new TurnProcessor();
 				ArrayList<Event> events = turnProcessor.endTurn(galaxyView.getGlobalGameData());
 				for (Event event : events) {
 
