@@ -3,13 +3,12 @@ package dadeindustries.game.gc.model.stellarphenomenon;
 import java.util.ArrayList;
 
 import dadeindustries.game.gc.model.Coordinates;
-import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
+import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 
 public class Sector {
 
-	private System system = null;
 
 	/**
 	 * TODO: flesh out this class.
@@ -19,8 +18,14 @@ public class Sector {
 
 	private int x;
 	private int y;
+	private System system = null;
 
 	private ArrayList<Spaceship> units = new ArrayList<Spaceship>();
+
+	public Sector(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
 
 	public Sector(int x, int y, System system) {
 		this.x = x;
@@ -64,10 +69,10 @@ public class Sector {
 		return units;
 	}
 
-	public ArrayList<Spaceship> getUnits(Faction faction) {
+	public ArrayList<Spaceship> getUnits(Player player) {
 		ArrayList<Spaceship> list = new ArrayList<Spaceship>();
 		for (Spaceship ship : getUnits()) {
-			if (ship.getFaction() == faction) {
+			if (ship.getOwner() == player) {
 				list.add(ship);
 			}
 		}

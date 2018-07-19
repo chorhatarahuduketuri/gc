@@ -8,10 +8,12 @@ import java.util.List;
 import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.enums.SpacecraftOrder;
+import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 //all controllable units
 public abstract class Spaceship implements Spacecraft {
+	protected Player player;
 	protected Sector currentLocation;
 	protected Faction faction;
 	protected String unitName;
@@ -20,13 +22,18 @@ public abstract class Spaceship implements Spacecraft {
 	private int attackLevel;
 	private int currentHP;
 
-	public Spaceship(Sector currentLocation, Faction faction, String shipName, int attackLevel, int startingHP) {
+	public Spaceship(Player player, Sector currentLocation, Faction faction, String shipName, int attackLevel, int startingHP) {
+		this.player = player;
 		this.faction = faction;
 		unitName = shipName;
 		this.currentLocation = currentLocation;
 		this.attackLevel = attackLevel;
 		this.currentHP = startingHP;
 		course = new ArrayDeque<Coordinates>();
+	}
+
+	public Player getOwner() {
+		return player;
 	}
 
 	public int getX() {

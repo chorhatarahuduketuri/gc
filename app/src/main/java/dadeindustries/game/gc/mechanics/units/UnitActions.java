@@ -81,7 +81,7 @@ public class UnitActions {
 
 			int j = i;
 
-			while (sector.getUnits().get(j).getFaction() == sector.getUnits().get(i).getFaction()) {
+			while (sector.getUnits().get(j).getOwner() == sector.getUnits().get(i).getOwner()) {
 				j++;
 				if (j >= sector.getUnits().size()) {
 					target = 0;
@@ -116,15 +116,15 @@ public class UnitActions {
 
 	public static void coloniseSystem(Spacecraft selectedShip, GlobalGameData globalGameData) {
 		Sector selectedSector = globalGameData.getSectors()[selectedShip.getX()][selectedShip.getY()];
-		if (selectedSector.hasSystem() && !selectedSector.getSystem().hasFaction()) {
-			selectedSector.getSystem().setFaction(selectedShip.getFaction());
+		if (selectedSector.hasSystem() && !selectedSector.getSystem().hasOwner()) {
+			selectedSector.getSystem().setOwner(selectedShip.getOwner());
 		}
 	}
 
 	public static void attackSystem(Spacecraft selectedShip, GlobalGameData globalGameData) {
 		Sector selectedSector = globalGameData.getSectors()[selectedShip.getX()][selectedShip.getY()];
-		if (selectedSector.hasSystem() && selectedSector.getSystem().hasFaction() && selectedSector.getSystem().getFaction() != selectedShip.getFaction()) {
-			selectedSector.getSystem().setFaction(null);
+		if (selectedSector.hasSystem() && selectedSector.getSystem().hasOwner() && selectedSector.getSystem().getOwner() != selectedShip.getOwner()) {
+			selectedSector.getSystem().setOwner(null);
 		}
 	}
 }

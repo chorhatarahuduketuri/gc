@@ -6,13 +6,14 @@ import java.util.List;
 
 import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.enums.SpacecraftOrder;
+import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 public class ColonyShip extends Spaceship {
 
 	protected List<SpacecraftOrder> validOrders = new LinkedList<SpacecraftOrder>(Arrays.asList(SpacecraftOrder.MOVE, SpacecraftOrder.COLONISE));
 
-	public ColonyShip(Sector currentLocation, Faction faction, String shipName, int attackLevel, int startingHP) {
-		super(currentLocation, faction, shipName, attackLevel, startingHP);
+	public ColonyShip(Player player, Sector currentLocation, Faction faction, String shipName, int attackLevel, int startingHP) {
+		super(player, currentLocation, faction, shipName, attackLevel, startingHP);
 	}
 }

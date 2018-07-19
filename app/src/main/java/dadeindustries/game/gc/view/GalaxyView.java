@@ -30,15 +30,15 @@ import java.util.ArrayList;
 
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.GlobalGameData;
-import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.enums.SpacecraftOrder;
 import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
 import dadeindustries.game.gc.model.factionartifacts.CombatShip;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
+import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 
-import static dadeindustries.game.gc.model.GlobalGameData.isHumanFaction;
+import static dadeindustries.game.gc.model.GlobalGameData.isHumanPlayer;
 
 public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
@@ -214,13 +214,13 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					ArrayList<Spaceship> ships = sectors[i][j].getUnits();
 					for (Spaceship ship : ships) {
 
-						switch (ship.getFaction()) {
+						switch (ship.getOwner().getIntelligence()) {
 
-							case UNITED_PLANETS:
+							case HUMAN:
 								canvas.drawBitmap(up, null, r, paint);
 								break;
 
-							case MORPHERS:
+							case ARTIFICIAL:
 								canvas.drawBitmap(mo, null, r, paint);
 								break;
 
@@ -347,7 +347,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		if (sectors[gameCoods.x][gameCoods.y].hasShips()) {
 			for (Spaceship u : sectors[gameCoods.x][gameCoods.y].getUnits()) {
-				if (isHumanFaction((u.getFaction()))) {
+				if (isHumanPlayer((u.getOwner()))) {
 					return true;
 				}
 			}
@@ -371,12 +371,12 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		return sectors[gameCoods.x][gameCoods.y].getUnits();
 	}
 
-	ArrayList<Spaceship> getSelectedFactionShips(int x, int y, Faction faction) {
+	ArrayList<Spaceship> getSelectedPlayerShips(int x, int y, Player player) {
 		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
 		ArrayList list = new ArrayList();
 		for (Spaceship ship : sectors[gameCoods.x][gameCoods.y].getUnits()) {
-			if (ship.getFaction() == faction) {
-				list.add(faction);
+			if (ship.getOwner() == player) {
+				list.add(player);
 			}
 		}
 
@@ -405,12 +405,12 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 
-	boolean isSystemSelectedMine(Faction faction, int x, int y) {
+	boolean isSystemSelectedMine(Player player, int x, int y) {
 		if (isSystemSelected(x, y) == false) {
 			return false;
 		}
 
-		if (globalGameData.getSectors()[x][y].getSystem().getFaction() == faction) {
+		if (globalGameData.getSectors()[x][y].getSystem().getOwner() == player) {
 			return true;
 		}
 
@@ -449,8 +449,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 
 	private void setSelectedShipForOnClick() {
-		selectedShip = (isHumanFaction(
-				getSelectedShip(currentX, currentY).getFaction()) ?
+		selectedShip = (isHumanPlayer(
+				getSelectedShip(currentX, currentY).getOwner()) ?
 				getSelectedShip(currentX, currentY) :
 				null);
 	}
@@ -497,12 +497,12 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	public void showMultipleShipMenu(final Sector sector) {
 
-		Faction humanFaction = globalGameData.getHumanFaction();
+		Player humanPlayer = globalGameData.getHumanPlayer();
 
-		CharSequence items[] = new CharSequence[sector.getUnits(humanFaction).size()];
+		CharSequence items[] = new CharSequence[sector.getUnits(humanPlayer).size()];
 
-		for (int i = 0; i < sector.getUnits(humanFaction).size(); i++) {
-			if (globalGameData.isHumanFaction(sector.getUnits().get(i).getFaction())) {
+		for (int i = 0; i < sector.getUnits(humanPlayer).size(); i++) {
+			if (globalGameData.isHumanPlayer(sector.getUnits().get(i).getOwner())) {
 				items[i] = sector.getUnits().get(i).getShipName();
 			}
 		}
@@ -524,15 +524,15 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		AlertDialog.Builder sysMenu = new AlertDialog.Builder(ctxt);
 		String title = system.getName();
 
-		if (system.hasFaction()) {
-			title = title + " (" + system.getFaction().toString() + ")";
+		if (system.hasOwner()) {
+			title = title + " (" + system.getOwner().getIntelligence() + " intelligence)";
 		} else {
-			title = title + " (no faction)";
+			title = title + " (no player)";
 		}
 
 		sysMenu.setTitle(title);
 
-		if (isHumanFaction(system.getFaction())) {
+		if (isHumanPlayer(system.getOwner())) {
 
 			sysMenu.setItems(items, new DialogInterface.OnClickListener() {
 				@Override
@@ -541,17 +541,25 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					switch (option) {
 						case 0:
 							// Build combatship
-							CombatShip combat = new CombatShip(globalGameData.getSectors()
-									[system.getX()][system.getY()],
-									system.getFaction(), "New CombatShip", 2, 4);
+							CombatShip combat = new CombatShip(
+									system.getOwner(),
+									globalGameData.getSectors()[system.getX()][system.getY()],
+									system.getOwner().getFaction(),
+									"New CombatShip",
+									2,
+									4);
 							system.addToQueue(combat);
 							makeToast("Building combat ship");
 
 						case 1:
 							// Build Colonyship
-							ColonyShip colony = new ColonyShip(globalGameData.getSectors()
-									[system.getX()][system.getY()],
-									system.getFaction(), "New ColonyShip", 0, 4);
+							ColonyShip colony = new ColonyShip(
+									system.getOwner(),
+									globalGameData.getSectors()[system.getX()][system.getY()],
+									system.getOwner().getFaction(),
+									"New ColonyShip",
+									0,
+									4);
 							system.addToQueue(colony);
 							makeToast("Building colony ship");
 					}
@@ -566,8 +574,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * A popup menu that gives the player some options about the entity
-	 * TODO: This should eventually be generic to handle units, planets, and other
-	 * things.
+	 * TODO: This should eventually be generic to handle units, planets, and other things.
 	 */
 	public void showMenu() {
 
@@ -593,8 +600,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 						// SHIPS
 						case 1:
-							if (getSelectedFactionShips(currentX, currentY,
-									globalGameData.getHumanFaction()).size() > 1) {
+							if (getSelectedPlayerShips(currentX, currentY,
+									globalGameData.getHumanPlayer()).size() > 1) {
 								showMultipleShipMenu(getSelectedSector(currentX, currentY));
 							} else {
 								showShipMenu(getSelectedShip(currentX, currentY));
@@ -607,7 +614,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			}).show();
 		} else if (isShipSelected(currentX, currentY)) {
 			Log.wtf("GUI", "ship selected");
-			if (getSelectedFactionShips(currentX, currentY, globalGameData.getHumanFaction()).size() > 1) {
+			if (getSelectedPlayerShips(currentX, currentY, globalGameData.getHumanPlayer()).size() > 1) {
 				showMultipleShipMenu(getSelectedSector(currentX, currentY));
 			} else {
 				showShipMenu(getSelectedShip(currentX, currentY));
