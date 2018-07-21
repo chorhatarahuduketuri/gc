@@ -169,6 +169,14 @@ public class TurnProcessor {
 								"New ship at " + sectors[i][j].getSystem().getName(),
 								sectors[i][j].getCoordinates()));
 					}
+
+					// If occupied system has an empty build queue then make an event
+					if (sectors[i][j].getSystem().isBuildQueueEmpty() &&
+							sectors[i][j].getSystem().hasFaction()) {
+						events.add(new Event(Event.EventType.EMPTY_QUEUE,
+								"Empty queue at " + sectors[i][j].getSystem().getName(),
+								null));
+					}
 				}
 			}
 		}

@@ -14,15 +14,17 @@ import android.widget.LinearLayout;
 import com.example.gc.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.mechanics.turn.TurnProcessor;
 
 public class Start extends Activity {
 
+	private List<Event> eventlist = null;
 	private MediaPlayer mediaPlayer, battleAlert;
 	private GalaxyView galaxyView;
-	private Button button;
+	private Button endTurnButton;
 	private TurnProcessor turnProcessor;
 
 	@Override
@@ -30,13 +32,21 @@ public class Start extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		/* Disables global menu button for now */
+		Button menuButton = (Button) findViewById(R.id.menu);
+		menuButton.setEnabled(false);
+
 		galaxyView = (GalaxyView) findViewById(R.id.myview);
-		button = (Button) findViewById(R.id.button);
-		button.setOnClickListener(new View.OnClickListener() {
+
+		/* When the end turn button is pressed */
+		endTurnButton = (Button) findViewById(R.id.button);
+		endTurnButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				turnProcessor = new TurnProcessor();
 				ArrayList<Event> events = turnProcessor.endTurn(galaxyView.getGlobalGameData());
+
+				/* Get events from the next turn and display ones of interest to UI */
 				for (Event event : events) {
 
 					switch (event.getEventType()) {
@@ -56,7 +66,17 @@ public class Start extends Activity {
 							break;
 					}
 				}
-				galaxyView.invalidate();
+				galaxyView.invalidate(); /* Force a repaint of the screen */
+				eventlist = events;
+			}
+		});
+
+		/* When the Summary button is pressed, show what happened during the last turn */
+		Button summaryButton = (Button) findViewById(R.id.summary);
+		summaryButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showSummary();
 			}
 		});
 
@@ -90,6 +110,35 @@ public class Start extends Activity {
 				.create()
 				.show();
 		battleAlert.start();
+	}
+
+	/**
+	 * Shows a list of all events in the last turn in a popup box
+	 */
+	public void showSummary() {
+
+		String s = "";
+
+		if (eventlist != null) {
+			for (Event event : eventlist) {
+				s = s + "* " + event.getDescription() + "\n";
+			}
+		} else {
+			s = "No events";
+		}
+
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(this).
+						setTitle("Turn summary").
+						setMessage(s).
+						setIcon(android.R.drawable.ic_dialog_info).
+						setPositiveButton("OK", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+							}
+						});
+		builder.create().show();
 	}
 
 	public void showColonisationEvent(String s) {
