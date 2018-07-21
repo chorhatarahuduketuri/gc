@@ -119,6 +119,7 @@ public class Start extends Activity {
 		dialog.setTitle("Game over");
 		dialog.setCancelable(false);
 		dialog.setMessage(message);
+		dialog.setIcon(android.R.drawable.ic_popup_sync);
 		dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				// Deliberately empty. Just dismisses the popup.
