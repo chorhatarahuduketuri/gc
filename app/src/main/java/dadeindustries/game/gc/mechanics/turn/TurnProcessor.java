@@ -41,9 +41,11 @@ public class TurnProcessor {
 
 		updateBuildQueues(globalGameData.getSectors(), events);
 
-		processUnitActions(globalGameData, pendingMoves); // handle unit movements
+		processUnitActions(globalGameData, pendingMoves, events); // handle unit movements
 
-		processPendingMoves(globalGameData, events, pendingMoves); // handle unit battles
+		processPendingMoves(globalGameData, events, pendingMoves);
+
+		processConflicts(globalGameData, events); // handle unit battles
 
 		// Detect if a player has won the game
 		Player didAnyoneWin = detectWinCondition(globalGameData);
@@ -167,6 +169,14 @@ public class TurnProcessor {
 								"New ship at " + sectors[i][j].getSystem().getName(),
 								sectors[i][j].getCoordinates()));
 					}
+
+					// If occupied system has an empty build queue then make an event
+					if (sectors[i][j].getSystem().isBuildQueueEmpty() &&
+							sectors[i][j].getSystem().hasOwner()) {
+						events.add(new Event(Event.EventType.EMPTY_QUEUE,
+								"Empty queue at " + sectors[i][j].getSystem().getName(),
+								null));
+					}
 				}
 			}
 		}
@@ -194,7 +204,6 @@ public class TurnProcessor {
 
 	/**
 	 * The UI creates a finite number of "pending moves" per turn.
-	 * This method handles pending battles.
 	 *
 	 * @param globalGameData The global state with all the sectors (there is only one instance)
 	 * @param events         An existing list of events that can be appended to with new events.
@@ -206,24 +215,27 @@ public class TurnProcessor {
 			pendingMoveUnit.setSector(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]);
 			Log.wtf("Next: ", "" + pendingMove.getX() + "," + pendingMove.getY());
 			globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].addShip(pendingMoveUnit);
+		}
+	}
 
-			/* Detect if battles occur */
-			for (Spaceship unit : globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].getUnits()) {
-				/* If there are two opposing players */
-				if (unit.getOwner() != pendingMoveUnit.getOwner()) {
-					events.add(UnitActions.processBattle(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]));
+	private void processConflicts(GlobalGameData globalGameData, ArrayList<Event> events) {
+
+		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
+			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
+				if (globalGameData.getSectors()[x][y].numberOfPlayersInSector() > 1) {
+					events.add(UnitActions.processBattle(globalGameData.getSectors()[x][y]));
 				}
-			}
 
-			/* Remove dead ships */
-			Iterator<Spaceship> iterator = globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].getUnits().iterator();
+				/* Remove dead ships */
+				Iterator<Spaceship> iterator = globalGameData.getSectors()[x][y].getUnits().iterator();
 
-			while (iterator.hasNext()) {
-				Spaceship aUnit = iterator.next();
-				if (aUnit.getCurrentHP() <= 0) {
-					Log.wtf("Battle", aUnit.getShipName() + " destroyed");
+				while (iterator.hasNext()) {
+					Spaceship aUnit = iterator.next();
+					if (aUnit.getCurrentHP() <= 0) {
+						Log.wtf("Battle", aUnit.getShipName() + " destroyed");
 
-					iterator.remove();
+						iterator.remove();
+					}
 				}
 			}
 		}
@@ -237,7 +249,7 @@ public class TurnProcessor {
 	 * @param globalGameData The global state with all the sectors (there is only one instance)
 	 * @param pendingMoves   A list of actions a player has made this turn.
 	 */
-	private void processUnitActions(GlobalGameData globalGameData, ArrayList<PendingMove> pendingMoves) {
+	private void processUnitActions(GlobalGameData globalGameData, ArrayList<PendingMove> pendingMoves, ArrayList<Event> events) {
 		// For each sector of the galaxy
 		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
 			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
@@ -260,6 +272,20 @@ public class TurnProcessor {
 							pendingMoves.add(new PendingMove(unit, destinationCoordinates.x, destinationCoordinates.y));
 							/* Remove ship from this sector */
 							localShips.remove(u);
+						} else if (localShips.get(u) instanceof ColonyShip) {
+							if (((ColonyShip) localShips.get(u)).isColonising()) {
+								if (sector.hasSystem()) {
+									if (sector.getSystem().hasOwner() == false) {
+										Log.wtf("Colony", "Colonised");
+										UnitActions.coloniseSystem(localShips.get(u), globalGameData);
+										/* Remove ship from this sector */
+										localShips.remove(u);
+										events.add(new Event(Event.EventType.COLONISE,
+												sector.getSystem().getName() +
+														" was colonised", new Coordinates(x, y)));
+									}
+								}
+							}
 						}
 					}
 				}

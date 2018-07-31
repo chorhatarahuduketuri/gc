@@ -18,6 +18,7 @@ import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
@@ -70,6 +71,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private Spaceship selectedShip;
 	private Sector selectedSector;
 
+	ScaleGestureDetector pinchDetector;
+
 
 	public GalaxyView(Context context) {
 		super(context);
@@ -108,6 +111,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		// Enable gesture detection
 		gestureDetector = new GestureDetector(ctxt, new GestureListener());
+		pinchDetector = new ScaleGestureDetector(context, new PinchListener());
 
 		setOnTouchListener(this);
 
@@ -263,6 +267,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	public boolean onTouch(View view, MotionEvent motion) {
 
 		gestureDetector.onTouchEvent(motion);
+		pinchDetector.onTouchEvent(motion);
+
 
 		// when finger lifts off screen
 		if (motion.getAction() == 1) {
@@ -323,6 +329,20 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	void moveGridRight() {
 		if (viewPort.x < (GlobalGameData.galaxySizeX - NUM_SQUARES_IN_ROW)) {
 			viewPort.x++;
+		}
+	}
+
+	void zoomOut() {
+		if (NUM_SQUARES_IN_ROW < sectors.length) {
+			NUM_SQUARES_IN_ROW++;
+			SQUARE_SIZE = getResources().getDisplayMetrics().widthPixels / NUM_SQUARES_IN_ROW;
+		}
+	}
+
+	void zoomIn() {
+		if (NUM_SQUARES_IN_ROW > 1) {
+			NUM_SQUARES_IN_ROW--;
+			SQUARE_SIZE = getResources().getDisplayMetrics().widthPixels / NUM_SQUARES_IN_ROW;
 		}
 	}
 
@@ -462,7 +482,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				SpacecraftOrder.COLONISE.name()};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
-		builder.setTitle(ship.getShipName());
+		builder.setTitle(ship.getClass().getSimpleName());
 		builder.setItems(colors, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -480,7 +500,21 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 						break;
 					case 2:
 						setSelectedShipForOnClick();
-						UnitActions.coloniseSystem(selectedShip, globalGameData);
+						//UnitActions.coloniseSystem(selectedShip, globalGameData);
+						if (selectedShip instanceof ColonyShip) {
+							if (sectors[currentX][currentY].hasSystem()) {
+								if (!sectors[currentX][currentY].getSystem().hasOwner()) {
+									selectedShip.clearCourse();
+									((ColonyShip) selectedShip).colonise();
+									makeToast("Colonising...");
+								} else {
+									makeToast("Already colonised " +
+											sectors[currentX][currentY].getSystem().hasOwner());
+								}
+							} else {
+								makeToast("Nothing to colonise");
+							}
+						}
 						break;
 					default:
 						Log.wtf("Clicked ", "" + which);
@@ -676,6 +710,19 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				Log.e("ERR", e.getLocalizedMessage());
 			}
 			return false;
+		}
+	}
+
+	class PinchListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+		@Override
+		public boolean onScale(ScaleGestureDetector detector) {
+			if (detector.getCurrentSpan() > detector.getPreviousSpan()) {
+				zoomIn();
+
+			} else {
+				zoomOut();
+			}
+			return true;
 		}
 	}
 }
