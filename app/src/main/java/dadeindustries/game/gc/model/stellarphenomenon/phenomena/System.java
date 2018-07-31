@@ -2,25 +2,25 @@ package dadeindustries.game.gc.model.stellarphenomenon.phenomena;
 
 import java.util.ArrayList;
 
-import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
+import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 public class System {
 
 	private String name;
 	private int x, y;
-	private Faction faction;
+	private Player player;
 	private ArrayList<QueueItem> buildQueue = new ArrayList<QueueItem>();
 
-	private System(String name, int x, int y, Faction faction) {
+	private System(String name, int x, int y, Player player) {
 		this.x = x;
 		this.y = y;
 		this.name = name;
-		this.faction = faction;
+		this.player = player;
 	}
 
-	public static boolean createNewSystem(String name, int x, int y, Faction owner, Sector[][] sectors) {
+	public static boolean createNewSystem(String name, int x, int y, Player owner, Sector[][] sectors) {
 		if (!sectors[x][y].hasSystem()) {
 			sectors[x][y].setSystem(new System(name, x, y, owner));
 			return true;
@@ -66,16 +66,16 @@ public class System {
 		return name;
 	}
 
-	public boolean hasFaction() {
-		return faction != null;
+	public boolean hasOwner() {
+		return player != null;
 	}
 
-	public Faction getFaction() {
-		return faction;
+	public Player getOwner() {
+		return player;
 	}
 
-	public void setFaction(Faction faction) {
-		this.faction = faction;
+	public void setOwner(Player player) {
+		this.player = player;
 	}
 
 	class QueueItem {

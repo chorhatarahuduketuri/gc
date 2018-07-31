@@ -6,6 +6,7 @@ import java.util.List;
 import dadeindustries.game.gc.ai.concepts.Location;
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.GlobalGameData;
+import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
 import dadeindustries.game.gc.model.factionartifacts.CombatShip;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
@@ -34,8 +35,8 @@ public class Mind {
 	 * Computes the AI players moves for this turn.
 	 *
 	 * @param globalGameData The galaxy
-	 * @param systemList     All systems this Minds faction currently controls
-	 * @param spaceshipList  All ships this Minds faction currently controls
+	 * @param systemList     All systems this Minds currently controls
+	 * @param spaceshipList  All ships this Minds currently controls
 	 */
 	public void computeTurn(GlobalGameData globalGameData, List<System> systemList, List<Spaceship> spaceshipList) {
 		buildNewShips(globalGameData, systemList, spaceshipList);
@@ -148,7 +149,7 @@ public class Mind {
 				if (galaxy[x][y].hasShips()) {
 					for (Spaceship spaceshipInSector :
 							galaxy[x][y].getUnits()) {
-						if (spaceshipInSector.getFaction() != getPlayer().getFaction()) {
+						if (spaceshipInSector.getOwner() != getPlayer()) {
 							enemyShips.add(spaceshipInSector);
 						}
 					}
@@ -167,7 +168,7 @@ public class Mind {
 	private List<Sector> getInhabitedEnemySectors(GlobalGameData globalGameData) {
 		List<Sector> sectorsWithInhabitedEnemySystemsIn = new LinkedList<Sector>();
 		for (Sector sector : getSectorsWithSystemsIn(globalGameData)) {
-			if (sector.getSystem().hasFaction() && sector.getSystem().getFaction() != getPlayer().getFaction()) {
+			if (sector.getSystem().hasOwner() && sector.getSystem().getOwner() != getPlayer()) {
 				sectorsWithInhabitedEnemySystemsIn.add(sector);
 			}
 		}
@@ -183,7 +184,7 @@ public class Mind {
 	private List<Sector> getSectorsWithUninhabitedSystems(GlobalGameData globalGameData) {
 		List<Sector> sectorsWithUninhabitedSystemsIn = new LinkedList<Sector>();
 		for (Sector sector : getSectorsWithSystemsIn(globalGameData)) {
-			if (!sector.getSystem().hasFaction()) {
+			if (!sector.getSystem().hasOwner()) {
 				sectorsWithUninhabitedSystemsIn.add(sector);
 			}
 		}
@@ -239,9 +240,9 @@ public class Mind {
 		// Order any systems not already building a spaceship to build one of the most important type
 		system.addToQueue(shouldBuildCombatShips
 				?
-				new CombatShip(sectorSystemIsIn, getPlayer().getFaction(), getNextShipName(CombatShip.class), 2, 4)
+				new CombatShip(getPlayer(), sectorSystemIsIn, Faction.UNITED_PLANETS, getNextShipName(CombatShip.class), 2, 4)
 				:
-				new ColonyShip(sectorSystemIsIn, getPlayer().getFaction(), getNextShipName(ColonyShip.class), 0, 4));
+				new ColonyShip(getPlayer(), sectorSystemIsIn, Faction.UNITED_PLANETS, getNextShipName(ColonyShip.class), 0, 4));
 	}
 
 	private boolean shouldIBuildCombatShips(List<Spaceship> spaceshipList) {
