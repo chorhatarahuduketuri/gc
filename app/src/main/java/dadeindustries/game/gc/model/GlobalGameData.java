@@ -34,13 +34,13 @@ public class GlobalGameData {
 		galaxySizeY = y;
 		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
-				sectors[i][j] = new Sector(i, j, null);
+				sectors[i][j] = new Sector(i, j);
 			}
 		}
-		insertTestShips();
-		insertTestSystems();
 		createTestPlayers();
 		createTestMinds();
+		insertTestSystems();
+		insertTestShips();
 	}
 
 	public static ArrayList<Player> getPlayers() {
@@ -51,9 +51,9 @@ public class GlobalGameData {
 		return minds;
 	}
 
-	public static boolean isHumanFaction(Faction faction) {
+	public static boolean isHumanPlayer(Player player) {
 		for (Player p : players) {
-			if (p.getFaction().equals(faction)) {
+			if (p.equals(player)) {
 				return p.getIntelligence().equals(Intelligence.HUMAN);
 			}
 		}
@@ -76,17 +76,17 @@ public class GlobalGameData {
 	}
 
 	private void insertTestShips() {
-		sectors[2][2].addShip(new CombatShip(sectors[2][2], Faction.UNITED_PLANETS, "HMS Douglas", 2, 4));
-		sectors[1][1].addShip(new CombatShip(sectors[1][1], Faction.UNITED_PLANETS, "USS Dade", 2, 4));
-		sectors[1][2].addShip(new ColonyShip(sectors[1][2], Faction.UNITED_PLANETS, "USS Adrian", 0, 4));
-		sectors[1][3].addShip(new CombatShip(sectors[1][3], Faction.MORPHERS, "ISS Yuri", 2, 4));
-		sectors[7][7].addShip(new CombatShip(sectors[7][7], Faction.MORPHERS, "ISS Ensa", 2, 4));
+		sectors[2][2].addShip(new CombatShip(players.get(0), sectors[2][2], Faction.UNITED_PLANETS, "HMS Douglas", 2, 4));
+		sectors[1][1].addShip(new CombatShip(players.get(0), sectors[1][1], Faction.UNITED_PLANETS, "USS Dade", 2, 4));
+		sectors[1][2].addShip(new ColonyShip(players.get(0), sectors[1][2], Faction.UNITED_PLANETS, "USS Adrian", 0, 4));
+		sectors[1][3].addShip(new CombatShip(players.get(1), sectors[1][3], Faction.MORPHERS, "ISS Yuri", 2, 4));
+		sectors[7][7].addShip(new CombatShip(players.get(1), sectors[7][7], Faction.MORPHERS, "ISS Ensa", 2, 4));
 	}
 
 	private void insertTestSystems() {
-		System.createNewSystem("United Planets Homeworld", 1, 1, Faction.UNITED_PLANETS, sectors);
+		System.createNewSystem("United Planets Homeworld", 1, 1, players.get(0), sectors);
 		System.createNewSystem("System X", 1, 2, null, sectors);
-		System.createNewSystem("Morphers Homeworld", 1, 6, Faction.MORPHERS, sectors);
+		System.createNewSystem("Morphers Homeworld", 1, 6, players.get(1), sectors);
 		System.createNewSystem("System Y", 3, 5, null, sectors);
 
 		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
@@ -121,10 +121,10 @@ public class GlobalGameData {
 	}
 
 	// Assumes there is exactly one human player
-	public Faction getHumanFaction() {
-		for (Player p : players) {
-			if (p.getIntelligence().equals(Intelligence.HUMAN)) {
-				return p.getFaction();
+	public Player getHumanPlayer() {
+		for (Player player : players) {
+			if (player.getIntelligence().equals(Intelligence.HUMAN)) {
+				return player;
 			}
 		}
 		return null; // this must never happen

@@ -11,7 +11,6 @@ import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.mechanics.units.UnitActions;
 import dadeindustries.game.gc.model.Coordinates;
 import dadeindustries.game.gc.model.GlobalGameData;
-import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
@@ -52,22 +51,23 @@ public class TurnProcessor {
 		Player didAnyoneWin = detectWinCondition(globalGameData);
 
 		if (didAnyoneWin != null) {
-			Event winevent = new Event(Event.EventType.WINNER, didAnyoneWin.getFaction()
-					+ " won the game!", null);
+			Event winevent = new Event(Event.EventType.WINNER,
+					didAnyoneWin.getIntelligence() + " intelligence won the game!",
+					null);
 			events.add(winevent);
 		}
 
 		return events;
 	}
 
-	private ArrayList<Spaceship> getAllShipsForFaction(Sector[][] sectors, Faction faction) {
+	private ArrayList<Spaceship> getAllShipsForPlayer(Sector[][] sectors, Player player) {
 
 		ArrayList<Spaceship> returnShips = new ArrayList<Spaceship>();
 
 		for (int i = 0; i < sectors.length; i++) {
 			for (int j = 0; j < sectors.length; j++) {
 				for (Spaceship spaceship : sectors[i][j].getUnits()) {
-					if (spaceship.getFaction() == faction) {
+					if (spaceship.getOwner() == player) {
 						returnShips.add(spaceship);
 					}
 				}
@@ -76,15 +76,15 @@ public class TurnProcessor {
 		return returnShips;
 	}
 
-	private ArrayList<System> getAllSystemsForFaction(Sector[][] sectors, Faction faction) {
+	private ArrayList<System> getAllSystemsForPlayer(Sector[][] sectors, Player player) {
 
 		ArrayList returnSystems = new ArrayList();
 
 		for (int i = 0; i < sectors.length; i++) {
 			for (int j = 0; j < sectors.length; j++) {
 				if (sectors[i][j].hasSystem()) {
-					if (sectors[i][j].getSystem().hasFaction()) {
-						if (sectors[i][j].getSystem().getFaction() == faction) {
+					if (sectors[i][j].getSystem().hasOwner()) {
+						if (sectors[i][j].getSystem().getOwner() == player) {
 							returnSystems.add(sectors[i][j].getSystem());
 						}
 					}
@@ -108,8 +108,8 @@ public class TurnProcessor {
 		for (Player player : globalGameData.getPlayers()) {
 			boolean alive = false;
 
-			ArrayList<Spaceship> ships = getAllShipsForFaction(globalGameData.getSectors(), player.getFaction());
-			ArrayList<System> systems = getAllSystemsForFaction(globalGameData.getSectors(), player.getFaction());
+			ArrayList<Spaceship> ships = getAllShipsForPlayer(globalGameData.getSectors(), player);
+			ArrayList<System> systems = getAllSystemsForPlayer(globalGameData.getSectors(), player);
 
 			/* If player has a colony ship then they can still win */
 			for (Spaceship ship : ships) {
@@ -172,7 +172,7 @@ public class TurnProcessor {
 
 					// If occupied system has an empty build queue then make an event
 					if (sectors[i][j].getSystem().isBuildQueueEmpty() &&
-							sectors[i][j].getSystem().hasFaction()) {
+							sectors[i][j].getSystem().hasOwner()) {
 						events.add(new Event(Event.EventType.EMPTY_QUEUE,
 								"Empty queue at " + sectors[i][j].getSystem().getName(),
 								null));
@@ -195,9 +195,9 @@ public class TurnProcessor {
 		Sector[][] sectors = globalGameData.getSectors();
 
 		for (Mind mind : minds) {
-			Faction faction = mind.getPlayer().getFaction();
-			List<System> systemList = getAllSystemsForFaction(sectors, faction);
-			List<Spaceship> spaceshipList = getAllShipsForFaction(sectors, faction);
+			Player player = mind.getPlayer();
+			List<System> systemList = getAllSystemsForPlayer(sectors, player);
+			List<Spaceship> spaceshipList = getAllShipsForPlayer(sectors, player);
 			mind.computeTurn(globalGameData, systemList, spaceshipList);
 		}
 	}
@@ -222,7 +222,7 @@ public class TurnProcessor {
 
 		for (int x = 0; x < GlobalGameData.galaxySizeX; x++) {
 			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
-				if (globalGameData.getSectors()[x][y].numberOfFactionsInSector() > 1) {
+				if (globalGameData.getSectors()[x][y].numberOfPlayersInSector() > 1) {
 					events.add(UnitActions.processBattle(globalGameData.getSectors()[x][y]));
 				}
 
@@ -275,7 +275,7 @@ public class TurnProcessor {
 						} else if (localShips.get(u) instanceof ColonyShip) {
 							if (((ColonyShip) localShips.get(u)).isColonising()) {
 								if (sector.hasSystem()) {
-									if (sector.getSystem().hasFaction() == false) {
+									if (sector.getSystem().hasOwner() == false) {
 										Log.wtf("Colony", "Colonised");
 										UnitActions.coloniseSystem(localShips.get(u), globalGameData);
 										/* Remove ship from this sector */
