@@ -482,7 +482,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				SpacecraftOrder.COLONISE.name()};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
-		builder.setTitle(ship.getShipName());
+		builder.setTitle(ship.getClass().getSimpleName());
 		builder.setItems(colors, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -508,7 +508,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 									((ColonyShip) selectedShip).colonise();
 									makeToast("Colonising...");
 								} else {
-									makeToast("Already colonised " + sectors[currentX][currentY].getSystem().hasFaction());
+									makeToast("Already colonised " +
+											sectors[currentX][currentY].getSystem().hasFaction());
 								}
 							} else {
 								makeToast("Nothing to colonise");
@@ -640,7 +641,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			}).show();
 		} else if (isShipSelected(currentX, currentY)) {
 			Log.wtf("GUI", "ship selected");
-			if (getSelectedFactionShips(currentX, currentY, globalGameData.getHumanFaction()).size() > 1) {
+			if (getSelectedFactionShips(currentX, currentY,
+					globalGameData.getHumanFaction()).size() > 1) {
 				showMultipleShipMenu(getSelectedSector(currentX, currentY));
 			} else {
 				showShipMenu(getSelectedShip(currentX, currentY));
