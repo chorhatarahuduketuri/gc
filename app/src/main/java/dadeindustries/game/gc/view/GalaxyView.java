@@ -475,15 +475,34 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				null);
 	}
 
+	/**
+	 * Show error message in a dialog box to the player
+	 * @param message
+	 */
+	public void showError(String message) {
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(ctxt).
+						setTitle("Error").
+						setMessage(message).
+						setIcon(android.R.drawable.ic_dialog_info).
+						setPositiveButton("OK", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+							}
+						});
+		builder.create().show();
+	}
+
 	public void showShipMenu(final Spaceship ship) {
-		CharSequence colors[] = new CharSequence[]{
+		final CharSequence orders[] = new CharSequence[]{
 				SpacecraftOrder.MOVE.name(),
 				SpacecraftOrder.ATTACK.name(),
 				SpacecraftOrder.COLONISE.name()};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
 		builder.setTitle(ship.getClass().getSimpleName());
-		builder.setItems(colors, new DialogInterface.OnClickListener() {
+		builder.setItems(orders, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				// the user clicked on colors[which]
@@ -508,11 +527,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 									((ColonyShip) selectedShip).colonise();
 									makeToast("Colonising...");
 								} else {
-									makeToast("Already colonised " +
+									showError("This system is already colonised " +
 											sectors[currentX][currentY].getSystem().hasFaction());
 								}
 							} else {
-								makeToast("Nothing to colonise");
+								showError("This system cannot be colonised");
 							}
 						}
 						break;
