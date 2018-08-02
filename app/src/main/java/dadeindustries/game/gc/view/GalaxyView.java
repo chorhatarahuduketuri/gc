@@ -528,7 +528,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 									makeToast("Colonising...");
 								} else {
 									showError("This system is already colonised " +
-											sectors[currentX][currentY].getSystem().hasFaction());
+											sectors[currentX][currentY].getSystem().getOwner());
 								}
 							} else {
 								showError("This system cannot be colonised");
