@@ -171,8 +171,11 @@ public class Start extends Activity {
 		dialog.setIcon(android.R.drawable.ic_popup_sync);
 		dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				// Deliberately empty. Just dismisses the popup.
-				finish();
+				// TODO: Restart the application
+				// Currently it closes
+				moveTaskToBack(true);
+				android.os.Process.killProcess(android.os.Process.myPid());
+				System.exit(0);
 			}
 		});
 		dialog.create().show();
@@ -202,7 +205,9 @@ public class Start extends Activity {
 				.setPositiveButton("Yes",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								finish();
+								moveTaskToBack(true);
+								android.os.Process.killProcess(android.os.Process.myPid());
+								System.exit(1);
 							}
 						})
 				.setNegativeButton("No", new DialogInterface.OnClickListener() {
