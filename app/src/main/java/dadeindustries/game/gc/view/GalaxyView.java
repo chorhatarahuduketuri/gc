@@ -603,7 +603,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 									4);
 							system.addToQueue(combat);
 							makeToast("Building combat ship");
-
+							break;
 						case 1:
 							// Build Colonyship
 							ColonyShip colony = new ColonyShip(
@@ -615,6 +615,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 									4);
 							system.addToQueue(colony);
 							makeToast("Building colony ship");
+							break;
 					}
 				}
 			});
