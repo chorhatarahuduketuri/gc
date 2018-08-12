@@ -73,7 +73,9 @@ public class UnitActions {
 
 	public static Coordinates continueCourse(Spaceship unit) {
 		if (unit.hasCourse()) {
-			return unit.getNextCoordinatesInCourse();
+			Coordinates coordinates = unit.getNextCoordinatesInCourse();
+			Log.d("continueCourse", unit.getShipName() + " next coordinates in course: " + coordinates.toString());
+			return coordinates;
 		} else {
 			return null;
 		}

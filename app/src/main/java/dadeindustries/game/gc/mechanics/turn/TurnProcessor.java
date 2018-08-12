@@ -3,8 +3,10 @@ package dadeindustries.game.gc.mechanics.turn;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import dadeindustries.game.gc.ai.Mind;
 import dadeindustries.game.gc.mechanics.Event;
@@ -34,7 +36,6 @@ public class TurnProcessor {
 	public ArrayList<Event> processTurn(GlobalGameData globalGameData) {
 
 		ArrayList<Event> events = new ArrayList<Event>();
-
 		ArrayList<PendingMove> pendingMoves = new ArrayList<PendingMove>();
 
 		GlobalGameData.setTurn(globalGameData.getTurn() + 1);
@@ -43,7 +44,7 @@ public class TurnProcessor {
 
 		processUnitActions(globalGameData, pendingMoves, events); // handle unit movements
 
-		processPendingMoves(globalGameData, events, pendingMoves);
+		processPendingMoves(globalGameData, pendingMoves);
 
 		processConflicts(globalGameData, events); // handle unit battles
 
@@ -206,11 +207,11 @@ public class TurnProcessor {
 	 * The UI creates a finite number of "pending moves" per turn.
 	 *
 	 * @param globalGameData The global state with all the sectors (there is only one instance)
-	 * @param events         An existing list of events that can be appended to with new events.
 	 * @param pendingMoves   A list of actions a player has made this turn.
 	 */
-	private void processPendingMoves(GlobalGameData globalGameData, ArrayList<Event> events, ArrayList<PendingMove> pendingMoves) {
+	private void processPendingMoves(GlobalGameData globalGameData, ArrayList<PendingMove> pendingMoves) {
 		for (PendingMove pendingMove : pendingMoves) {
+			Log.d("processPendingMoves", pendingMove.unit.getShipName() + pendingMove.getX() + pendingMove.getY());
 			Spaceship pendingMoveUnit = pendingMove.getUnit();
 			pendingMoveUnit.setSector(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]);
 			Log.wtf("Next: ", "" + pendingMove.getX() + "," + pendingMove.getY());
@@ -255,31 +256,31 @@ public class TurnProcessor {
 			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
 				Sector sector = globalGameData.getSectors()[x][y];
 				/* Get the list of units within the sector */
-				ArrayList<Spaceship> localShips = sector.getUnits();
+				Set<Spaceship> localShips = new HashSet<Spaceship>(sector.getUnits());
 
 				/* If there are any units */
 				if (localShips.size() > 0) {
 
 					/* Then find units with a set course */
-					for (int u = 0; u < localShips.size(); u++) {
-						Coordinates destinationCoordinates = UnitActions.continueCourse(localShips.get(u));
+					for (Spaceship spaceship : localShips) {
+						Coordinates destinationCoordinates = UnitActions.continueCourse(spaceship);
 
 						/* If any ship has a course set */
 						if (destinationCoordinates != null) {
-							Spaceship unit = localShips.get(u);
+							Spaceship unit = spaceship;
 
 							/* Prepare the move for this ship */
 							pendingMoves.add(new PendingMove(unit, destinationCoordinates.x, destinationCoordinates.y));
 							/* Remove ship from this sector */
-							localShips.remove(u);
-						} else if (localShips.get(u) instanceof ColonyShip) {
-							if (((ColonyShip) localShips.get(u)).isColonising()) {
+							localShips.remove(spaceship);
+						} else if (spaceship instanceof ColonyShip) {
+							if (((ColonyShip) spaceship).isColonising()) {
 								if (sector.hasSystem()) {
 									if (sector.getSystem().hasOwner() == false) {
 										Log.wtf("Colony", "Colonised");
-										UnitActions.coloniseSystem(localShips.get(u), globalGameData);
+										UnitActions.coloniseSystem(spaceship, globalGameData);
 										/* Remove ship from this sector */
-										localShips.remove(u);
+										localShips.remove(spaceship);
 										events.add(new Event(Event.EventType.COLONISE,
 												sector.getSystem().getName() +
 														" was colonised", new Coordinates(x, y)));

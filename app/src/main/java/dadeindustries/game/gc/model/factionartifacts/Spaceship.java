@@ -65,6 +65,7 @@ public abstract class Spaceship implements Spacecraft {
 	}
 
 	public void addToCourse(Coordinates coordinates) {
+		Log.d("addToCourse", this.getShipName() + " " + coordinates.toString());
 		course.add(coordinates);
 	}
 
