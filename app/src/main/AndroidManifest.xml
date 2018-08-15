@@ -16,6 +16,7 @@
 		<!-- before was android:style/AppTheme -->
 		<activity
 			android:name="dadeindustries.game.gc.view.Start"
+			android:screenOrientation="portrait"
 			android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
