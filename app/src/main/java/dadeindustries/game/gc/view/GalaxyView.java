@@ -58,6 +58,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	// Global Bitmaps
 	private Bitmap up, mo, p1, p2; // Bitmap variables
+
 	private GestureDetector gestureDetector;
 
 	private MediaPlayer sound_yessir, sound_reporting, sound_setting_course;
@@ -68,6 +69,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private Rect r = new Rect();
 
 	private int SELECT_MODE = 0;
+	private boolean CURRENTLY_ORDERING = false;
+
 	private Spaceship selectedShip;
 	private Sector selectedSector;
 
@@ -477,6 +480,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * Show error message in a dialog box to the player
+	 *
 	 * @param message
 	 */
 	public void showError(String message) {
@@ -512,6 +516,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 						// new
 
 						SELECT_MODE = (selectedShip != null) ? 1 : 0;
+						CURRENTLY_ORDERING = true;
 						break;
 					case 1:
 						setSelectedShipForOnClick();
@@ -585,6 +590,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		sysMenu.setTitle(title);
 
+		/* If the system is owned by the human player then show build options */
 		if (isHumanPlayer(system.getOwner())) {
 
 			sysMenu.setItems(items, new DialogInterface.OnClickListener() {
@@ -682,12 +688,19 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	class GestureListener extends SimpleOnGestureListener {
 
 		@Override
-		public void onLongPress(MotionEvent e) {
+		public boolean onSingleTapConfirmed(MotionEvent e) {
 			int x = (int) (e.getX() / SQUARE_SIZE);
 			int y = (int) (e.getY() / SQUARE_SIZE);
 			currentX = x;
 			currentY = y;
-			showMenu();
+
+			/* Don't show menu if player is in the middle of ordering a unit somewhere */
+			if (CURRENTLY_ORDERING == false) {
+				showMenu();
+			} else {
+				CURRENTLY_ORDERING = false;
+			}
+			return true;
 		}
 
 		@Override
