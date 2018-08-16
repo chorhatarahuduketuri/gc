@@ -75,6 +75,7 @@ public class System {
 	}
 
 	public void setOwner(Player player) {
+		buildQueue.clear();
 		this.player = player;
 	}
 
