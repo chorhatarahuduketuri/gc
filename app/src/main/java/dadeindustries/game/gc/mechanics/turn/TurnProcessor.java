@@ -3,7 +3,9 @@ package dadeindustries.game.gc.mechanics.turn;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import dadeindustries.game.gc.ai.Mind;
@@ -34,7 +36,6 @@ public class TurnProcessor {
 	public ArrayList<Event> processTurn(GlobalGameData globalGameData) {
 
 		ArrayList<Event> events = new ArrayList<Event>();
-
 		ArrayList<PendingMove> pendingMoves = new ArrayList<PendingMove>();
 
 		GlobalGameData.setTurn(globalGameData.getTurn() + 1);
@@ -43,7 +44,7 @@ public class TurnProcessor {
 
 		processUnitActions(globalGameData, pendingMoves, events); // handle unit movements
 
-		processPendingMoves(globalGameData, events, pendingMoves);
+		processPendingMoves(globalGameData, pendingMoves);
 
 		processConflicts(globalGameData, events); // handle unit battles
 
@@ -206,11 +207,11 @@ public class TurnProcessor {
 	 * The UI creates a finite number of "pending moves" per turn.
 	 *
 	 * @param globalGameData The global state with all the sectors (there is only one instance)
-	 * @param events         An existing list of events that can be appended to with new events.
 	 * @param pendingMoves   A list of actions a player has made this turn.
 	 */
-	private void processPendingMoves(GlobalGameData globalGameData, ArrayList<Event> events, ArrayList<PendingMove> pendingMoves) {
+	private void processPendingMoves(GlobalGameData globalGameData, ArrayList<PendingMove> pendingMoves) {
 		for (PendingMove pendingMove : pendingMoves) {
+			Log.d("processPendingMoves", pendingMove.unit.getShipName() + pendingMove.getX() + pendingMove.getY());
 			Spaceship pendingMoveUnit = pendingMove.getUnit();
 			pendingMoveUnit.setSector(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]);
 			Log.wtf("Next: ", "" + pendingMove.getX() + "," + pendingMove.getY());
@@ -256,6 +257,7 @@ public class TurnProcessor {
 				Sector sector = globalGameData.getSectors()[x][y];
 				/* Get the list of units within the sector */
 				ArrayList<Spaceship> localShips = sector.getUnits();
+				List<Integer> shipsToRemove = new LinkedList<Integer>();
 
 				/* If there are any units */
 				if (localShips.size() > 0) {
@@ -271,7 +273,7 @@ public class TurnProcessor {
 							/* Prepare the move for this ship */
 							pendingMoves.add(new PendingMove(unit, destinationCoordinates.x, destinationCoordinates.y));
 							/* Remove ship from this sector */
-							localShips.remove(u);
+							shipsToRemove.add(u);
 						} else if (localShips.get(u) instanceof ColonyShip) {
 							if (((ColonyShip) localShips.get(u)).isColonising()) {
 								if (sector.hasSystem()) {
@@ -279,7 +281,7 @@ public class TurnProcessor {
 										Log.wtf("Colony", "Colonised");
 										UnitActions.coloniseSystem(localShips.get(u), globalGameData);
 										/* Remove ship from this sector */
-										localShips.remove(u);
+										shipsToRemove.add(u);
 										events.add(new Event(Event.EventType.COLONISE,
 												sector.getSystem().getName() +
 														" was colonised", new Coordinates(x, y)));
@@ -288,6 +290,10 @@ public class TurnProcessor {
 							}
 						}
 					}
+				}
+				Collections.sort(shipsToRemove, Collections.reverseOrder());
+				for (int i : shipsToRemove) {
+					localShips.remove(i);
 				}
 			}
 		}
