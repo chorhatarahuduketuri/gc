@@ -3,10 +3,10 @@ package dadeindustries.game.gc.mechanics.turn;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import dadeindustries.game.gc.ai.Mind;
 import dadeindustries.game.gc.mechanics.Event;
@@ -256,31 +256,32 @@ public class TurnProcessor {
 			for (int y = 0; y < GlobalGameData.galaxySizeY; y++) {
 				Sector sector = globalGameData.getSectors()[x][y];
 				/* Get the list of units within the sector */
-				Set<Spaceship> localShips = new HashSet<Spaceship>(sector.getUnits());
+				ArrayList<Spaceship> localShips = sector.getUnits();
+				List<Integer> shipsToRemove = new LinkedList<Integer>();
 
 				/* If there are any units */
 				if (localShips.size() > 0) {
 
 					/* Then find units with a set course */
-					for (Spaceship spaceship : localShips) {
-						Coordinates destinationCoordinates = UnitActions.continueCourse(spaceship);
+					for (int u = 0; u < localShips.size(); u++) {
+						Coordinates destinationCoordinates = UnitActions.continueCourse(localShips.get(u));
 
 						/* If any ship has a course set */
 						if (destinationCoordinates != null) {
-							Spaceship unit = spaceship;
+							Spaceship unit = localShips.get(u);
 
 							/* Prepare the move for this ship */
 							pendingMoves.add(new PendingMove(unit, destinationCoordinates.x, destinationCoordinates.y));
 							/* Remove ship from this sector */
-							localShips.remove(spaceship);
-						} else if (spaceship instanceof ColonyShip) {
-							if (((ColonyShip) spaceship).isColonising()) {
+							shipsToRemove.add(u);
+						} else if (localShips.get(u) instanceof ColonyShip) {
+							if (((ColonyShip) localShips.get(u)).isColonising()) {
 								if (sector.hasSystem()) {
 									if (sector.getSystem().hasOwner() == false) {
 										Log.wtf("Colony", "Colonised");
-										UnitActions.coloniseSystem(spaceship, globalGameData);
+										UnitActions.coloniseSystem(localShips.get(u), globalGameData);
 										/* Remove ship from this sector */
-										localShips.remove(spaceship);
+										shipsToRemove.add(u);
 										events.add(new Event(Event.EventType.COLONISE,
 												sector.getSystem().getName() +
 														" was colonised", new Coordinates(x, y)));
@@ -289,6 +290,10 @@ public class TurnProcessor {
 							}
 						}
 					}
+				}
+				Collections.sort(shipsToRemove, Collections.reverseOrder());
+				for (int i : shipsToRemove) {
+					localShips.remove(i);
 				}
 			}
 		}
