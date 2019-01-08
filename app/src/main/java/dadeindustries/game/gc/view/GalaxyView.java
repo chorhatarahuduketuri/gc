@@ -140,11 +140,24 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/* TODO: Add stricter parameter checking. */
 	public void setViewPortPosition(int x, int y) {
-		if (x >= 0 && y >= 0 && x < GlobalGameData.galaxySizeX & y < GlobalGameData.galaxySizeY) {
-			viewPort.x = x;
-			viewPort.y = y;
-			invalidate();
+
+		if (x < 0) {
+			x = 0;
 		}
+		else if (x > GlobalGameData.galaxySizeX) {
+			x = GlobalGameData.galaxySizeX;
+		}
+
+		if (y < 0) {
+			y = 0;
+		} else if (y > GlobalGameData.galaxySizeY) {
+			y = GlobalGameData.galaxySizeY;
+			// TODO: use NUM_SQUARES_IN_COLUMN?
+		}
+
+		viewPort.x = x;
+		viewPort.y = y;
+		invalidate();
 	}
 
 	@Override
@@ -152,18 +165,20 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		final int PADDING = 10;
 
+		Log.i("Pokemon", "" + viewPort.x + "," + viewPort.y);
+
 		// vertical lines
-		for (int i = 1; i <= getResources().getDisplayMetrics().widthPixels; i++) {
-			canvas.drawLine(i * SQUARE_SIZE, 0, i * SQUARE_SIZE,
+		for (int i = viewPort.x; i <= viewPort.x + getResources().getDisplayMetrics().widthPixels; i=i+SQUARE_SIZE) {
+			canvas.drawLine(i + SQUARE_SIZE, 0, i + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
 					paint);
 		}
 
 		// horizontal lines
-		for (int k = 1; k < getResources().getDisplayMetrics().heightPixels; k++) {
-			canvas.drawLine(0, k * SQUARE_SIZE,
+		for (int k = viewPort.y; k < viewPort.y + getResources().getDisplayMetrics().heightPixels; k=k+SQUARE_SIZE) {
+			canvas.drawLine(0, k + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
-					k * SQUARE_SIZE,
+					k + SQUARE_SIZE,
 					paint);
 		}
 
@@ -265,13 +280,33 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	}
 
+	float startX, startY = 0;
+	float moveX, moveY = 0;
 
 	@Override
 	public boolean onTouch(View view, MotionEvent motion) {
 
 		gestureDetector.onTouchEvent(motion);
 		pinchDetector.onTouchEvent(motion);
+		Log.i("Draw", "Strength of swipe: " + viewPort.x + " " + viewPort.y);
 
+		// when finger first touches screen
+		if (motion.getAction() == motion.ACTION_DOWN) {
+			startX = (motion.getX());
+			startY = (motion.getY());
+			Log.i("Gesture", "Start!!! " + startX + " " + startY);
+		}
+
+		// when finger moves on screeen
+		if (motion.getAction() == motion.ACTION_MOVE) {
+			moveX = (motion.getX());
+			moveY = (motion.getY());
+			final int SLOW = 200;
+			float diffX = (startX - moveX) / SLOW;
+			float diffY = (startY - moveY) / SLOW;
+			Log.i("Gesture" ,"Move!!! " + (int) diffX + " " + (int) diffY);
+			setViewPortPosition(viewPort.x + (int) diffX, viewPort.y + (int) diffY);
+		}
 
 		// when finger lifts off screen
 		if (motion.getAction() == 1) {
@@ -354,19 +389,33 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	private Point translateViewCoodsToGameCoods(int viewx, int viewy) {
+
 		Point p = new Point(viewx + viewPort.x, viewy + viewPort.y);
+
 		if (p.x >= GlobalGameData.galaxySizeX) {
 			p.x = GlobalGameData.galaxySizeX - 1;
 		}
+
 		if (p.y >= GlobalGameData.galaxySizeY) {
 			p.y = GlobalGameData.galaxySizeY - 1;
 		}
+
+		if (p.x < 0) {
+			p.x = 0;
+		}
+
+		if (p.y < 0) {
+			p.y = 0;
+		}
+
+		Log.i("wtf", "" + p.x + " " + p.y);
+
 		return p;
 	}
 
 	boolean isShipSelected(int x, int y) {
 
-		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
+		Point gameCoods = translateViewCoodsToGameCoods(x, y);
 
 		if (sectors[gameCoods.x][gameCoods.y].hasShips()) {
 			for (Spaceship u : sectors[gameCoods.x][gameCoods.y].getUnits()) {
@@ -703,16 +752,22 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			return true;
 		}
 
+
+
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 		                       float velocityY) {
 
-			final int SWIPE_MIN_DISTANCE = 120;
+			final int SWIPE_MIN_DISTANCE = 10;
 			final int SWIPE_MAX_OFF_PATH = 250;
 			final int SWIPE_THRESHOLD_VELOCITY = 200;
 
+			Log.i("Gesture", "Gesture call e2"  + Math.abs(e1.getY() - e2.getY()) + " "
+					+ Math.abs(e1.getX() - e2.getX()));
+
+
 			try {
-				Log.i("Gesture", "Gesture call");
+
 				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
 
 					// up - down swipe
