@@ -138,13 +138,31 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		p2 = BitmapFactory.decodeResource(getResources(), R.drawable.system2);
 	}
 
-	/* TODO: Add stricter parameter checking. */
+	/**
+	 * Moves the galaxy view to the specified coordinates.
+	 * @param x X coordinate to set the top left of the screen to
+	 * @param y Y coordinate to set the top left of the screen to
+	 */
 	public void setViewPortPosition(int x, int y) {
-		if (x >= 0 && y >= 0 && x < GlobalGameData.galaxySizeX & y < GlobalGameData.galaxySizeY) {
-			viewPort.x = x;
-			viewPort.y = y;
-			invalidate();
+
+		if (x < 0) {
+			x = 0;
 		}
+		else if (x > (GlobalGameData.galaxySizeX - NUM_SQUARES_IN_ROW)) {
+			x = GlobalGameData.galaxySizeX - NUM_SQUARES_IN_ROW;
+		}
+
+		if (y < 0) {
+			y = 0;
+
+		} else if (y > (GlobalGameData.galaxySizeY - NUM_SQUARES_IN_COLUMN)) {
+			y = GlobalGameData.galaxySizeY - NUM_SQUARES_IN_COLUMN;
+
+		}
+
+		viewPort.x = x;
+		viewPort.y = y;
+		invalidate(); // Forces the screen to repaint
 	}
 
 	@Override
@@ -153,17 +171,17 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		final int PADDING = 10;
 
 		// vertical lines
-		for (int i = 1; i <= getResources().getDisplayMetrics().widthPixels; i++) {
-			canvas.drawLine(i * SQUARE_SIZE, 0, i * SQUARE_SIZE,
+		for (int i = viewPort.x; i <= viewPort.x + getResources().getDisplayMetrics().widthPixels; i=i+SQUARE_SIZE) {
+			canvas.drawLine(i + SQUARE_SIZE, 0, i + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
 					paint);
 		}
 
 		// horizontal lines
-		for (int k = 1; k < getResources().getDisplayMetrics().heightPixels; k++) {
-			canvas.drawLine(0, k * SQUARE_SIZE,
+		for (int k = viewPort.y; k < viewPort.y + getResources().getDisplayMetrics().heightPixels; k=k+SQUARE_SIZE) {
+			canvas.drawLine(0, k + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
-					k * SQUARE_SIZE,
+					k + SQUARE_SIZE,
 					paint);
 		}
 
@@ -265,6 +283,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	}
 
+	float startX, startY = 0;
+	float moveX, moveY = 0;
 
 	@Override
 	public boolean onTouch(View view, MotionEvent motion) {
@@ -272,6 +292,21 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		gestureDetector.onTouchEvent(motion);
 		pinchDetector.onTouchEvent(motion);
 
+		// when finger first touches screen
+		if (motion.getAction() == motion.ACTION_DOWN) {
+			startX = (motion.getX());
+			startY = (motion.getY());
+		}
+
+		// when finger moves on screeen
+		if (motion.getAction() == motion.ACTION_MOVE) {
+			moveX = (motion.getX());
+			moveY = (motion.getY());
+			final int SLOW = 200;
+			float diffX = (startX - moveX) / SLOW;
+			float diffY = (startY - moveY) / SLOW;
+			setViewPortPosition(viewPort.x + (int) diffX, viewPort.y + (int) diffY);
+		}
 
 		// when finger lifts off screen
 		if (motion.getAction() == 1) {
@@ -343,7 +378,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	void zoomIn() {
-		if (NUM_SQUARES_IN_ROW > 1) {
+		/* Limit the maximum zoom to 3 squares in width */
+		if (NUM_SQUARES_IN_ROW > 3) {
 			NUM_SQUARES_IN_ROW--;
 			SQUARE_SIZE = getResources().getDisplayMetrics().widthPixels / NUM_SQUARES_IN_ROW;
 		}
@@ -354,19 +390,31 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	private Point translateViewCoodsToGameCoods(int viewx, int viewy) {
+
 		Point p = new Point(viewx + viewPort.x, viewy + viewPort.y);
+
 		if (p.x >= GlobalGameData.galaxySizeX) {
 			p.x = GlobalGameData.galaxySizeX - 1;
 		}
+
 		if (p.y >= GlobalGameData.galaxySizeY) {
 			p.y = GlobalGameData.galaxySizeY - 1;
 		}
+
+		if (p.x < 0) {
+			p.x = 0;
+		}
+
+		if (p.y < 0) {
+			p.y = 0;
+		}
+
 		return p;
 	}
 
 	boolean isShipSelected(int x, int y) {
 
-		Point gameCoods = this.translateViewCoodsToGameCoods(x, y);
+		Point gameCoods = translateViewCoodsToGameCoods(x, y);
 
 		if (sectors[gameCoods.x][gameCoods.y].hasShips()) {
 			for (Spaceship u : sectors[gameCoods.x][gameCoods.y].getUnits()) {
@@ -703,26 +751,28 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			return true;
 		}
 
+
+
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 		                       float velocityY) {
 
-			final int SWIPE_MIN_DISTANCE = 120;
+			final int SWIPE_MIN_DISTANCE = 10;
 			final int SWIPE_MAX_OFF_PATH = 250;
 			final int SWIPE_THRESHOLD_VELOCITY = 200;
 
 			try {
-				Log.i("Gesture", "Gesture call");
+
 				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
 
 					// up - down swipe
 					if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE
 							&& Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-						Log.i("Gesture", "Left");
+						Log.i("Gesture", "Up");
 						moveGridDown();
 					} else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE
 							&& Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-						Log.i("Gesture", "Right");
+						Log.i("Gesture", "Down");
 						moveGridUp();
 					}
 
