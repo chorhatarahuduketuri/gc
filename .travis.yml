@@ -1,5 +1,5 @@
 language: android
-jdk: oraclejdk10
+jdk: oraclejdk11
 
 android:
   components:
