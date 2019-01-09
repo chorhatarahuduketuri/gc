@@ -138,34 +138,37 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		p2 = BitmapFactory.decodeResource(getResources(), R.drawable.system2);
 	}
 
-	/* TODO: Add stricter parameter checking. */
+	/**
+	 * Moves the galaxy view to the specified coordinates.
+	 * @param x X coordinate to set the top left of the screen to
+	 * @param y Y coordinate to set the top left of the screen to
+	 */
 	public void setViewPortPosition(int x, int y) {
 
 		if (x < 0) {
 			x = 0;
 		}
-		else if (x > GlobalGameData.galaxySizeX) {
-			x = GlobalGameData.galaxySizeX;
+		else if (x > (GlobalGameData.galaxySizeX - NUM_SQUARES_IN_ROW)) {
+			x = GlobalGameData.galaxySizeX - NUM_SQUARES_IN_ROW;
 		}
 
 		if (y < 0) {
 			y = 0;
-		} else if (y > GlobalGameData.galaxySizeY) {
-			y = GlobalGameData.galaxySizeY;
-			// TODO: use NUM_SQUARES_IN_COLUMN?
+
+		} else if (y > (GlobalGameData.galaxySizeY - NUM_SQUARES_IN_COLUMN)) {
+			y = GlobalGameData.galaxySizeY - NUM_SQUARES_IN_COLUMN;
+
 		}
 
 		viewPort.x = x;
 		viewPort.y = y;
-		invalidate();
+		invalidate(); // Forces the screen to repaint
 	}
 
 	@Override
 	public void onDraw(Canvas canvas) {
 
 		final int PADDING = 10;
-
-		Log.i("Pokemon", "" + viewPort.x + "," + viewPort.y);
 
 		// vertical lines
 		for (int i = viewPort.x; i <= viewPort.x + getResources().getDisplayMetrics().widthPixels; i=i+SQUARE_SIZE) {
@@ -288,13 +291,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		gestureDetector.onTouchEvent(motion);
 		pinchDetector.onTouchEvent(motion);
-		Log.i("Draw", "Strength of swipe: " + viewPort.x + " " + viewPort.y);
 
 		// when finger first touches screen
 		if (motion.getAction() == motion.ACTION_DOWN) {
 			startX = (motion.getX());
 			startY = (motion.getY());
-			Log.i("Gesture", "Start!!! " + startX + " " + startY);
 		}
 
 		// when finger moves on screeen
@@ -304,7 +305,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			final int SLOW = 200;
 			float diffX = (startX - moveX) / SLOW;
 			float diffY = (startY - moveY) / SLOW;
-			Log.i("Gesture" ,"Move!!! " + (int) diffX + " " + (int) diffY);
 			setViewPortPosition(viewPort.x + (int) diffX, viewPort.y + (int) diffY);
 		}
 
@@ -378,7 +378,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	void zoomIn() {
-		if (NUM_SQUARES_IN_ROW > 1) {
+		/* Limit the maximum zoom to 3 squares in width */
+		if (NUM_SQUARES_IN_ROW > 3) {
 			NUM_SQUARES_IN_ROW--;
 			SQUARE_SIZE = getResources().getDisplayMetrics().widthPixels / NUM_SQUARES_IN_ROW;
 		}
@@ -407,8 +408,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		if (p.y < 0) {
 			p.y = 0;
 		}
-
-		Log.i("wtf", "" + p.x + " " + p.y);
 
 		return p;
 	}
@@ -762,10 +761,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			final int SWIPE_MAX_OFF_PATH = 250;
 			final int SWIPE_THRESHOLD_VELOCITY = 200;
 
-			Log.i("Gesture", "Gesture call e2"  + Math.abs(e1.getY() - e2.getY()) + " "
-					+ Math.abs(e1.getX() - e2.getX()));
-
-
 			try {
 
 				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
@@ -773,11 +768,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					// up - down swipe
 					if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE
 							&& Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-						Log.i("Gesture", "Left");
+						Log.i("Gesture", "Up");
 						moveGridDown();
 					} else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE
 							&& Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-						Log.i("Gesture", "Right");
+						Log.i("Gesture", "Down");
 						moveGridUp();
 					}
 
