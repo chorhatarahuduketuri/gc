@@ -96,18 +96,22 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		sound_reporting = MediaPlayer.create(context, R.raw.reporting);
 		sound_setting_course = MediaPlayer.create(context, R.raw.setting_course);
 
+		/* Get the size of the screen */
 		DisplayMetrics metrics = getResources().getDisplayMetrics();
 		int displayWidth = metrics.widthPixels;
 		int displayHeight = metrics.heightPixels;
 
+		/* Based on the screen size... determine how many sector squares can be seen at a time */
 		NUM_SQUARES_IN_ROW = NUM_SQUARES_IN_ROW + ((displayWidth / 500) * 2);
-
 		SQUARE_SIZE = displayWidth / NUM_SQUARES_IN_ROW;
 		NUM_SQUARES_IN_COLUMN = displayHeight / SQUARE_SIZE;
+
+		/* Set the background colour of the view to black and the drawn grid to white */
 		setBackgroundColor(Color.BLACK);
 		paint.setColor(Color.WHITE);
 		paint.setStrokeWidth(3);
 		loadBitmaps();
+
 		this.globalGameData = globalGameData;
 		sectors = globalGameData.getSectors();
 
@@ -130,6 +134,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		return globalGameData;
 	}
 
+	/**
+	 * Load the sprites from their files into variables (planets, ships, etc.)
+	 */
 	private void loadBitmaps() {
 		up = BitmapFactory.decodeResource(getResources(), R.drawable.up);
 		mo = BitmapFactory.decodeResource(getResources(), R.drawable.morphers);
@@ -164,6 +171,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		invalidate(); // Forces the screen to repaint
 	}
 
+	/**
+	 * Whenever the screen is redrawn this procedure is executed
+	 * @param canvas
+	 */
 	@Override
 	public void onDraw(Canvas canvas) {
 
@@ -184,7 +195,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					paint);
 		}
 
-		// TODO: Draw purple squares for all unexplored areas
+		// TODO: Draw purple squares for all unexplored areas to implement fog of war
 
 		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
@@ -232,8 +243,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					r.right = x + SQUARE_SIZE / 2;
 					r.bottom = y + SQUARE_SIZE / 2;
 
-					// TODO: Need to handle case where multiple units in the same
-					// system
+					// TODO: Need to handle case where multiple factions are in the same system
 
 					ArrayList<Spaceship> ships = sectors[i][j].getUnits();
 					for (Spaceship ship : ships) {
@@ -260,7 +270,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			}
 		}
 
-		// highlight current selection
+		// highlight the currently selected sector by drawing a red box around it
 		if (currentX >= 0 && currentY >= 0) {
 			paint.setColor(Color.RED);
 			paint.setStyle(Paint.Style.STROKE);
@@ -274,7 +284,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			paint.setColor(Color.WHITE);
 		}
 
-		// Put text in top left corner indicating the current turn number
+		// Put text in top left corner indicating the current turn number and the amount of credits
 		canvas.drawText("Turn " + globalGameData.getTurn(),
 				viewPort.x + PADDING, viewPort.y + PADDING * 3, paint);
 		canvas.drawText("Credits " + globalGameData.getHumanPlayerCredits(),
@@ -596,7 +606,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		switch (order) {
 
 			case 0: // MOVE
-				selectedShip = ship;
+				selectedShip = ship; // Does this need to be changed to setSelectedShipForOnClick()?
 
 				SELECT_MODE = (selectedShip != null) ? 1 : 0;
 				CURRENTLY_ORDERING = true;
