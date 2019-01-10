@@ -17,7 +17,7 @@ deploy:
   provider: releases
   api_key:
     secure: TlpYPAPKrdBgSm2L2QVoQ+gDClRoXRC12+SjPj9Y9K6MZVGSjp5zJrbhQL3owQkOXPSw8Zx5ikGLIaqlop+rvG0sLcgovZrUnPlbGQH1ivFkylM3EV8cMblqLdSS35tPPxF4O50nhmt25MX3e6R9ojnFsjS1Vg9X7AzPw5DqYMugkwNrf1CxAg4wiNgLeVYGTe9sJeiM4+NIcyGY8MyDdUv38e2Szv2M3MDQ5gncT+t00IHUZ6K+sKbFWcHmhMKX/hsS3eBshLv1ghFrxv4vA75AdBPuLY/CTN+ze/MasAOP1edlLILhNzctokOdnnGhJGAol+WjdxsPcnmtHqV35Re/DCiaY7qgI8LCmbyZtZ/IsM9KCcHxZ41+PBdWYJuowLAUz34MR7gS06Zqi9CFEh3bjCdts+YW+TN0aNjgoy0fTuRYW43RiGbNzimXD+XvppbgNcqGr98LMOyp4kiLHaVv7E74eO/ZpNTiyEfIotnnHwTM/CmPv0wnZ7VJh0nKJfZVmW7tegvt8PphNcMgQY4LSudees0fXOU8Pmj8GWrAarYlxtKLBNMMnQIPwMze5krR6jnSJRLC6qjMlH5lTKCRXa3kV6KVZi12AOyhLh/Wp+XRi2mGfeDoyPZ3i2s5uufRFZTqGp2qapQNvE8GyoVJm8fQ/zKrtMdJ8xqxaZM=
-  file: "app/build/outputs/apk/release/app-release-unsigned.apk"
+  file: app/build/outputs/apk/*/*apk 
   skip_cleanup: true
   on:
     repo: chorhatarahuduketuri/gc
