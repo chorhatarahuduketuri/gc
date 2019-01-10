@@ -20,3 +20,4 @@ deploy:
   file: "app/build/outputs/apk/release/app-release-unsigned.apk"
   on:
     repo: chorhatarahuduketuri/gc
+    branch: master
