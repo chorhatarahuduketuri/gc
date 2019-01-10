@@ -72,7 +72,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private boolean CURRENTLY_ORDERING = false;
 
 	private Spaceship selectedShip;
-	private Sector selectedSector;
 
 	ScaleGestureDetector pinchDetector;
 
@@ -283,9 +282,15 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	}
 
-	float startX, startY = 0;
-	float moveX, moveY = 0;
+	private float startX, startY = 0; // Co-ordinates of where the finger starteed
+	private float moveX, moveY = 0; // Co-ordinates of where the finger ended
 
+	/**
+	 * When the player touches the screen this is called
+	 * @param view
+	 * @param motion The type of motion the player made
+	 * @return
+	 */
 	@Override
 	public boolean onTouch(View view, MotionEvent motion) {
 
@@ -298,7 +303,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			startY = (motion.getY());
 		}
 
-		// when finger moves on screeen
+		// when finger moves on screen
 		if (motion.getAction() == motion.ACTION_MOVE) {
 			moveX = (motion.getX());
 			moveY = (motion.getY());
@@ -324,17 +329,18 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				sound_setting_course.start();
 			}
 
-			// if ship is selected
+			// Debugging telemetry
 			if (isShipSelected(currentX, currentY)) {
 				Log.wtf("Ship selected", currentX + " " + currentY);
 			}
 
+			// Debugging telemetry
 			if (isSystemSelected(currentX, currentY)) {
 				Log.wtf("System selected", currentX + " " + currentY);
 			}
 		}
 
-		invalidate();
+		invalidate(); // Force redraw of the screen
 
 		return true;
 	}
@@ -488,25 +494,31 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		return false;
 	}
 
+	/**
+	 * When the keyboard is pressed (if one is available)
+	 * @param keyCode
+	 * @param event
+	 * @return
+	 */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 
-		Log.wtf("Current co-ords", "" + viewPort.x + " " + viewPort.y);
+		Log.wtf("Co-ordinates before pressing ", "" + viewPort.x + " " + viewPort.y);
 		switch (keyCode) {
 
-			case 19:
+			case KeyEvent.KEYCODE_DPAD_UP:
 				moveGridUp();
 				break;
 
-			case 20:
+			case KeyEvent.KEYCODE_DPAD_DOWN:
 				moveGridDown();
 				break;
 
-			case 21:
+			case KeyEvent.KEYCODE_DPAD_LEFT:
 				moveGridLeft();
 				break;
 
-			case 22:
+			case KeyEvent.KEYCODE_DPAD_RIGHT:
 				moveGridRight();
 				break;
 
@@ -514,7 +526,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				return false;
 		}
 
-		invalidate();
+		invalidate(); // Repaint the screen
 		return true;
 	}
 
@@ -546,6 +558,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		builder.create().show();
 	}
 
+	/**
+	 * Graphical menu for giving a ship an order
+ 	 * @param ship The ship object to give an order to
+	 */
 	public void showShipMenu(final Spaceship ship) {
 		final CharSequence orders[] = new CharSequence[]{
 				SpacecraftOrder.MOVE.name(),
@@ -557,40 +573,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		builder.setItems(orders, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// the user clicked on colors[which]
-				switch (which) {
-					case 0:
-						selectedShip = ship;
-						// new
-
-						SELECT_MODE = (selectedShip != null) ? 1 : 0;
-						CURRENTLY_ORDERING = true;
-						break;
-					case 1:
-						setSelectedShipForOnClick();
-						UnitActions.attackSystem(selectedShip, globalGameData);
-						break;
-					case 2:
-						setSelectedShipForOnClick();
-						//UnitActions.coloniseSystem(selectedShip, globalGameData);
-						if (selectedShip instanceof ColonyShip) {
-							if (sectors[currentX][currentY].hasSystem()) {
-								if (!sectors[currentX][currentY].getSystem().hasOwner()) {
-									selectedShip.clearCourse();
-									((ColonyShip) selectedShip).colonise();
-									makeToast("Colonising...");
-								} else {
-									showError("This system is already colonised " +
-											sectors[currentX][currentY].getSystem().getOwner());
-								}
-							} else {
-								showError("This system cannot be colonised");
-							}
-						}
-						break;
-					default:
-						Log.wtf("Clicked ", "" + which);
-				}
+				orderShip(ship, which);
 			}
 		});
 
@@ -599,6 +582,52 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		shipDialog.getWindow().setLayout(100, WRAP_CONTENT);
 		shipDialog.show();
 		sound_yessir.start();
+	}
+
+	/**
+	 * Given an order to a ship
+	 * @param ship The ship object to give an order to
+	 * @param order The order to give the ship
+	 *              0 - MOVE
+	 *              1 - ATTACK
+	 *              2 - COLONISE
+	 */
+	public void orderShip(final Spaceship ship, int order) {
+		switch (order) {
+
+			case 0: // MOVE
+				selectedShip = ship;
+
+				SELECT_MODE = (selectedShip != null) ? 1 : 0;
+				CURRENTLY_ORDERING = true;
+				break;
+
+			case 1: // ATTACK
+				setSelectedShipForOnClick();
+				UnitActions.attackSystem(selectedShip, globalGameData);
+				break;
+
+			case 2: // COLONISE
+				setSelectedShipForOnClick();
+				//UnitActions.coloniseSystem(selectedShip, globalGameData);
+				if (selectedShip instanceof ColonyShip) {
+					if (sectors[currentX][currentY].hasSystem()) {
+						if (!sectors[currentX][currentY].getSystem().hasOwner()) {
+							selectedShip.clearCourse();
+							((ColonyShip) selectedShip).colonise();
+							makeToast("Colonising...");
+						} else {
+							showError("This system is already colonised " +
+									sectors[currentX][currentY].getSystem().getOwner());
+						}
+					} else {
+						showError("This system cannot be colonised");
+					}
+				}
+				break;
+			default:
+				Log.wtf("Clicked ", "" + order);
+		}
 	}
 
 	public void showMultipleShipMenu(final Sector sector) {
