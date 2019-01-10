@@ -33,3 +33,6 @@ to build and run the project.
 
 ![Screenshot of GC](docs/screenshot.png "Preview")
 
+## Releases
+
+TBD
