@@ -3,6 +3,8 @@ gc [![Build Status](https://travis-ci.org/chorhatarahuduketuri/gc.svg?branch=mas
 
 Open-source Android game. Still a work-in-progress after all these years.
 
+Download it [HERE](https://github.com/chorhatarahuduketuri/gc/releases/latest).
+
 ## Summary 
 
 GalaxyQuest is a turn-based strategy game that focuses on building a galactic empire 
@@ -33,6 +35,3 @@ to build and run the project.
 
 ![Screenshot of GC](docs/screenshot.png "Preview")
 
-## Releases
-
-TBD
