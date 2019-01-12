@@ -74,6 +74,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private Spaceship selectedShip;
 	private Sector selectedSector;
 
+	private final int PADDING = 10;
+
 	ScaleGestureDetector pinchDetector;
 
 
@@ -165,115 +167,50 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		invalidate(); // Forces the screen to repaint
 	}
 
-	@Override
-	public void onDraw(Canvas canvas) {
+	public void drawSystem(Sector sector, Canvas canvas) {
+		if (sector.hasSystem() && sector.isDiscovered(globalGameData.getHumanPlayer())) {
 
-		final int PADDING = 10;
+			int x, y;
+			int savedColor = paint.getColor();
 
+			int systemX = sector.getX();
+			int systemY = sector.getY();
 
-		// TODO: Draw purple squares for all unexplored areas
+			if ((systemX >= viewPort.x)
+					&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
+					&& (systemY >= viewPort.y)) {
 
-		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
-			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
+				x = (systemX - viewPort.x) * SQUARE_SIZE;
+				y = (systemY - viewPort.y) * SQUARE_SIZE;
+				r.left = x + (SQUARE_SIZE / 2);
+				r.top = y + (SQUARE_SIZE / 2);
+				r.right = x + (SQUARE_SIZE / 2) * 2;
+				r.bottom = y + (SQUARE_SIZE / 2) * 2;
 
-				int systemX = sectors[i][j].getX();
-				int systemY = sectors[i][j].getY();
-
-				if (sectors[i][j].isDiscovered(globalGameData.getHumanPlayer())) {
-					paint.setColor(Color.BLACK);
-				} else {
-					paint.setColor(Color.DKGRAY);
-				}
-
-				int x = (systemX - viewPort.x) * SQUARE_SIZE;
-				int y = (systemY - viewPort.y) * SQUARE_SIZE;
-				r.left = x;
-				r.top = y;
-				r.right = x + (SQUARE_SIZE) ;
-				r.bottom = y + (SQUARE_SIZE);
-				canvas.drawRect(r, paint);
-
-				// Draw System bitmaps
-				if (sectors[i][j].hasSystem() && sectors[i][j].isDiscovered(globalGameData.getHumanPlayer())) {
-
-					if ((systemX >= viewPort.x)
-							&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
-							&& (systemY >= viewPort.y)) {
-
-						x = (systemX - viewPort.x) * SQUARE_SIZE;
-						y = (systemY - viewPort.y) * SQUARE_SIZE;
-						r.left = x + (SQUARE_SIZE / 2);
-						r.top = y + (SQUARE_SIZE / 2);
-						r.right = x + (SQUARE_SIZE / 2) * 2;
-						r.bottom = y + (SQUARE_SIZE / 2) * 2;
-
-						canvas.drawBitmap(p2, null, r, paint);
-						int temp = paint.getColor();
-						paint.setColor(Color.WHITE);
-						paint.setTextSize(16 * getResources().getDisplayMetrics().density);
-						canvas.drawText(sectors[i][j].getSystem().getName(), x + PADDING, y
-								+ (SQUARE_SIZE / 2), paint);
-						paint.setColor(temp);
-					}
-				}
-
-
-				int shipx = i;
-				int shipy = j;
-
-				// Draw ships
-				if ((shipx >= viewPort.x)
-						&& (shipx <= viewPort.x + NUM_SQUARES_IN_ROW)
-						&& (shipy >= viewPort.y)
-						&& sectors[i][j].isDiscovered(globalGameData.getHumanPlayer())
-						) {
-
-					x = (shipx - viewPort.x) * SQUARE_SIZE;
-					y = (shipy - viewPort.y) * SQUARE_SIZE;
-					r.left = x;
-					r.top = y;
-					r.right = x + SQUARE_SIZE / 2;
-					r.bottom = y + SQUARE_SIZE / 2;
-
-					// TODO: Need to handle case where multiple units in the same system
-
-					ArrayList<Spaceship> ships = sectors[i][j].getUnits();
-					for (Spaceship ship : ships) {
-
-						switch (ship.getOwner().getIntelligence()) {
-
-							case HUMAN:
-								sectors[i][j].discover(getGlobalGameData().getHumanPlayer());
-								canvas.drawBitmap(up, null, r, paint);
-								break;
-
-							case ARTIFICIAL:
-								canvas.drawBitmap(mo, null, r, paint);
-								break;
-
-							default:
-								// do nothing
-						}
-
-						paint.setColor(Color.WHITE);
-						canvas.drawText(ship.getShipName(), x + PADDING, y + (PADDING * 3)
-								+ (SQUARE_SIZE / 2), paint);
-					}
-
-				}
+				canvas.drawBitmap(p2, null, r, paint);
+				paint.setColor(Color.WHITE);
+				paint.setTextSize(16 * getResources().getDisplayMetrics().density);
+				canvas.drawText(sector.getSystem().getName(), x + PADDING, y
+						+ (SQUARE_SIZE / 2), paint);
+				paint.setColor(savedColor);
 			}
 		}
+	}
 
+	public void drawGrid(Canvas canvas) {
+
+		// Save colour before using it
+		int savedColor = paint.getColor();
 		paint.setColor(Color.WHITE);
 
-		// vertical lines
+		// Draw vertical lines
 		for (int i = viewPort.x; i <= viewPort.x + getResources().getDisplayMetrics().widthPixels; i=i+SQUARE_SIZE) {
 			canvas.drawLine(i + SQUARE_SIZE, 0, i + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
 					paint);
 		}
 
-		// horizontal lines
+		// Draw horizontal lines
 		for (int k = viewPort.y; k < viewPort.y + getResources().getDisplayMetrics().heightPixels; k=k+SQUARE_SIZE) {
 			canvas.drawLine(0, k + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
@@ -281,7 +218,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					paint);
 		}
 
-		// highlight current selection
+		// highlight current selection with a red square
 		if (currentX >= 0 && currentY >= 0) {
 			paint.setColor(Color.RED);
 			paint.setStyle(Paint.Style.STROKE);
@@ -295,12 +232,112 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			paint.setColor(Color.WHITE);
 		}
 
+		// Restore saved colour
+		paint.setColor(savedColor);
+	}
+
+	/**
+	 * Draws the text in the top left of the GalaxyView
+	 * This text includes information such as:
+	 * - credits
+	 * - the number of turns
+	 * @param canvas
+	 */
+	public void drawTopLeftInformation(Canvas canvas) {
 		// Put text in top left corner indicating the current turn number
 		canvas.drawText("Turn " + globalGameData.getTurn(),
 				viewPort.x + PADDING, viewPort.y + PADDING * 3, paint);
 		canvas.drawText("Credits " + globalGameData.getHumanPlayerCredits(),
 				viewPort.x + PADDING, viewPort.y + PADDING * 3 * 2, paint);
+	}
 
+	/**
+	 * Draws the bitmap of a ship at a particular sector
+	 * @param canvas
+	 * @param sector
+	 */
+	public void drawShip(Canvas canvas, Sector sector) {
+
+		int x, y;
+		int shipx = sector.getX();
+		int shipy = sector.getY();
+
+		if ((shipx >= viewPort.x)
+				&& (shipx <= viewPort.x + NUM_SQUARES_IN_ROW)
+				&& (shipy >= viewPort.y)
+				&& sector.isDiscovered(globalGameData.getHumanPlayer())
+				) {
+
+			x = (shipx - viewPort.x) * SQUARE_SIZE;
+			y = (shipy - viewPort.y) * SQUARE_SIZE;
+			r.left = x;
+			r.top = y;
+			r.right = x + SQUARE_SIZE / 2;
+			r.bottom = y + SQUARE_SIZE / 2;
+
+			// TODO: Need to handle case where multiple units in the same system
+
+			ArrayList<Spaceship> ships = sector.getUnits();
+			for (Spaceship ship : ships) {
+
+				switch (ship.getOwner().getIntelligence()) {
+
+					case HUMAN:
+						sector.discover(getGlobalGameData().getHumanPlayer());
+						canvas.drawBitmap(up, null, r, paint);
+						break;
+
+					case ARTIFICIAL:
+						canvas.drawBitmap(mo, null, r, paint);
+						break;
+
+					default:
+						// do nothing
+				}
+
+				paint.setColor(Color.WHITE);
+				canvas.drawText(ship.getShipName(), x + PADDING, y + (PADDING * 3)
+						+ (SQUARE_SIZE / 2), paint);
+			}
+		}
+	}
+
+	/**
+	 * This is triggered every time the screen refreshes/repaints
+	 * @param canvas
+	 */
+	@Override
+	public void onDraw(Canvas canvas) {
+
+		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
+			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
+
+				Sector sector = sectors[i][j];
+
+				// Draw a purple square if unexplored
+				if (sector.isDiscovered(globalGameData.getHumanPlayer())) {
+					paint.setColor(Color.BLACK);
+				} else {
+					paint.setColor(Color.DKGRAY);
+				}
+
+				int x = (sector.getX() - viewPort.x) * SQUARE_SIZE;
+				int y = (sector.getY() - viewPort.y) * SQUARE_SIZE;
+				r.left = x;
+				r.top = y;
+				r.right = x + (SQUARE_SIZE) ;
+				r.bottom = y + (SQUARE_SIZE);
+				canvas.drawRect(r, paint);
+
+				// Draw System bitmaps
+				drawSystem(sector, canvas);
+				// Draw Ship bitmaps
+				drawShip(canvas, sector);
+			}
+		}
+
+		drawGrid(canvas);
+		drawTopLeftInformation(canvas);
 	}
 
 	float startX, startY = 0;
