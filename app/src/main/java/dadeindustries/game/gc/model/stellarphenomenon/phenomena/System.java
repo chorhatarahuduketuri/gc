@@ -25,7 +25,9 @@ public class System {
 	public static boolean createNewSystem(String name, int x, int y, Player owner, Sector[][] sectors) {
 		if (!sectors[x][y].hasSystem()) {
 			sectors[x][y].setSystem(new System(name, x, y, owner));
-			sectors[x][y].discover(owner);
+			if (owner!=null) {
+				owner.discover(sectors[x][y]);
+			}
 			return true;
 		} else {
 			return false;

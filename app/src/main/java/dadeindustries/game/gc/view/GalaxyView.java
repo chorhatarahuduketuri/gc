@@ -168,7 +168,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	public void drawSystem(Sector sector, Canvas canvas) {
-		if (sector.hasSystem() && sector.isDiscovered(globalGameData.getHumanPlayer())) {
+		if (sector.hasSystem() && globalGameData.getHumanPlayer().hasDiscovered(sector)) {
 
 			int x, y;
 			int savedColor = paint.getColor();
@@ -244,11 +244,16 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	 * @param canvas
 	 */
 	public void drawTopLeftInformation(Canvas canvas) {
+
+		// Save colour before using it
+		int savedColor = paint.getColor();
+		paint.setColor(Color.WHITE);
 		// Put text in top left corner indicating the current turn number
 		canvas.drawText("Turn " + globalGameData.getTurn(),
 				viewPort.x + PADDING, viewPort.y + PADDING * 3, paint);
 		canvas.drawText("Credits " + globalGameData.getHumanPlayerCredits(),
 				viewPort.x + PADDING, viewPort.y + PADDING * 3 * 2, paint);
+		paint.setColor(savedColor);
 	}
 
 	/**
@@ -262,10 +267,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		int shipx = sector.getX();
 		int shipy = sector.getY();
 
-		if ((shipx >= viewPort.x)
+		if (	(shipx >= viewPort.x)
 				&& (shipx <= viewPort.x + NUM_SQUARES_IN_ROW)
 				&& (shipy >= viewPort.y)
-				&& sector.isDiscovered(globalGameData.getHumanPlayer())
+				&& globalGameData.getHumanPlayer().hasDiscovered((sector))
 				) {
 
 			x = (shipx - viewPort.x) * SQUARE_SIZE;
@@ -283,7 +288,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				switch (ship.getOwner().getIntelligence()) {
 
 					case HUMAN:
-						sector.discover(getGlobalGameData().getHumanPlayer());
+						getGlobalGameData().getHumanPlayer().discover(sector);
 						canvas.drawBitmap(up, null, r, paint);
 						break;
 
@@ -315,7 +320,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				Sector sector = sectors[i][j];
 
 				// Draw a purple square if unexplored
-				if (sector.isDiscovered(globalGameData.getHumanPlayer())) {
+				if (globalGameData.getHumanPlayer().hasDiscovered(sector)) {
+					//if (sector.isDiscovered(globalGameData.getHumanPlayer())) {
 					paint.setColor(Color.BLACK);
 				} else {
 					paint.setColor(Color.DKGRAY);
@@ -526,10 +532,12 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		}
 
 		if (sectors[gameCoods.x][gameCoods.y].hasSystem()) {
-			return true;
-		} else {
-			return false;
+			if (globalGameData.getHumanPlayer().hasDiscovered(sectors[gameCoods.x][gameCoods.y])) {
+				return true;
+			}
 		}
+
+		return false;
 	}
 
 

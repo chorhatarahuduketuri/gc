@@ -21,6 +21,7 @@ public abstract class Spaceship implements Spacecraft {
 	private ArrayDeque<Coordinates> course;
 	private int attackLevel;
 	private int currentHP;
+	private int scanStrength = 1;
 
 	public Spaceship(Player player, Sector currentLocation, Faction faction, String shipName, int attackLevel, int startingHP) {
 		this.player = player;
@@ -88,5 +89,9 @@ public abstract class Spaceship implements Spacecraft {
 
 	public List<SpacecraftOrder> getValidOrders() {
 		return validOrders;
+	}
+
+	public int getScanStrength() {
+		return scanStrength;
 	}
 }
