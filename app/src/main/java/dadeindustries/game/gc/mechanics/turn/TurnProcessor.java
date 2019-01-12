@@ -48,6 +48,8 @@ public class TurnProcessor {
 
 		processConflicts(globalGameData, events); // handle unit battles
 
+		updatePlayerVisibility(globalGameData);
+
 		// Detect if a player has won the game
 		Player didAnyoneWin = detectWinCondition(globalGameData);
 
@@ -238,6 +240,25 @@ public class TurnProcessor {
 						iterator.remove();
 					}
 				}
+			}
+		}
+	}
+
+	private void updatePlayerVisibility(GlobalGameData globalGameData) {
+
+		for (Player player : globalGameData.getPlayers()) {
+
+			ArrayList<Spaceship> ships = getAllShipsForPlayer(globalGameData.getSectors(), player);
+
+			player.removeAllVisibility();
+
+			for (Spaceship ship : ships) {
+
+				int scanStrength = ship.getScanStrength();
+				int x = ship.getX();
+				int y = ship.getY();
+
+				player.makeVisible(globalGameData.getSectors()[x][y]);
 			}
 		}
 	}

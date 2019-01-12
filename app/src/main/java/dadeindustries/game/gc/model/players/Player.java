@@ -1,6 +1,9 @@
 package dadeindustries.game.gc.model.players;
 
+import android.util.Log;
+
 import java.util.HashSet;
+import java.util.Iterator;
 
 import dadeindustries.game.gc.model.enums.Extant;
 import dadeindustries.game.gc.model.enums.Faction;
@@ -68,5 +71,21 @@ public class Player {
 
 	public void discover(Sector sector) {
 		discovered.add(sector);
+	}
+
+	public boolean isVisible(Sector sector) {
+		return visible.contains(sector);
+	}
+
+	public void removeAllVisibility() {
+		Iterator iter = visible.iterator();
+		while (iter.hasNext()) {
+			iter.remove();
+		}
+		Log.i("Visibility ", "Visiblity is " + visible.size());
+	}
+
+	public void makeVisible(Sector s) {
+		visible.add(s);
 	}
 }
