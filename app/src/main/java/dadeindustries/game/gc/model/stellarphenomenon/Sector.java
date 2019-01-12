@@ -1,6 +1,7 @@
 package dadeindustries.game.gc.model.stellarphenomenon;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,6 +22,8 @@ public class Sector {
 	private int x;
 	private int y;
 	private System system = null;
+	private HashMap<Player, Boolean> discovered = new HashMap<Player, Boolean>();
+	private HashMap<Player, Boolean> visible = new HashMap<Player, Boolean>();
 
 	private ArrayList<Spaceship> units = new ArrayList<Spaceship>();
 
@@ -65,6 +68,15 @@ public class Sector {
 
 	public void addShip(Spaceship s) {
 		units.add(s);
+		discover(s.getOwner());
+	}
+
+	public boolean isDiscovered(Player player) {
+		return discovered.containsKey(player);
+	}
+
+	public void discover(Player player) {
+		discovered.put(player, true);
 	}
 
 	public ArrayList<Spaceship> getUnits() {
