@@ -10,6 +10,7 @@ import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.enums.SpacecraftOrder;
 import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
+import dadeindustries.game.gc.model.stellarphenomenon.phenomena.Wormhole;
 
 //all controllable units
 public abstract class Spaceship implements Spacecraft {
@@ -21,6 +22,7 @@ public abstract class Spaceship implements Spacecraft {
 	private ArrayDeque<Coordinates> course;
 	private int attackLevel;
 	private int currentHP;
+	private boolean enteringWormhole = false;
 
 	public Spaceship(Player player, Sector currentLocation, Faction faction, String shipName, int attackLevel, int startingHP) {
 		this.player = player;
@@ -89,4 +91,20 @@ public abstract class Spaceship implements Spacecraft {
 	public List<SpacecraftOrder> getValidOrders() {
 		return validOrders;
 	}
+
+	public void enterWormhole() {
+		if (currentLocation instanceof Wormhole) {
+			enteringWormhole = true;
+		}
+	}
+
+	public boolean isEnteringWormhole() {
+		return enteringWormhole;
+	}
+
+	public void setEnteringWormhole(boolean bool) {
+		enteringWormhole = bool;
+	}
+
+
 }
