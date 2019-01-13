@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -24,10 +25,11 @@ import dadeindustries.game.gc.view.EmpireView;
 public class Start extends Activity {
 
 	private List<Event> eventlist = null;
-	private MediaPlayer mediaPlayer, battleAlert;
+	private MediaPlayer battleAlert;
 	private GalaxyView galaxyView;
 	private Button endTurnButton;
 	private TurnProcessor turnProcessor;
+	private Intent music;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -90,11 +92,11 @@ public class Start extends Activity {
 		});
 
 		/* Prepare music */
-		mediaPlayer = MediaPlayer.create(this, R.raw.lj_kruzer_chantiers_navals);
-		battleAlert = MediaPlayer.create(this, R.raw.redalert_klaxon_sttos_recreated_178032);
-		mediaPlayer.setLooping(true);
-		mediaPlayer.start(); // TODO: switch to async preparation method
+		music = new Intent(this, BackgroundSoundService.class);
+		startService(music);
+        Log.i("Music", "attempting");
 
+		battleAlert = MediaPlayer.create(this, R.raw.redalert_klaxon_sttos_recreated_178032);
 	}
 
 	/**
@@ -231,13 +233,15 @@ public class Start extends Activity {
 
 	@Override
 	public void onPause() {
-		mediaPlayer.pause();
+		music.setAction("PAUSE");
+		stopService(music);
 		super.onPause();
 	}
 
 	@Override
 	public void onResume() {
+		music.setAction("RESUME");
+		startService(music);
 		super.onResume();
-		mediaPlayer.start();
 	}
 }

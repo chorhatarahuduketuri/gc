@@ -2,6 +2,7 @@ package dadeindustries.game.gc.view;
 
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -29,6 +30,7 @@ public class EmpireView extends AppCompatActivity {
 			R.drawable.system1,
 			R.drawable.system2
 	};
+	private Intent music;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,10 @@ public class EmpireView extends AppCompatActivity {
 		tabLayout = (TabLayout) findViewById(R.id.tabs);
 		tabLayout.setupWithViewPager(viewPager);
 		setupTabIcons();
+
+		music = new Intent(this, BackgroundSoundService.class);
+		startService(music);
+
 	}
 
 	private void setupTabIcons() {
@@ -71,6 +77,20 @@ public class EmpireView extends AppCompatActivity {
 		adapter.addFrag(new DiplomacyFragment(), "TWO");
 		adapter.addFrag(new EspionageFragment(), "THREE");
 		viewPager.setAdapter(adapter);
+	}
+
+	@Override
+	public void onPause() {
+		music.setAction("PAUSE");
+		stopService(music);
+		super.onPause();
+	}
+
+	@Override
+	public void onResume() {
+		music.setAction("RESUME");
+		startService(music);
+		super.onResume();
 	}
 
 	class ViewPagerAdapter extends FragmentPagerAdapter {
