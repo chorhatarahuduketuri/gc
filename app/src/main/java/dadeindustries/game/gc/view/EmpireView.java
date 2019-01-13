@@ -13,10 +13,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
-import dadeindustries.game.gc.view.OneFragment;
-import dadeindustries.game.gc.view.TwoFragment;
-import dadeindustries.game.gc.view.ThreeFragment;
-
 import com.example.gc.R;
 
 import java.util.ArrayList;
@@ -38,11 +34,11 @@ public class EmpireView extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.empire_activity);
-
+/*
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+*/
 		viewPager = (ViewPager) findViewById(R.id.viewpager);
 		setupViewPager(viewPager);
 
@@ -54,26 +50,26 @@ public class EmpireView extends AppCompatActivity {
 	private void setupTabIcons() {
 
 		TextView tabOne = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
-		tabOne.setText("ONE");
+		tabOne.setText("Science");
 		tabOne.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.system1, 0, 0);
 		tabLayout.getTabAt(0).setCustomView(tabOne);
 
 		TextView tabTwo = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
-		tabTwo.setText("TWO");
+		tabTwo.setText("Diplomacy");
 		tabTwo.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.system1, 0, 0);
 		tabLayout.getTabAt(1).setCustomView(tabTwo);
 
 		TextView tabThree = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
-		tabThree.setText("THREE");
+		tabThree.setText("Espionage");
 		tabThree.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.system1, 0, 0);
 		tabLayout.getTabAt(2).setCustomView(tabThree);
 	}
 
 	private void setupViewPager(ViewPager viewPager) {
 		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-		adapter.addFrag(new OneFragment(), "ONE");
-		adapter.addFrag(new TwoFragment(), "TWO");
-		adapter.addFrag(new ThreeFragment(), "THREE");
+		adapter.addFrag(new ScienceFragment(), "ONE");
+		adapter.addFrag(new DiplomacyFragment(), "TWO");
+		adapter.addFrag(new EspionageFragment(), "THREE");
 		viewPager.setAdapter(adapter);
 	}
 
