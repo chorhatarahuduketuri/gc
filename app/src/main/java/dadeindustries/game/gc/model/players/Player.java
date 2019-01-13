@@ -78,11 +78,7 @@ public class Player {
 	}
 
 	public void removeAllVisibility() {
-		Iterator iter = visible.iterator();
-		while (iter.hasNext()) {
-			iter.remove();
-		}
-		Log.i("Visibility ", "Visiblity is " + visible.size());
+		visible.clear();
 	}
 
 	public void makeVisible(Sector s) {

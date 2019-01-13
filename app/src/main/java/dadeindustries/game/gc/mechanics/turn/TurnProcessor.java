@@ -2,6 +2,7 @@ package dadeindustries.game.gc.mechanics.turn;
 
 import android.util.Log;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -63,7 +64,7 @@ public class TurnProcessor {
 		return events;
 	}
 
-	private ArrayList<Spaceship> getAllShipsForPlayer(Sector[][] sectors, Player player) {
+	private static ArrayList<Spaceship> getAllShipsForPlayer(Sector[][] sectors, Player player) {
 
 		ArrayList<Spaceship> returnShips = new ArrayList<Spaceship>();
 
@@ -79,7 +80,7 @@ public class TurnProcessor {
 		return returnShips;
 	}
 
-	private ArrayList<System> getAllSystemsForPlayer(Sector[][] sectors, Player player) {
+	private static ArrayList<System> getAllSystemsForPlayer(Sector[][] sectors, Player player) {
 
 		ArrayList returnSystems = new ArrayList();
 
@@ -244,7 +245,7 @@ public class TurnProcessor {
 		}
 	}
 
-	private void updatePlayerVisibility(GlobalGameData globalGameData) {
+	public static void updatePlayerVisibility(GlobalGameData globalGameData) {
 
 		for (Player player : globalGameData.getPlayers()) {
 
@@ -252,13 +253,26 @@ public class TurnProcessor {
 
 			player.removeAllVisibility();
 
+			ArrayList<System> systems = getAllSystemsForPlayer(globalGameData.getSectors(), player);
+			for (System system : systems) {
+				player.makeVisible(globalGameData.getSectors()[system.getX()][system.getY()]);
+			}
+
 			for (Spaceship ship : ships) {
 
 				int scanStrength = ship.getScanStrength();
-				int x = ship.getX();
-				int y = ship.getY();
 
-				player.makeVisible(globalGameData.getSectors()[x][y]);
+				for (int x = (ship.getX() - scanStrength); x < (ship.getX() + scanStrength + 1); x++) {
+
+					for (int y = (ship.getY() - scanStrength); y < (ship.getY() + scanStrength + 1); y++) {
+						if (x >= 0 && x < globalGameData.galaxySizeX) {
+
+							if (y >= 0 && y < globalGameData.galaxySizeY) {
+								player.makeVisible(globalGameData.getSectors()[x][y]);
+							}
+						}
+					}
+				}
 			}
 		}
 	}
