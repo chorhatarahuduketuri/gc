@@ -34,6 +34,7 @@ import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.enums.SpacecraftOrder;
 import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
 import dadeindustries.game.gc.model.factionartifacts.CombatShip;
+import dadeindustries.game.gc.model.factionartifacts.Spacecraft;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
@@ -195,7 +196,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	public void drawSystemLabel(Canvas canvas, Sector sector) {
 		if (sector.hasSystem()) {
 			int savedColor = paint.getColor();
-			paint.setColor(Color.WHITE);
+			paint.setColor(Color.CYAN);
 			paint.setTextSize(16 * getResources().getDisplayMetrics().density);
 			canvas.drawText(sector.getSystem().getName(),
 					(SQUARE_SIZE * sector.getX()) + PADDING,
@@ -204,6 +205,37 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					paint);
 			paint.setColor(savedColor);
 		}
+	}
+
+	public void drawShipLabel(Canvas canvas, Sector sector) {
+
+		ArrayList<Spaceship> ships = sector.getUnits(globalGameData.getHumanPlayer());
+
+		if (ships.size() > 0) {
+
+			int savedColor = paint.getColor(); // Save paint colour
+
+			paint.setColor(Color.WHITE);
+			paint.setTextSize(16 * getResources().getDisplayMetrics().density);
+
+			String text = "";
+
+			if (ships.size() > 1) {
+				text = ships.size() + " ships";
+
+			} else {
+				text = ships.get(0).getShipName();
+			}
+
+			canvas.drawText(text,
+						(SQUARE_SIZE * sector.getX()) + PADDING,
+						SQUARE_SIZE * sector.getY()
+								+ (PADDING * 3),
+						paint);
+
+			paint.setColor(savedColor); // Restore paint colour
+		}
+
 	}
 
 	public void drawGrid(Canvas canvas) {
@@ -309,9 +341,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 						// do nothing
 				}
 
-				paint.setColor(Color.WHITE);
-				canvas.drawText(ship.getShipName(), x + PADDING, y + (PADDING * 3)
-						+ (SQUARE_SIZE / 2), paint);
+				drawShipLabel(canvas, sector);
+				//paint.setColor(Color.WHITE);
+				//canvas.drawText(ship.getShipName(), x + PADDING, y + (PADDING * 3)
+				//		+ (SQUARE_SIZE / 2), paint);
 			}
 		}
 	}
