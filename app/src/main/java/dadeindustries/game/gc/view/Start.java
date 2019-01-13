@@ -3,6 +3,7 @@ package dadeindustries.game.gc.view;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Menu;
@@ -18,6 +19,7 @@ import java.util.List;
 
 import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.mechanics.turn.TurnProcessor;
+import dadeindustries.game.gc.view.EmpireView;
 
 public class Start extends Activity {
 
@@ -34,7 +36,14 @@ public class Start extends Activity {
 
 		/* Disables global menu button for now */
 		Button menuButton = (Button) findViewById(R.id.menu);
-		menuButton.setEnabled(false);
+		menuButton.setEnabled(true);
+		menuButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Intent myIntent = new Intent(Start.this, EmpireView.class);
+				Start.this.startActivity(myIntent);
+			}
+		});
 
 		galaxyView = (GalaxyView) findViewById(R.id.myview);
 
