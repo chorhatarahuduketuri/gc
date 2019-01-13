@@ -188,12 +188,21 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				r.bottom = y + (SQUARE_SIZE / 2) * 2;
 
 				canvas.drawBitmap(p2, null, r, paint);
-				paint.setColor(Color.WHITE);
-				paint.setTextSize(16 * getResources().getDisplayMetrics().density);
-				canvas.drawText(sector.getSystem().getName(), x + PADDING, y
-						+ (SQUARE_SIZE / 2), paint);
-				paint.setColor(savedColor);
 			}
+		}
+	}
+
+	public void drawSystemLabel(Canvas canvas, Sector sector) {
+		if (sector.hasSystem()) {
+			int savedColor = paint.getColor();
+			paint.setColor(Color.WHITE);
+			paint.setTextSize(16 * getResources().getDisplayMetrics().density);
+			canvas.drawText(sector.getSystem().getName(),
+					(SQUARE_SIZE * sector.getX()) + PADDING,
+					SQUARE_SIZE * sector.getY()
+					+ (SQUARE_SIZE / 2),
+					paint);
+			paint.setColor(savedColor);
 		}
 	}
 
@@ -342,6 +351,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		}
 
 		drawGrid(canvas);
+
+		for (Object s : globalGameData.getHumanPlayer().getDiscoveredSectors()) {
+			drawSystemLabel(canvas, (Sector) s);
+		}
+
 		drawTopLeftInformation(canvas);
 	}
 
