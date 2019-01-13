@@ -194,16 +194,27 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	public void drawSystemLabel(Canvas canvas, Sector sector) {
+
 		if (sector.hasSystem()) {
-			int savedColor = paint.getColor();
-			paint.setColor(Color.CYAN);
-			paint.setTextSize(16 * getResources().getDisplayMetrics().density);
-			canvas.drawText(sector.getSystem().getName(),
-					(SQUARE_SIZE * sector.getX()) + PADDING,
-					SQUARE_SIZE * sector.getY()
-					+ (SQUARE_SIZE / 2),
-					paint);
-			paint.setColor(savedColor);
+
+			if (	(sector.getX() >= viewPort.x)
+					&& (sector.getX() <= viewPort.x + NUM_SQUARES_IN_ROW)
+					&& (sector.getY() >= viewPort.y)
+					&& globalGameData.getHumanPlayer().isVisible(sector) == true
+					) {
+
+				int x = (sector.getX() - viewPort.x) * SQUARE_SIZE;
+				int y = (sector.getY() - viewPort.y) * SQUARE_SIZE;
+
+				int savedColor = paint.getColor();
+				paint.setColor(Color.WHITE);
+				paint.setTextSize(16 * getResources().getDisplayMetrics().density);
+				canvas.drawText(sector.getSystem().getName(),
+						(x) + PADDING,
+						y + (SQUARE_SIZE / 2),
+						paint);
+				paint.setColor(savedColor);
+			}
 		}
 	}
 
