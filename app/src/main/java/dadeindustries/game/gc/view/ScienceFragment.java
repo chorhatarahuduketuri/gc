@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 
 import com.example.gc.R;
 
-public class ThreeFragment extends Fragment {
+public class ScienceFragment extends Fragment{
 
-	public ThreeFragment() {
+	public ScienceFragment() {
 		// Required empty public constructor
 	}
 
@@ -23,7 +23,7 @@ public class ThreeFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_three, container, false);
+		return inflater.inflate(R.layout.science_fragment, container, false);
 	}
 
 }

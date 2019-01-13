@@ -8,10 +8,9 @@ import android.view.ViewGroup;
 
 import com.example.gc.R;
 
-public class TwoFragment
-		extends Fragment {
+public class EspionageFragment extends Fragment {
 
-	public TwoFragment() {
+	public EspionageFragment() {
 		// Required empty public constructor
 	}
 
@@ -24,7 +23,7 @@ public class TwoFragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_two, container, false);
+		return inflater.inflate(R.layout.espionage_fragment, container, false);
 	}
 
 }
