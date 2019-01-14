@@ -43,7 +43,7 @@ public class Start extends Activity {
 			@Override
 			public void onClick(View view) {
 				Intent myIntent = new Intent(Start.this, EmpireView.class);
-				Start.this.startActivity(myIntent);
+				Start.this.startActivityForResult(myIntent, 1);
 			}
 		});
 
@@ -190,6 +190,15 @@ public class Start extends Activity {
 			}
 		});
 		dialog.create().show();
+	}
+
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == 1) {
+			if(resultCode == RESULT_OK) {
+				//String strEditText = data.getStringExtra("editTextValue");
+			}
+		}
 	}
 
 	@Override
