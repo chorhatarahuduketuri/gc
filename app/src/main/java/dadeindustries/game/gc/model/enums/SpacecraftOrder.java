@@ -1,5 +1,5 @@
 package dadeindustries.game.gc.model.enums;
 
 public enum SpacecraftOrder {
-	MOVE, ATTACK, COLONISE
+	MOVE, ATTACK, COLONISE, ENTER_WORMHOLE
 }

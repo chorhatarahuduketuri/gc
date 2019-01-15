@@ -34,10 +34,12 @@ import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.enums.SpacecraftOrder;
 import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
 import dadeindustries.game.gc.model.factionartifacts.CombatShip;
+import dadeindustries.game.gc.model.factionartifacts.Spacecraft;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
+import dadeindustries.game.gc.model.stellarphenomenon.phenomena.Wormhole;
 
 import static dadeindustries.game.gc.model.GlobalGameData.isHumanPlayer;
 
@@ -57,7 +59,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private Paint paint = new Paint();
 
 	// Global Bitmaps
-	private Bitmap up, mo, p1, p2; // Bitmap variables
+	private Bitmap up, mo, p1, p2, wh; // Bitmap variables
 
 	private GestureDetector gestureDetector;
 
@@ -142,6 +144,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		mo = BitmapFactory.decodeResource(getResources(), R.drawable.morphers);
 		p1 = BitmapFactory.decodeResource(getResources(), R.drawable.system1);
 		p2 = BitmapFactory.decodeResource(getResources(), R.drawable.system2);
+		wh = BitmapFactory.decodeResource(getResources(), R.drawable.wormhole);
 	}
 
 	/**
@@ -219,6 +222,24 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 						paint.setTextSize(16 * getResources().getDisplayMetrics().density);
 						canvas.drawText(sectors[i][j].getSystem().getName(), x + PADDING, y
 								+ (SQUARE_SIZE / 2), paint);
+					}
+				}
+
+				if (sectors[i][j] instanceof Wormhole) {
+					int systemX = sectors[i][j].getX();
+					int systemY = sectors[i][j].getY();
+
+					if ((systemX >= viewPort.x)
+							&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
+							&& (systemY >= viewPort.y)) {
+
+						int x = (systemX - viewPort.x) * SQUARE_SIZE;
+						int y = (systemY - viewPort.y) * SQUARE_SIZE;
+						r.left = x ;
+						r.top = y ;
+						r.right = x + (SQUARE_SIZE / 2) * 2;
+						r.bottom = y + (SQUARE_SIZE / 2) * 2;
+						canvas.drawBitmap(wh, null, r, paint);
 					}
 				}
 
@@ -576,7 +597,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		final CharSequence orders[] = new CharSequence[]{
 				SpacecraftOrder.MOVE.name(),
 				SpacecraftOrder.ATTACK.name(),
-				SpacecraftOrder.COLONISE.name()};
+				SpacecraftOrder.COLONISE.name(),
+				SpacecraftOrder.ENTER_WORMHOLE.name()
+		};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
 		builder.setTitle(ship.getClass().getSimpleName());
@@ -635,6 +658,20 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					}
 				}
 				break;
+        
+      case 3: // ENTER WORMHOLE
+          setSelectedShipForOnClick();
+
+          Sector selectedSector = getSelectedSector(currentX, currentY);
+
+          if (selectedSector instanceof Wormhole) {
+            selectedShip.enterWormhole();
+            makeToast("Entering wormhole");
+          } else {
+            makeToast("No wormhole to enter");
+          }
+        break;
+        
 			default:
 				Log.wtf("Clicked ", "" + order);
 		}
