@@ -232,14 +232,16 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		paint.setColor(Color.WHITE);
 
 		// Draw vertical lines
-		for (int i = viewPort.x; i <= viewPort.x + getResources().getDisplayMetrics().widthPixels; i = i + SQUARE_SIZE) {
+		for (int i = viewPort.x; i <= viewPort.x + getResources().getDisplayMetrics().widthPixels;
+		     i = i + SQUARE_SIZE) {
 			canvas.drawLine(i + SQUARE_SIZE, 0, i + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
 					paint);
 		}
 
 		// Draw horizontal lines
-		for (int k = viewPort.y; k < viewPort.y + getResources().getDisplayMetrics().heightPixels; k = k + SQUARE_SIZE) {
+		for (int k = viewPort.y; k < viewPort.y + getResources().getDisplayMetrics().heightPixels;
+		     k = k + SQUARE_SIZE) {
 			canvas.drawLine(0, k + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
 					k + SQUARE_SIZE,
