@@ -366,24 +366,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				canvas.drawRect(r, paint);
 
 				// Draw wormhole
-				if (sectors[i][j] instanceof Wormhole) {
-					int systemX = sectors[i][j].getX();
-					int systemY = sectors[i][j].getY();
-
-					if ((systemX >= viewPort.x)
-							&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
-							&& (systemY >= viewPort.y)) {
-
-						x = (systemX - viewPort.x) * SQUARE_SIZE;
-						y = (systemY - viewPort.y) * SQUARE_SIZE;
-						r.left = x;
-						r.top = y;
-						r.right = x + (SQUARE_SIZE / 2) * 2;
-						r.bottom = y + (SQUARE_SIZE / 2) * 2;
-						canvas.drawBitmap(wh, null, r, paint);
-					}
-				}
-
+				drawWormhole(sector, canvas);
 				// Draw System bitmaps
 				drawSystem(sector, canvas);
 				// Draw Ship bitmaps
@@ -398,6 +381,29 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		}
 
 		drawTopLeftInformation(canvas);
+	}
+
+	private void drawWormhole(Sector sector, Canvas canvas) {
+
+		int x, y;
+
+		if (sector instanceof Wormhole) {
+			int systemX = sector.getX();
+			int systemY = sector.getY();
+
+			if ((systemX >= viewPort.x)
+					&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
+					&& (systemY >= viewPort.y)) {
+
+				x = (systemX - viewPort.x) * SQUARE_SIZE;
+				y = (systemY - viewPort.y) * SQUARE_SIZE;
+				r.left = x;
+				r.top = y;
+				r.right = x + (SQUARE_SIZE / 2) * 2;
+				r.bottom = y + (SQUARE_SIZE / 2) * 2;
+				canvas.drawBitmap(wh, null, r, paint);
+			}
+		}
 	}
 
 	private float startX, startY = 0; // Co-ordinates of where the finger starteed
