@@ -5,6 +5,8 @@ Open-source Android game. Still a work-in-progress after all these years.
 
 Download it [HERE](https://github.com/chorhatarahuduketuri/gc/releases/latest).
 
+Documentation [HERE](https://chorhatarahuduketuri.github.io/gc/docs/index.html)
+
 ## Summary 
 
 GalaxyQuest is a turn-based strategy game that focuses on building a galactic empire 
