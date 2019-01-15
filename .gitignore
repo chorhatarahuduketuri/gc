@@ -69,3 +69,8 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
+
+# Keep these files in the repo but ignore changes
+# (why? they keep changing but are necessary for first checkout)
+.idea/vcs.xml
+.idea/codeStyles/codeStyleConfig.xml

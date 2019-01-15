@@ -1,0 +1,13 @@
+dadeindustries.game.gc
+dadeindustries.game.gc.ai
+dadeindustries.game.gc.ai.concepts
+dadeindustries.game.gc.mechanics
+dadeindustries.game.gc.mechanics.turn
+dadeindustries.game.gc.mechanics.units
+dadeindustries.game.gc.model
+dadeindustries.game.gc.model.enums
+dadeindustries.game.gc.model.factionartifacts
+dadeindustries.game.gc.model.players
+dadeindustries.game.gc.model.stellarphenomenon
+dadeindustries.game.gc.model.stellarphenomenon.phenomena
+dadeindustries.game.gc.view

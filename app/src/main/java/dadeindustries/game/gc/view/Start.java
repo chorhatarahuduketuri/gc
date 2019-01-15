@@ -27,6 +27,12 @@ public class Start extends Activity {
 	private Button endTurnButton;
 	private TurnProcessor turnProcessor;
 
+	/**
+	 * This is called when the game is launched. It initialises:
+	 * - the game variables
+	 * - music
+	 * - button subroutines
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,31 +49,7 @@ public class Start extends Activity {
 		endTurnButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				turnProcessor = new TurnProcessor();
-				ArrayList<Event> events = turnProcessor.endTurn(galaxyView.getGlobalGameData());
-
-				/* Get events from the next turn and display ones of interest to UI */
-				for (Event event : events) {
-
-					switch (event.getEventType()) {
-						case BATTLE:
-							showBattleReport(event);
-							break;
-						case UNIT_CONSTRUCTION_COMPLETE:
-							galaxyView.makeToast(event.getDescription());
-							break;
-						case RANDOM_EVENT:
-							break;
-						case COLONISE:
-							showColonisationEvent(event.getDescription());
-							break;
-						case WINNER:
-							showEndGamePopup(event.getDescription());
-							break;
-					}
-				}
-				galaxyView.invalidate(); /* Force a repaint of the screen */
-				eventlist = events;
+				onTurnButtonPressed();
 			}
 		});
 
@@ -76,7 +58,7 @@ public class Start extends Activity {
 		summaryButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				showSummary();
+				showSummaryPopup();
 			}
 		});
 
@@ -86,6 +68,41 @@ public class Start extends Activity {
 		mediaPlayer.setLooping(true);
 		mediaPlayer.start(); // TODO: switch to async preparation method
 
+	}
+
+	/**
+	 * This is executed when the player pressed the End Turn button.
+	 *
+	 */
+	public void onTurnButtonPressed() {
+
+		turnProcessor = new TurnProcessor();
+
+		ArrayList<Event> events = turnProcessor.endTurn(galaxyView.getGlobalGameData());
+
+		/* Get events from the next turn and display the appropriate UI popup */
+		for (Event event : events) {
+
+			switch (event.getEventType()) {
+				case BATTLE:
+					showBattleReport(event);
+					break;
+				case UNIT_CONSTRUCTION_COMPLETE:
+					galaxyView.makeToast(event.getDescription());
+					break;
+				case RANDOM_EVENT:
+					// TODO: Fill in when random events are defined
+					break;
+				case COLONISE:
+					showColonisationPopup(event.getDescription());
+					break;
+				case WINNER:
+					showEndGamePopup(event.getDescription());
+					break;
+			}
+		}
+		galaxyView.invalidate(); /* Force a repaint of the screen */
+		eventlist = events;
 	}
 
 	/**
@@ -115,10 +132,11 @@ public class Start extends Activity {
 	/**
 	 * Shows a list of all events in the last turn in a popup box
 	 */
-	public void showSummary() {
+	public void showSummaryPopup() {
 
 		String s = "";
 
+		/* Get each event and make a bulleted list for the popup */
 		if (eventlist != null) {
 			for (Event event : eventlist) {
 				s = s + "* " + event.getDescription() + "\n";
@@ -141,7 +159,7 @@ public class Start extends Activity {
 		builder.create().show();
 	}
 
-	public void showColonisationEvent(String s) {
+	public void showColonisationPopup(String s) {
 		ImageView image = new ImageView(this);
 		image.setMaxHeight(getResources().getDisplayMetrics().heightPixels / 2);
 		image.setImageResource(R.drawable.colonise);
@@ -222,13 +240,13 @@ public class Start extends Activity {
 
 	@Override
 	public void onPause() {
-		mediaPlayer.pause();
+		mediaPlayer.pause(); // Pause the music
 		super.onPause();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		mediaPlayer.start();
+		mediaPlayer.start(); // Unpause the music
 	}
 }

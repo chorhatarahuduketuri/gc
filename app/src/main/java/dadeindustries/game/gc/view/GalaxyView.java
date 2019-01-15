@@ -98,18 +98,22 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		sound_reporting = MediaPlayer.create(context, R.raw.reporting);
 		sound_setting_course = MediaPlayer.create(context, R.raw.setting_course);
 
+		/* Get the size of the screen */
 		DisplayMetrics metrics = getResources().getDisplayMetrics();
 		int displayWidth = metrics.widthPixels;
 		int displayHeight = metrics.heightPixels;
 
+		/* Based on the screen size... determine how many sector squares can be seen at a time */
 		NUM_SQUARES_IN_ROW = NUM_SQUARES_IN_ROW + ((displayWidth / 500) * 2);
-
 		SQUARE_SIZE = displayWidth / NUM_SQUARES_IN_ROW;
 		NUM_SQUARES_IN_COLUMN = displayHeight / SQUARE_SIZE;
+
+		/* Set the background colour of the view to black and the drawn grid to white */
 		setBackgroundColor(Color.BLACK);
 		paint.setColor(Color.WHITE);
 		paint.setStrokeWidth(3);
 		loadBitmaps();
+
 		this.globalGameData = globalGameData;
 		sectors = globalGameData.getSectors();
 
@@ -132,6 +136,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		return globalGameData;
 	}
 
+	/**
+	 * Load the sprites from their files into variables (planets, ships, etc.)
+	 */
 	private void loadBitmaps() {
 		up = BitmapFactory.decodeResource(getResources(), R.drawable.up);
 		mo = BitmapFactory.decodeResource(getResources(), R.drawable.morphers);
@@ -167,6 +174,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		invalidate(); // Forces the screen to repaint
 	}
 
+	/**
+	 * Whenever the screen is redrawn this procedure is executed
+	 * @param canvas
+	 */
 	@Override
 	public void onDraw(Canvas canvas) {
 
@@ -187,7 +198,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					paint);
 		}
 
-		// TODO: Draw purple squares for all unexplored areas
+		// TODO: Draw purple squares for all unexplored areas to implement fog of war
 
 		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
@@ -250,11 +261,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					int y = (shipy - viewPort.y) * SQUARE_SIZE;
 					r.left = x;
 					r.top = y;
-					r.right = x + SQUARE_SIZE / 2;
-					r.bottom = y + SQUARE_SIZE / 2;
+					r.right = x + (SQUARE_SIZE / 2) - PADDING;
+					r.bottom = y + (SQUARE_SIZE / 2) - PADDING;
 
-					// TODO: Need to handle case where multiple units in the same
-					// system
+					// TODO: Need to handle case where multiple factions are in the same system
 
 					ArrayList<Spaceship> ships = sectors[i][j].getUnits();
 					for (Spaceship ship : ships) {
@@ -281,7 +291,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			}
 		}
 
-		// highlight current selection
+		// highlight the currently selected sector by drawing a red box around it
 		if (currentX >= 0 && currentY >= 0) {
 			paint.setColor(Color.RED);
 			paint.setStyle(Paint.Style.STROKE);
@@ -295,7 +305,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			paint.setColor(Color.WHITE);
 		}
 
-		// Put text in top left corner indicating the current turn number
+		// Put text in top left corner indicating the current turn number and the amount of credits
 		canvas.drawText("Turn " + globalGameData.getTurn(),
 				viewPort.x + PADDING, viewPort.y + PADDING * 3, paint);
 		canvas.drawText("Credits " + globalGameData.getHumanPlayerCredits(),
@@ -303,9 +313,15 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	}
 
-	float startX, startY = 0;
-	float moveX, moveY = 0;
+	private float startX, startY = 0; // Co-ordinates of where the finger starteed
+	private float moveX, moveY = 0; // Co-ordinates of where the finger ended
 
+	/**
+	 * When the player touches the screen this is called
+	 * @param view
+	 * @param motion The type of motion the player made
+	 * @return
+	 */
 	@Override
 	public boolean onTouch(View view, MotionEvent motion) {
 
@@ -318,7 +334,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			startY = (motion.getY());
 		}
 
-		// when finger moves on screeen
+		// when finger moves on screen
 		if (motion.getAction() == motion.ACTION_MOVE) {
 			moveX = (motion.getX());
 			moveY = (motion.getY());
@@ -344,17 +360,18 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				sound_setting_course.start();
 			}
 
-			// if ship is selected
+			// Debugging telemetry
 			if (isShipSelected(currentX, currentY)) {
 				Log.wtf("Ship selected", currentX + " " + currentY);
 			}
 
+			// Debugging telemetry
 			if (isSystemSelected(currentX, currentY)) {
 				Log.wtf("System selected", currentX + " " + currentY);
 			}
 		}
 
-		invalidate();
+		invalidate(); // Force redraw of the screen
 
 		return true;
 	}
@@ -508,25 +525,31 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		return false;
 	}
 
+	/**
+	 * When the keyboard is pressed (if one is available)
+	 * @param keyCode
+	 * @param event
+	 * @return
+	 */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 
-		Log.wtf("Current co-ords", "" + viewPort.x + " " + viewPort.y);
+		Log.wtf("Co-ordinates before pressing ", "" + viewPort.x + " " + viewPort.y);
 		switch (keyCode) {
 
-			case 19:
+			case KeyEvent.KEYCODE_DPAD_UP:
 				moveGridUp();
 				break;
 
-			case 20:
+			case KeyEvent.KEYCODE_DPAD_DOWN:
 				moveGridDown();
 				break;
 
-			case 21:
+			case KeyEvent.KEYCODE_DPAD_LEFT:
 				moveGridLeft();
 				break;
 
-			case 22:
+			case KeyEvent.KEYCODE_DPAD_RIGHT:
 				moveGridRight();
 				break;
 
@@ -534,7 +557,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				return false;
 		}
 
-		invalidate();
+		invalidate(); // Repaint the screen
 		return true;
 	}
 
@@ -566,6 +589,10 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		builder.create().show();
 	}
 
+	/**
+	 * Graphical menu for giving a ship an order
+ 	 * @param ship The ship object to give an order to
+	 */
 	public void showShipMenu(final Spaceship ship) {
 		final CharSequence orders[] = new CharSequence[]{
 				SpacecraftOrder.MOVE.name(),
@@ -579,52 +606,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		builder.setItems(orders, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// the user clicked on colors[which]
-				switch (which) {
-					case 0:
-						selectedShip = ship;
-						// new
-
-						SELECT_MODE = (selectedShip != null) ? 1 : 0;
-						CURRENTLY_ORDERING = true;
-						break;
-					case 1:
-						setSelectedShipForOnClick();
-						UnitActions.attackSystem(selectedShip, globalGameData);
-						break;
-					case 2:
-						setSelectedShipForOnClick();
-						//UnitActions.coloniseSystem(selectedShip, globalGameData);
-						if (selectedShip instanceof ColonyShip) {
-							if (sectors[currentX][currentY].hasSystem()) {
-								if (!sectors[currentX][currentY].getSystem().hasOwner()) {
-									selectedShip.clearCourse();
-									((ColonyShip) selectedShip).colonise();
-									makeToast("Colonising...");
-								} else {
-									showError("This system is already colonised " +
-											sectors[currentX][currentY].getSystem().getOwner());
-								}
-							} else {
-								showError("This system cannot be colonised");
-							}
-						}
-						break;
-					case 3:
-						setSelectedShipForOnClick();
-
-						Sector selectedSector = getSelectedSector(currentX, currentY);
-
-						if (selectedSector instanceof Wormhole) {
-							selectedShip.enterWormhole();
-							makeToast("Entering wormhole");
-						} else {
-							makeToast("No wormhole to enter");
-						}
-
-					default:
-						Log.wtf("Clicked ", "" + which);
-				}
+				orderShip(ship, which);
 			}
 		});
 
@@ -633,6 +615,66 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		shipDialog.getWindow().setLayout(100, WRAP_CONTENT);
 		shipDialog.show();
 		sound_yessir.start();
+	}
+
+	/**
+	 * Given an order to a ship
+	 * @param ship The ship object to give an order to
+	 * @param order The order to give the ship
+	 *              0 - MOVE
+	 *              1 - ATTACK
+	 *              2 - COLONISE
+	 */
+	public void orderShip(final Spaceship ship, int order) {
+		switch (order) {
+
+			case 0: // MOVE
+				selectedShip = ship; // Does this need to be changed to setSelectedShipForOnClick()?
+
+				SELECT_MODE = (selectedShip != null) ? 1 : 0;
+				CURRENTLY_ORDERING = true;
+				break;
+
+			case 1: // ATTACK
+				setSelectedShipForOnClick();
+				UnitActions.attackSystem(selectedShip, globalGameData);
+				break;
+
+			case 2: // COLONISE
+				setSelectedShipForOnClick();
+				//UnitActions.coloniseSystem(selectedShip, globalGameData);
+				if (selectedShip instanceof ColonyShip) {
+					if (sectors[currentX][currentY].hasSystem()) {
+						if (!sectors[currentX][currentY].getSystem().hasOwner()) {
+							selectedShip.clearCourse();
+							((ColonyShip) selectedShip).colonise();
+							makeToast("Colonising...");
+						} else {
+							showError("This system is already colonised " +
+									sectors[currentX][currentY].getSystem().getOwner());
+						}
+					} else {
+						showError("This system cannot be colonised");
+					}
+				}
+				break;
+        
+      case 3: // ENTER WORMHOLE
+          setSelectedShipForOnClick();
+
+          Sector selectedSector = getSelectedSector(currentX, currentY);
+
+          if (selectedSector instanceof Wormhole) {
+            selectedShip.enterWormhole();
+            makeToast("Entering wormhole");
+          } else {
+            makeToast("No wormhole to enter");
+          }
+        break;
+        
+			default:
+				Log.wtf("Clicked ", "" + order);
+		}
 	}
 
 	public void showMultipleShipMenu(final Sector sector) {
