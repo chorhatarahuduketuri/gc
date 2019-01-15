@@ -34,7 +34,6 @@ import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.enums.SpacecraftOrder;
 import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
 import dadeindustries.game.gc.model.factionartifacts.CombatShip;
-import dadeindustries.game.gc.model.factionartifacts.Spacecraft;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
@@ -151,6 +150,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * Moves the galaxy view to the specified coordinates.
+	 *
 	 * @param x X coordinate to set the top left of the screen to
 	 * @param y Y coordinate to set the top left of the screen to
 	 */
@@ -158,8 +158,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		if (x < 0) {
 			x = 0;
-		}
-		else if (x > (GlobalGameData.galaxySizeX - NUM_SQUARES_IN_ROW)) {
+		} else if (x > (GlobalGameData.galaxySizeX - NUM_SQUARES_IN_ROW)) {
 			x = GlobalGameData.galaxySizeX - NUM_SQUARES_IN_ROW;
 		}
 
@@ -205,7 +204,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		if (sector.hasSystem()) {
 
-			if (	(sector.getX() >= viewPort.x)
+			if ((sector.getX() >= viewPort.x)
 					&& (sector.getX() <= viewPort.x + NUM_SQUARES_IN_ROW)
 					&& (sector.getY() >= viewPort.y)
 					&& globalGameData.getHumanPlayer().isVisible(sector) == true
@@ -233,14 +232,14 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		paint.setColor(Color.WHITE);
 
 		// Draw vertical lines
-		for (int i = viewPort.x; i <= viewPort.x + getResources().getDisplayMetrics().widthPixels; i=i+SQUARE_SIZE) {
+		for (int i = viewPort.x; i <= viewPort.x + getResources().getDisplayMetrics().widthPixels; i = i + SQUARE_SIZE) {
 			canvas.drawLine(i + SQUARE_SIZE, 0, i + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
 					paint);
 		}
 
 		// Draw horizontal lines
-		for (int k = viewPort.y; k < viewPort.y + getResources().getDisplayMetrics().heightPixels; k=k+SQUARE_SIZE) {
+		for (int k = viewPort.y; k < viewPort.y + getResources().getDisplayMetrics().heightPixels; k = k + SQUARE_SIZE) {
 			canvas.drawLine(0, k + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
 					k + SQUARE_SIZE,
@@ -260,7 +259,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			paint.setStyle(Paint.Style.FILL);
 			paint.setColor(Color.WHITE);
 		}
-    
+
 		// Restore saved colour
 		paint.setColor(savedColor);
 	}
@@ -270,6 +269,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	 * This text includes information such as:
 	 * - credits
 	 * - the number of turns
+	 *
 	 * @param canvas
 	 */
 	public void drawTopLeftInformation(Canvas canvas) {
@@ -287,6 +287,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * Draws the bitmap of a ship at a particular sector
+	 *
 	 * @param canvas
 	 * @param sector
 	 */
@@ -296,7 +297,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		int shipx = sector.getX();
 		int shipy = sector.getY();
 
-		if (	(shipx >= viewPort.x)
+		if ((shipx >= viewPort.x)
 				&& (shipx <= viewPort.x + NUM_SQUARES_IN_ROW)
 				&& (shipy >= viewPort.y)
 				&& globalGameData.getHumanPlayer().isVisible(sector) == true
@@ -338,6 +339,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * This is triggered every time the screen refreshes/repaints
+	 *
 	 * @param canvas
 	 */
 	@Override
@@ -359,33 +361,33 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				int y = (sector.getY() - viewPort.y) * SQUARE_SIZE;
 				r.left = x;
 				r.top = y;
-				r.right = x + (SQUARE_SIZE) ;
+				r.right = x + (SQUARE_SIZE);
 				r.bottom = y + (SQUARE_SIZE);
 				canvas.drawRect(r, paint);
-        
-        // Draw wormhole
-        if (sectors[i][j] instanceof Wormhole) {
-          int systemX = sectors[i][j].getX();
-          int systemY = sectors[i][j].getY();
 
-          if ((systemX >= viewPort.x)
-              && (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
-              && (systemY >= viewPort.y)) {
+				// Draw wormhole
+				if (sectors[i][j] instanceof Wormhole) {
+					int systemX = sectors[i][j].getX();
+					int systemY = sectors[i][j].getY();
 
-            x = (systemX - viewPort.x) * SQUARE_SIZE;
-            y = (systemY - viewPort.y) * SQUARE_SIZE;
-            r.left = x ;
-            r.top = y ;
-            r.right = x + (SQUARE_SIZE / 2) * 2;
-            r.bottom = y + (SQUARE_SIZE / 2) * 2;
-            canvas.drawBitmap(wh, null, r, paint);
-          }
-        }
-        
+					if ((systemX >= viewPort.x)
+							&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
+							&& (systemY >= viewPort.y)) {
+
+						x = (systemX - viewPort.x) * SQUARE_SIZE;
+						y = (systemY - viewPort.y) * SQUARE_SIZE;
+						r.left = x;
+						r.top = y;
+						r.right = x + (SQUARE_SIZE / 2) * 2;
+						r.bottom = y + (SQUARE_SIZE / 2) * 2;
+						canvas.drawBitmap(wh, null, r, paint);
+					}
+				}
+
 				// Draw System bitmaps
 				drawSystem(sector, canvas);
 				// Draw Ship bitmaps
-				drawShip(canvas, sector); 
+				drawShip(canvas, sector);
 			}
 		}
 
@@ -403,6 +405,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * When the player touches the screen this is called
+	 *
 	 * @param view
 	 * @param motion The type of motion the player made
 	 * @return
@@ -614,6 +617,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * When the keyboard is pressed (if one is available)
+	 *
 	 * @param keyCode
 	 * @param event
 	 * @return
@@ -678,7 +682,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * Graphical menu for giving a ship an order
- 	 * @param ship The ship object to give an order to
+	 *
+	 * @param ship The ship object to give an order to
 	 */
 	public void showShipMenu(final Spaceship ship) {
 		final CharSequence orders[] = new CharSequence[]{
@@ -706,7 +711,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * Given an order to a ship
-	 * @param ship The ship object to give an order to
+	 *
+	 * @param ship  The ship object to give an order to
 	 * @param order The order to give the ship
 	 *              0 - MOVE
 	 *              1 - ATTACK
@@ -745,20 +751,20 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					}
 				}
 				break;
-        
-      case 3: // ENTER WORMHOLE
-          setSelectedShipForOnClick();
 
-          Sector selectedSector = getSelectedSector(currentX, currentY);
+			case 3: // ENTER WORMHOLE
+				setSelectedShipForOnClick();
 
-          if (selectedSector instanceof Wormhole) {
-            selectedShip.enterWormhole();
-            makeToast("Entering wormhole");
-          } else {
-            makeToast("No wormhole to enter");
-          }
-        break;
-        
+				Sector selectedSector = getSelectedSector(currentX, currentY);
+
+				if (selectedSector instanceof Wormhole) {
+					selectedShip.enterWormhole();
+					makeToast("Entering wormhole");
+				} else {
+					makeToast("No wormhole to enter");
+				}
+				break;
+
 			default:
 				Log.wtf("Clicked ", "" + order);
 		}
@@ -913,7 +919,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			}
 			return true;
 		}
-
 
 
 		@Override
