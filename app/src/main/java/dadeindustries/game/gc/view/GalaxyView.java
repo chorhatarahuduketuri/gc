@@ -240,8 +240,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					int y = (shipy - viewPort.y) * SQUARE_SIZE;
 					r.left = x;
 					r.top = y;
-					r.right = x + SQUARE_SIZE / 2;
-					r.bottom = y + SQUARE_SIZE / 2;
+					r.right = x + (SQUARE_SIZE / 2) - PADDING;
+					r.bottom = y + (SQUARE_SIZE / 2) - PADDING;
 
 					// TODO: Need to handle case where multiple factions are in the same system
 
