@@ -19,6 +19,7 @@ import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
+import dadeindustries.game.gc.model.stellarphenomenon.phenomena.Wormhole;
 
 public class TurnProcessor {
 
@@ -323,6 +324,18 @@ public class TurnProcessor {
 									}
 								}
 							}
+						} else if (localShips.get(u).isEnteringWormhole() && sector instanceof Wormhole) {
+							Log.wtf("Wormhole", "Turnprocessor is moving ship into wormhole");
+							localShips.get(u).setEnteringWormhole(false);
+							pendingMoves.add(
+									new PendingMove(
+											localShips.get(u),
+											((Wormhole) sector).getConnectedTo().getX(),
+											((Wormhole) sector).getConnectedTo().getY())
+							);
+
+							shipsToRemove.add(u);
+
 						}
 					}
 				}

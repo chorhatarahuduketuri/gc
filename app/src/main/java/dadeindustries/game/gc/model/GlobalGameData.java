@@ -14,6 +14,7 @@ import dadeindustries.game.gc.model.factionartifacts.CombatShip;
 import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
+import dadeindustries.game.gc.model.stellarphenomenon.phenomena.Wormhole;
 
 /**
  * whereupon the overall definition of the universe is held.
@@ -83,6 +84,9 @@ public class GlobalGameData {
 		sectors[1][2].addShip(new ColonyShip(players.get(0), sectors[1][2], Faction.UNITED_PLANETS, "USS Adrian", 0, 4));
 		sectors[1][3].addShip(new CombatShip(players.get(1), sectors[1][3], Faction.MORPHERS, "ISS Yuri", 2, 4));
 		sectors[7][7].addShip(new CombatShip(players.get(1), sectors[7][7], Faction.MORPHERS, "ISS Ensa", 2, 4));
+		sectors[0][0] = new Wormhole(0, 0, sectors[8][8]);
+		sectors[8][8] = new Wormhole(8,8, sectors[0][0]);
+
 	}
 
 	private void insertTestSystems() {
