@@ -372,8 +372,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
               && (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
               && (systemY >= viewPort.y)) {
 
-            int x = (systemX - viewPort.x) * SQUARE_SIZE;
-            int y = (systemY - viewPort.y) * SQUARE_SIZE;
+            x = (systemX - viewPort.x) * SQUARE_SIZE;
+            y = (systemY - viewPort.y) * SQUARE_SIZE;
             r.left = x ;
             r.top = y ;
             r.right = x + (SQUARE_SIZE / 2) * 2;
