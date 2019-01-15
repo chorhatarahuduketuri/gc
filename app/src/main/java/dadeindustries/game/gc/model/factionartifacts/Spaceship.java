@@ -103,7 +103,7 @@ public abstract class Spaceship implements Spacecraft {
 	}
 
 	public void setEnteringWormhole(boolean bool) {
-		enteringWormhole = bool;
+		enteringWormhole = enteringWormhole;
 	}
 
 
