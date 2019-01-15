@@ -299,7 +299,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				&& globalGameData.getHumanPlayer().isVisible(sector) == true
 				) {
 
-
 			x = (shipx - viewPort.x) * SQUARE_SIZE;
 			y = (shipy - viewPort.y) * SQUARE_SIZE;
 			r.left = x;
