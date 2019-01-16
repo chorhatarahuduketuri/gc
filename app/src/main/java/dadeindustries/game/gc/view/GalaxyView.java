@@ -594,12 +594,24 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
  	 * @param ship The ship object to give an order to
 	 */
 	public void showShipMenu(final Spaceship ship) {
-		final CharSequence orders[] = new CharSequence[]{
-				SpacecraftOrder.MOVE.name(),
-				SpacecraftOrder.ATTACK.name(),
-				SpacecraftOrder.COLONISE.name(),
-				SpacecraftOrder.ENTER_WORMHOLE.name()
-		};
+
+		ArrayList<CharSequence> validOrders = new ArrayList<CharSequence>();
+		validOrders.add(SpacecraftOrder.MOVE.name());
+		validOrders.add(SpacecraftOrder.ATTACK.name());
+
+		Sector s = globalGameData.getSectors()[ship.getX()][ship.getY()];
+
+		if (s.hasSystem()) {
+			if (s.getSystem().hasOwner() == false) {
+				validOrders.add(SpacecraftOrder.COLONISE.name());
+			}
+		}
+
+		if (s instanceof Wormhole) {
+			validOrders.add(SpacecraftOrder.ENTER_WORMHOLE.name());
+		}
+
+		final CharSequence orders[] = validOrders.toArray(new CharSequence[validOrders.size()]);
 
 		if (ship != null) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
@@ -607,7 +619,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			builder.setItems(orders, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					orderShip(ship, which);
+					orderShip(ship, SpacecraftOrder.valueOf((String) orders[which]));
 				}
 			});
 
@@ -627,22 +639,22 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	 *              1 - ATTACK
 	 *              2 - COLONISE
 	 */
-	public void orderShip(final Spaceship ship, int order) {
+	public void orderShip(final Spaceship ship, SpacecraftOrder order) {
 		switch (order) {
 
-			case 0: // MOVE
+			case MOVE:
 				selectedShip = ship; // Does this need to be changed to setSelectedShipForOnClick()?
 
 				SELECT_MODE = (selectedShip != null) ? 1 : 0;
 				CURRENTLY_ORDERING = true;
 				break;
 
-			case 1: // ATTACK
+			case ATTACK:
 				setSelectedShipForOnClick();
 				UnitActions.attackSystem(selectedShip, globalGameData);
 				break;
 
-			case 2: // COLONISE
+			case COLONISE:
 				setSelectedShipForOnClick();
 				//UnitActions.coloniseSystem(selectedShip, globalGameData);
 				if (selectedShip instanceof ColonyShip) {
@@ -661,19 +673,19 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				}
 				break;
         
-      case 3: // ENTER WORMHOLE
-          setSelectedShipForOnClick();
+			case ENTER_WORMHOLE:
+				setSelectedShipForOnClick();
 
-          Sector selectedSector = getSelectedSector(currentX, currentY);
+				Sector selectedSector = getSelectedSector(currentX, currentY);
 
-          if (selectedSector instanceof Wormhole) {
-            selectedShip.enterWormhole();
-            makeToast("Entering wormhole");
-          } else {
-            makeToast("No wormhole to enter");
-          }
-        break;
-        
+		        if (selectedSector instanceof Wormhole) {
+		            selectedShip.enterWormhole();
+		            makeToast("Entering wormhole");
+		        } else {
+		            makeToast("No wormhole to enter");
+		        }
+		        break;
+
 			default:
 				Log.wtf("Clicked ", "" + order);
 		}
