@@ -352,9 +352,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			for (int j = viewPort.y; j < (viewPort.y + NUM_SQUARES_IN_COLUMN); j++) {
 
 				Sector sector = sectors[i][j];
-
-				Log.wtf("Sector", "Drawing " + i + " " +  j);
-
+				
 				// Draw a purple square if unexplored
 				if (globalGameData.getHumanPlayer().isVisible(sector)) {
 					paint.setColor(Color.BLACK);
