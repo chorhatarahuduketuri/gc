@@ -176,10 +176,12 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	public void drawSystem(Sector sector, Canvas canvas) {
-		if (sector.hasSystem() && globalGameData.getHumanPlayer().isVisible(sector)) {
+
+		Player human = globalGameData.getHumanPlayer();
+
+		if (sector.hasSystem() && (human.hasDiscovered(sector) || human.isVisible(sector) )) {
 
 			int x, y;
-			int savedColor = paint.getColor();
 
 			int systemX = sector.getX();
 			int systemY = sector.getY();
@@ -207,7 +209,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			if ((sector.getX() >= viewPort.x)
 					&& (sector.getX() <= viewPort.x + NUM_SQUARES_IN_ROW)
 					&& (sector.getY() >= viewPort.y)
-					&& globalGameData.getHumanPlayer().isVisible(sector) == true
+					&& globalGameData.getHumanPlayer().hasDiscovered(sector) == true
 					) {
 
 				int x = (sector.getX() - viewPort.x) * SQUARE_SIZE;
@@ -381,6 +383,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		/* Labels are drawn on top of sectors once all the sectors have been painted  */
 		for (Object s : globalGameData.getHumanPlayer().getDiscoveredSectors()) {
+			drawSystem((Sector) s, canvas);
 			drawSystemLabel(canvas, (Sector) s);
 		}
 
@@ -398,7 +401,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			if ((systemX >= viewPort.x)
 					&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
 					&& (systemY >= viewPort.y)
-					&& globalGameData.getHumanPlayer().isVisible(sector) == true
+					&& (globalGameData.getHumanPlayer().isVisible(sector) == true ||
+					    globalGameData.getHumanPlayer().hasDiscovered(sector) == true)
 					) {
 
 				x = (systemX - viewPort.x) * SQUARE_SIZE;
