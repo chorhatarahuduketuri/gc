@@ -55,17 +55,17 @@ public class EmpireView extends AppCompatActivity {
 
 		TextView tabOne = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
 		tabOne.setText("Science");
-		tabOne.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.science, 0, 0);
+		//tabOne.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.science, 0, 0);
 		tabLayout.getTabAt(0).setCustomView(tabOne);
 
 		TextView tabTwo = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
 		tabTwo.setText("Diplomacy");
-		tabTwo.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.diplomacy, 0, 0);
+		//tabTwo.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.diplomacy, 0, 0);
 		tabLayout.getTabAt(1).setCustomView(tabTwo);
 
 		TextView tabThree = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
 		tabThree.setText("Espionage");
-		tabThree.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.eye, 0, 0);
+		//tabThree.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.eye, 0, 0);
 		tabLayout.getTabAt(2).setCustomView(tabThree);
 	}
 
