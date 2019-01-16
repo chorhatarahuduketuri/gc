@@ -176,7 +176,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	}
 
 	public void drawSystem(Sector sector, Canvas canvas) {
-		if (sector.hasSystem() && globalGameData.getHumanPlayer().hasDiscovered(sector)) {
+		if (sector.hasSystem() && globalGameData.getHumanPlayer().isVisible(sector)) {
 
 			int x, y;
 			int savedColor = paint.getColor();
