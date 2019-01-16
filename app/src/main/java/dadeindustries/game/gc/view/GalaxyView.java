@@ -181,7 +181,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		Player human = globalGameData.getHumanPlayer();
 
-		if (sector.hasSystem() && (human.hasDiscovered(sector) || human.isVisible(sector) )) {
+		if (sector.hasSystem() && (human.hasDiscovered(sector) || human.isVisible(sector))) {
 
 			int x, y;
 
@@ -404,7 +404,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
 					&& (systemY >= viewPort.y)
 					&& (globalGameData.getHumanPlayer().isVisible(sector) == true ||
-					    globalGameData.getHumanPlayer().hasDiscovered(sector) == true)
+					globalGameData.getHumanPlayer().hasDiscovered(sector) == true)
 					) {
 
 				x = (systemX - viewPort.x) * SQUARE_SIZE;
