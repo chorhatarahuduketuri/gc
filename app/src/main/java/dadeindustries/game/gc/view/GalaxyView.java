@@ -601,20 +601,22 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				SpacecraftOrder.ENTER_WORMHOLE.name()
 		};
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
-		builder.setTitle(ship.getClass().getSimpleName());
-		builder.setItems(orders, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				orderShip(ship, which);
-			}
-		});
+		if (ship != null) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
+			builder.setTitle(ship.getClass().getSimpleName());
+			builder.setItems(orders, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					orderShip(ship, which);
+				}
+			});
 
-		AlertDialog shipDialog = builder.create();
-		int WRAP_CONTENT = ViewGroup.LayoutParams.WRAP_CONTENT;
-		shipDialog.getWindow().setLayout(100, WRAP_CONTENT);
-		shipDialog.show();
-		sound_yessir.start();
+			AlertDialog shipDialog = builder.create();
+			int WRAP_CONTENT = ViewGroup.LayoutParams.WRAP_CONTENT;
+			shipDialog.getWindow().setLayout(100, WRAP_CONTENT);
+			shipDialog.show();
+			sound_yessir.start();
+		}
 	}
 
 	/**
@@ -697,7 +699,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				dialog.dismiss();
 				showShipMenu(sector.getUnits().get(option));
 			}
-		}).show();
+		});
+
+		if (items.length > 0) {
+			menu.show();
+		}
 	}
 
 	public void showSystemMenu(final System system) {
