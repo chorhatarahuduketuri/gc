@@ -75,6 +75,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private Spaceship selectedShip;
 
 	private final int PADDING = 10;
+	private final int THE_UNDISCOVERED_COUNTRY = Color.rgb(51, 0, 51);
 
 	ScaleGestureDetector pinchDetector;
 
@@ -110,7 +111,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		NUM_SQUARES_IN_COLUMN = displayHeight / SQUARE_SIZE;
 
 		/* Set the background colour of the view to black and the drawn grid to white */
-		setBackgroundColor(Color.BLACK);
+		setBackgroundColor(THE_UNDISCOVERED_COUNTRY);
 		paint.setColor(Color.WHITE);
 		paint.setStrokeWidth(3);
 		loadBitmaps();
@@ -131,6 +132,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		requestFocus();
 
 		setViewPortPosition(0, 0);
+		invalidate(); // Force repaint of the screen
 	}
 
 	public GlobalGameData getGlobalGameData() {
@@ -359,7 +361,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				if (globalGameData.getHumanPlayer().isVisible(sector)) {
 					paint.setColor(Color.BLACK);
 				} else {
-					paint.setColor(Color.DKGRAY);
+					paint.setColor(THE_UNDISCOVERED_COUNTRY);
 				}
 
 				int x = (sector.getX() - viewPort.x) * SQUARE_SIZE;
