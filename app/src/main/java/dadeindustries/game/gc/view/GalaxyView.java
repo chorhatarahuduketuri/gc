@@ -347,10 +347,13 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	@Override
 	public void onDraw(Canvas canvas) {
 
-		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
-			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
+		/* Paint all sectors */
+		for (int i = viewPort.x; i < (viewPort.x + NUM_SQUARES_IN_ROW); i++) {
+			for (int j = viewPort.y; j < (viewPort.y + NUM_SQUARES_IN_COLUMN); j++) {
 
 				Sector sector = sectors[i][j];
+
+				Log.wtf("Sector", "Drawing " + i + " " +  j);
 
 				// Draw a purple square if unexplored
 				if (globalGameData.getHumanPlayer().isVisible(sector)) {
@@ -378,6 +381,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		drawGrid(canvas);
 
+		/* Labels are drawn on top of sectors once all the sectors have been painted  */
 		for (Object s : globalGameData.getHumanPlayer().getDiscoveredSectors()) {
 			drawSystemLabel(canvas, (Sector) s);
 		}
@@ -461,10 +465,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				Log.wtf("Ship selected", currentX + " " + currentY);
 			}
 
-			// Debugging telemetry
-			if (isSystemSelected(currentX, currentY)) {
-				Log.wtf("System selected", currentX + " " + currentY);
-			}
 		}
 
 		invalidate(); // Force redraw of the screen
