@@ -237,7 +237,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		// Draw vertical lines
 		for (int i = viewPort.x; i <= viewPort.x + getResources().getDisplayMetrics().widthPixels;
-		     i = i + SQUARE_SIZE) {
+			 i = i + SQUARE_SIZE) {
 			canvas.drawLine(i + SQUARE_SIZE, 0, i + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
 					paint);
@@ -245,7 +245,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		// Draw horizontal lines
 		for (int k = viewPort.y; k < viewPort.y + getResources().getDisplayMetrics().heightPixels;
-		     k = k + SQUARE_SIZE) {
+			 k = k + SQUARE_SIZE) {
 			canvas.drawLine(0, k + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
 					k + SQUARE_SIZE,
@@ -937,7 +937,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-		                       float velocityY) {
+							   float velocityY) {
 
 			final int SWIPE_MIN_DISTANCE = 10;
 			final int SWIPE_MAX_OFF_PATH = 250;
