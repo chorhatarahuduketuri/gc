@@ -356,29 +356,35 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		for (int i = viewPort.x; i < globalGameData.galaxySizeX; i++) {
 			for (int j = viewPort.y; j < globalGameData.galaxySizeY; j++) {
 
-				Sector sector = sectors[i][j];
+				try {
 
-				// Draw a purple square if unexplored
-				if (globalGameData.getHumanPlayer().isVisible(sector)) {
-					paint.setColor(Color.BLACK);
-				} else {
-					paint.setColor(THE_UNDISCOVERED_COUNTRY);
+					Sector sector = sectors[i][j];
+
+					// Draw a purple square if unexplored
+					if (globalGameData.getHumanPlayer().isVisible(sector)) {
+						paint.setColor(Color.BLACK);
+					} else {
+						paint.setColor(THE_UNDISCOVERED_COUNTRY);
+					}
+
+					int x = (sector.getX() - viewPort.x) * SQUARE_SIZE;
+					int y = (sector.getY() - viewPort.y) * SQUARE_SIZE;
+					r.left = x;
+					r.top = y;
+					r.right = x + (SQUARE_SIZE);
+					r.bottom = y + (SQUARE_SIZE);
+					canvas.drawRect(r, paint);
+
+					// Draw wormhole
+					drawWormhole(sector, canvas);
+					// Draw System bitmaps
+					drawSystem(sector, canvas);
+					// Draw Ship bitmaps
+					drawShip(canvas, sector);
+
+				} catch (ArrayIndexOutOfBoundsException e) {
+
 				}
-
-				int x = (sector.getX() - viewPort.x) * SQUARE_SIZE;
-				int y = (sector.getY() - viewPort.y) * SQUARE_SIZE;
-				r.left = x;
-				r.top = y;
-				r.right = x + (SQUARE_SIZE);
-				r.bottom = y + (SQUARE_SIZE);
-				canvas.drawRect(r, paint);
-
-				// Draw wormhole
-				drawWormhole(sector, canvas);
-				// Draw System bitmaps
-				drawSystem(sector, canvas);
-				// Draw Ship bitmaps
-				drawShip(canvas, sector);
 			}
 		}
 
