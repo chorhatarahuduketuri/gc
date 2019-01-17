@@ -67,7 +67,7 @@ public class Start extends Activity {
 		battleAlert = MediaPlayer.create(this, R.raw.redalert_klaxon_sttos_recreated_178032);
 		mediaPlayer.setLooping(true);
 		mediaPlayer.start(); // TODO: switch to async preparation method
-
+		galaxyView.invalidate();
 	}
 
 	/**
