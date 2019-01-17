@@ -5,6 +5,7 @@ import android.util.Log;
 import java.util.ArrayList;
 
 import dadeindustries.game.gc.ai.Mind;
+import dadeindustries.game.gc.mechanics.turn.TurnProcessor;
 import dadeindustries.game.gc.model.enums.Extant;
 import dadeindustries.game.gc.model.enums.Faction;
 import dadeindustries.game.gc.model.enums.Intelligence;
@@ -42,6 +43,7 @@ public class GlobalGameData {
 		createTestMinds();
 		insertTestSystems();
 		insertTestShips();
+		TurnProcessor.updatePlayerVisibility(this);
 	}
 
 	public static ArrayList<Player> getPlayers() {

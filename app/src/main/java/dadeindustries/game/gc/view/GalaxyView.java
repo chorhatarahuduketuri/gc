@@ -34,13 +34,13 @@ import dadeindustries.game.gc.model.GlobalGameData;
 import dadeindustries.game.gc.model.enums.SpacecraftOrder;
 import dadeindustries.game.gc.model.factionartifacts.ColonyShip;
 import dadeindustries.game.gc.model.factionartifacts.CombatShip;
-import dadeindustries.game.gc.model.factionartifacts.Spacecraft;
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
 import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 import dadeindustries.game.gc.model.stellarphenomenon.phenomena.System;
 import dadeindustries.game.gc.model.stellarphenomenon.phenomena.Wormhole;
 
+import static dadeindustries.game.gc.model.GlobalGameData.galaxySizeY;
 import static dadeindustries.game.gc.model.GlobalGameData.isHumanPlayer;
 
 public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
@@ -74,6 +74,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	private boolean CURRENTLY_ORDERING = false;
 
 	private Spaceship selectedShip;
+
+	private final int PADDING = 10;
+	private final int THE_UNDISCOVERED_COUNTRY = Color.rgb(51, 0, 51);
 
 	ScaleGestureDetector pinchDetector;
 
@@ -109,7 +112,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		NUM_SQUARES_IN_COLUMN = displayHeight / SQUARE_SIZE;
 
 		/* Set the background colour of the view to black and the drawn grid to white */
-		setBackgroundColor(Color.BLACK);
+		setBackgroundColor(THE_UNDISCOVERED_COUNTRY);
 		paint.setColor(Color.WHITE);
 		paint.setStrokeWidth(3);
 		loadBitmaps();
@@ -130,6 +133,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		requestFocus();
 
 		setViewPortPosition(0, 0);
+		invalidate(); // Force repaint of the screen
 	}
 
 	public GlobalGameData getGlobalGameData() {
@@ -149,6 +153,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * Moves the galaxy view to the specified coordinates.
+	 *
 	 * @param x X coordinate to set the top left of the screen to
 	 * @param y Y coordinate to set the top left of the screen to
 	 */
@@ -156,8 +161,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		if (x < 0) {
 			x = 0;
-		}
-		else if (x > (GlobalGameData.galaxySizeX - NUM_SQUARES_IN_ROW)) {
+		} else if (x > (GlobalGameData.galaxySizeX - NUM_SQUARES_IN_ROW)) {
 			x = GlobalGameData.galaxySizeX - NUM_SQUARES_IN_ROW;
 		}
 
@@ -174,124 +178,82 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		invalidate(); // Forces the screen to repaint
 	}
 
-	/**
-	 * Whenever the screen is redrawn this procedure is executed
-	 * @param canvas
-	 */
-	@Override
-	public void onDraw(Canvas canvas) {
+	public void drawSystem(Sector sector, Canvas canvas) {
 
-		final int PADDING = 10;
+		Player human = globalGameData.getHumanPlayer();
 
-		// vertical lines
-		for (int i = viewPort.x; i <= viewPort.x + getResources().getDisplayMetrics().widthPixels; i=i+SQUARE_SIZE) {
+		if (sector.hasSystem() && (human.hasDiscovered(sector) || human.isVisible(sector))) {
+
+			int x, y;
+
+			int systemX = sector.getX();
+			int systemY = sector.getY();
+
+			if ((systemX >= viewPort.x)
+					&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
+					&& (systemY >= viewPort.y)) {
+
+				x = (systemX - viewPort.x) * SQUARE_SIZE;
+				y = (systemY - viewPort.y) * SQUARE_SIZE;
+				r.left = x + (SQUARE_SIZE / 2);
+				r.top = y + (SQUARE_SIZE / 2);
+				r.right = x + (SQUARE_SIZE / 2) * 2;
+				r.bottom = y + (SQUARE_SIZE / 2) * 2;
+
+				canvas.drawBitmap(p2, null, r, paint);
+			}
+		}
+	}
+
+	public void drawSystemLabel(Canvas canvas, Sector sector) {
+
+		if (sector.hasSystem()) {
+
+			if ((sector.getX() >= viewPort.x)
+					&& (sector.getX() <= viewPort.x + NUM_SQUARES_IN_ROW)
+					&& (sector.getY() >= viewPort.y)
+					&& globalGameData.getHumanPlayer().hasDiscovered(sector) == true
+					) {
+
+				int x = (sector.getX() - viewPort.x) * SQUARE_SIZE;
+				int y = (sector.getY() - viewPort.y) * SQUARE_SIZE;
+
+				int savedColor = paint.getColor();
+				paint.setColor(Color.WHITE);
+				paint.setTextSize(16 * getResources().getDisplayMetrics().density);
+				canvas.drawText(sector.getSystem().getName(),
+						(x) + PADDING,
+						y + (SQUARE_SIZE / 2),
+						paint);
+				paint.setColor(savedColor);
+			}
+		}
+	}
+
+	public void drawGrid(Canvas canvas) {
+
+		// Save colour before using it
+		int savedColor = paint.getColor();
+		paint.setColor(Color.WHITE);
+
+		// Draw vertical lines
+		for (int i = viewPort.x; i <= viewPort.x + getResources().getDisplayMetrics().widthPixels;
+			 i = i + SQUARE_SIZE) {
 			canvas.drawLine(i + SQUARE_SIZE, 0, i + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
 					paint);
 		}
 
-		// horizontal lines
-		for (int k = viewPort.y; k < viewPort.y + getResources().getDisplayMetrics().heightPixels; k=k+SQUARE_SIZE) {
+		// Draw horizontal lines
+		for (int k = viewPort.y; k < viewPort.y + getResources().getDisplayMetrics().heightPixels;
+			 k = k + SQUARE_SIZE) {
 			canvas.drawLine(0, k + SQUARE_SIZE,
 					getResources().getDisplayMetrics().heightPixels,
 					k + SQUARE_SIZE,
 					paint);
 		}
 
-		// TODO: Draw purple squares for all unexplored areas to implement fog of war
-
-		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
-			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
-				// Draw System bitmaps
-				if (sectors[i][j].hasSystem()) {
-					int systemX = sectors[i][j].getX();
-					int systemY = sectors[i][j].getY();
-
-					if ((systemX >= viewPort.x)
-							&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
-							&& (systemY >= viewPort.y)) {
-
-						int x = (systemX - viewPort.x) * SQUARE_SIZE;
-						int y = (systemY - viewPort.y) * SQUARE_SIZE;
-						r.left = x + (SQUARE_SIZE / 2);
-						r.top = y + (SQUARE_SIZE / 2);
-						r.right = x + (SQUARE_SIZE / 2) * 2;
-						r.bottom = y + (SQUARE_SIZE / 2) * 2;
-
-						canvas.drawBitmap(p2, null, r, paint);
-						paint.setTextSize(16 * getResources().getDisplayMetrics().density);
-						canvas.drawText(sectors[i][j].getSystem().getName(), x + PADDING, y
-								+ (SQUARE_SIZE / 2), paint);
-					}
-				}
-
-				if (sectors[i][j] instanceof Wormhole) {
-					int systemX = sectors[i][j].getX();
-					int systemY = sectors[i][j].getY();
-
-					if ((systemX >= viewPort.x)
-							&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
-							&& (systemY >= viewPort.y)) {
-
-						int x = (systemX - viewPort.x) * SQUARE_SIZE;
-						int y = (systemY - viewPort.y) * SQUARE_SIZE;
-						r.left = x ;
-						r.top = y ;
-						r.right = x + (SQUARE_SIZE / 2) * 2;
-						r.bottom = y + (SQUARE_SIZE / 2) * 2;
-						canvas.drawBitmap(wh, null, r, paint);
-					}
-				}
-
-				// Units
-
-				if (sectors[i][j].hasShips() == false) {
-					continue;
-				}
-
-				int shipx = i;
-				int shipy = j;
-
-
-				if ((shipx >= viewPort.x)
-						&& (shipx <= viewPort.x + NUM_SQUARES_IN_ROW)
-						&& (shipy >= viewPort.y)) {
-
-					int x = (shipx - viewPort.x) * SQUARE_SIZE;
-					int y = (shipy - viewPort.y) * SQUARE_SIZE;
-					r.left = x;
-					r.top = y;
-					r.right = x + (SQUARE_SIZE / 2) - PADDING;
-					r.bottom = y + (SQUARE_SIZE / 2) - PADDING;
-
-					// TODO: Need to handle case where multiple factions are in the same system
-
-					ArrayList<Spaceship> ships = sectors[i][j].getUnits();
-					for (Spaceship ship : ships) {
-
-						switch (ship.getOwner().getIntelligence()) {
-
-							case HUMAN:
-								canvas.drawBitmap(up, null, r, paint);
-								break;
-
-							case ARTIFICIAL:
-								canvas.drawBitmap(mo, null, r, paint);
-								break;
-
-							default:
-								// do nothing
-						}
-
-						canvas.drawText(ship.getShipName(), x + PADDING, y + (PADDING * 3)
-								+ (SQUARE_SIZE / 2), paint);
-					}
-
-				}
-			}
-		}
-
-		// highlight the currently selected sector by drawing a red box around it
+		// highlight current selection with a red square
 		if (currentX >= 0 && currentY >= 0) {
 			paint.setColor(Color.RED);
 			paint.setStyle(Paint.Style.STROKE);
@@ -305,12 +267,162 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 			paint.setColor(Color.WHITE);
 		}
 
-		// Put text in top left corner indicating the current turn number and the amount of credits
+		// Restore saved colour
+		paint.setColor(savedColor);
+	}
+
+	/**
+	 * Draws the text in the top left of the GalaxyView
+	 * This text includes information such as:
+	 * - credits
+	 * - the number of turns
+	 *
+	 * @param canvas
+	 */
+	public void drawTopLeftInformation(Canvas canvas) {
+
+		// Save colour before using it
+		int savedColor = paint.getColor();
+		paint.setColor(Color.WHITE);
+		// Put text in top left corner indicating the current turn number
 		canvas.drawText("Turn " + globalGameData.getTurn(),
 				viewPort.x + PADDING, viewPort.y + PADDING * 3, paint);
 		canvas.drawText("Credits " + globalGameData.getHumanPlayerCredits(),
 				viewPort.x + PADDING, viewPort.y + PADDING * 3 * 2, paint);
+		paint.setColor(savedColor);
+	}
 
+	/**
+	 * Draws the bitmap of a ship at a particular sector
+	 *
+	 * @param canvas
+	 * @param sector
+	 */
+	public void drawShip(Canvas canvas, Sector sector) {
+
+		int x, y;
+		int shipx = sector.getX();
+		int shipy = sector.getY();
+
+		if ((shipx >= viewPort.x)
+				&& (shipx <= viewPort.x + NUM_SQUARES_IN_ROW)
+				&& (shipy >= viewPort.y)
+				&& globalGameData.getHumanPlayer().isVisible(sector) == true
+				) {
+
+			x = (shipx - viewPort.x) * SQUARE_SIZE;
+			y = (shipy - viewPort.y) * SQUARE_SIZE;
+			r.left = x;
+			r.top = y;
+			r.right = x + SQUARE_SIZE / 2;
+			r.bottom = y + SQUARE_SIZE / 2;
+
+			// TODO: Need to handle case where multiple units in the same system
+
+			ArrayList<Spaceship> ships = sector.getUnits();
+			for (Spaceship ship : ships) {
+
+				switch (ship.getOwner().getIntelligence()) {
+
+					case HUMAN:
+						getGlobalGameData().getHumanPlayer().discover(sector);
+						canvas.drawBitmap(up, null, r, paint);
+						break;
+
+					case ARTIFICIAL:
+						canvas.drawBitmap(mo, null, r, paint);
+						break;
+
+					default:
+						// do nothing
+				}
+
+				paint.setColor(Color.WHITE);
+				canvas.drawText(ship.getShipName(), x + PADDING, y + (PADDING * 3)
+						+ (SQUARE_SIZE / 2), paint);
+			}
+		}
+	}
+
+	/**
+	 * This is triggered every time the screen refreshes/repaints
+	 *
+	 * @param canvas
+	 */
+	@Override
+	public void onDraw(Canvas canvas) {
+
+		/* Paint all sectors */
+		for (int i = viewPort.x; i < globalGameData.galaxySizeX; i++) {
+			for (int j = viewPort.y; j < globalGameData.galaxySizeY; j++) {
+
+				try {
+
+					Sector sector = sectors[i][j];
+
+					// Draw a purple square if unexplored
+					if (globalGameData.getHumanPlayer().isVisible(sector)) {
+						paint.setColor(Color.BLACK);
+					} else {
+						paint.setColor(THE_UNDISCOVERED_COUNTRY);
+					}
+
+					int x = (sector.getX() - viewPort.x) * SQUARE_SIZE;
+					int y = (sector.getY() - viewPort.y) * SQUARE_SIZE;
+					r.left = x;
+					r.top = y;
+					r.right = x + (SQUARE_SIZE);
+					r.bottom = y + (SQUARE_SIZE);
+					canvas.drawRect(r, paint);
+
+					// Draw wormhole
+					drawWormhole(sector, canvas);
+					// Draw System bitmaps
+					drawSystem(sector, canvas);
+					// Draw Ship bitmaps
+					drawShip(canvas, sector);
+
+				} catch (ArrayIndexOutOfBoundsException e) {
+
+				}
+			}
+		}
+
+		drawGrid(canvas);
+
+		/* Labels are drawn on top of sectors once all the sectors have been painted  */
+		for (Object s : globalGameData.getHumanPlayer().getDiscoveredSectors()) {
+			drawSystem((Sector) s, canvas);
+			drawSystemLabel(canvas, (Sector) s);
+		}
+
+		drawTopLeftInformation(canvas);
+	}
+
+	private void drawWormhole(Sector sector, Canvas canvas) {
+
+		int x, y;
+
+		if (sector instanceof Wormhole) {
+			int systemX = sector.getX();
+			int systemY = sector.getY();
+
+			if ((systemX >= viewPort.x)
+					&& (systemX <= viewPort.x + NUM_SQUARES_IN_ROW)
+					&& (systemY >= viewPort.y)
+					&& (globalGameData.getHumanPlayer().isVisible(sector) == true ||
+					globalGameData.getHumanPlayer().hasDiscovered(sector) == true)
+					) {
+
+				x = (systemX - viewPort.x) * SQUARE_SIZE;
+				y = (systemY - viewPort.y) * SQUARE_SIZE;
+				r.left = x;
+				r.top = y;
+				r.right = x + (SQUARE_SIZE / 2) * 2;
+				r.bottom = y + (SQUARE_SIZE / 2) * 2;
+				canvas.drawBitmap(wh, null, r, paint);
+			}
+		}
 	}
 
 	private float startX, startY = 0; // Co-ordinates of where the finger starteed
@@ -318,6 +430,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * When the player touches the screen this is called
+	 *
 	 * @param view
 	 * @param motion The type of motion the player made
 	 * @return
@@ -327,22 +440,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		gestureDetector.onTouchEvent(motion);
 		pinchDetector.onTouchEvent(motion);
-
-		// when finger first touches screen
-		if (motion.getAction() == motion.ACTION_DOWN) {
-			startX = (motion.getX());
-			startY = (motion.getY());
-		}
-
-		// when finger moves on screen
-		if (motion.getAction() == motion.ACTION_MOVE) {
-			moveX = (motion.getX());
-			moveY = (motion.getY());
-			final int SLOW = 200;
-			float diffX = (startX - moveX) / SLOW;
-			float diffY = (startY - moveY) / SLOW;
-			setViewPortPosition(viewPort.x + (int) diffX, viewPort.y + (int) diffY);
-		}
 
 		// when finger lifts off screen
 		if (motion.getAction() == 1) {
@@ -365,10 +462,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				Log.wtf("Ship selected", currentX + " " + currentY);
 			}
 
-			// Debugging telemetry
-			if (isSystemSelected(currentX, currentY)) {
-				Log.wtf("System selected", currentX + " " + currentY);
-			}
 		}
 
 		invalidate(); // Force redraw of the screen
@@ -506,10 +599,12 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		}
 
 		if (sectors[gameCoods.x][gameCoods.y].hasSystem()) {
-			return true;
-		} else {
-			return false;
+			if (globalGameData.getHumanPlayer().hasDiscovered(sectors[gameCoods.x][gameCoods.y])) {
+				return true;
+			}
 		}
+
+		return false;
 	}
 
 
@@ -527,6 +622,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * When the keyboard is pressed (if one is available)
+	 *
 	 * @param keyCode
 	 * @param event
 	 * @return
@@ -591,7 +687,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * Graphical menu for giving a ship an order
- 	 * @param ship The ship object to give an order to
+	 *
+	 * @param ship The ship object to give an order to
 	 */
 	public void showShipMenu(final Spaceship ship) {
 		final CharSequence orders[] = new CharSequence[]{
@@ -619,7 +716,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 	/**
 	 * Given an order to a ship
-	 * @param ship The ship object to give an order to
+	 *
+	 * @param ship  The ship object to give an order to
 	 * @param order The order to give the ship
 	 *              0 - MOVE
 	 *              1 - ATTACK
@@ -658,20 +756,20 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					}
 				}
 				break;
-        
-      case 3: // ENTER WORMHOLE
-          setSelectedShipForOnClick();
 
-          Sector selectedSector = getSelectedSector(currentX, currentY);
+			case 3: // ENTER WORMHOLE
+				setSelectedShipForOnClick();
 
-          if (selectedSector instanceof Wormhole) {
-            selectedShip.enterWormhole();
-            makeToast("Entering wormhole");
-          } else {
-            makeToast("No wormhole to enter");
-          }
-        break;
-        
+				Sector selectedSector = getSelectedSector(currentX, currentY);
+
+				if (selectedSector instanceof Wormhole) {
+					selectedShip.enterWormhole();
+					makeToast("Entering wormhole");
+				} else {
+					makeToast("No wormhole to enter");
+				}
+				break;
+
 			default:
 				Log.wtf("Clicked ", "" + order);
 		}
@@ -828,10 +926,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		}
 
 
-
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-		                       float velocityY) {
+							   float velocityY) {
 
 			final int SWIPE_MIN_DISTANCE = 10;
 			final int SWIPE_MAX_OFF_PATH = 250;

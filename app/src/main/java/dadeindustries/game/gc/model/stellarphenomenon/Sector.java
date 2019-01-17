@@ -1,6 +1,7 @@
 package dadeindustries.game.gc.model.stellarphenomenon;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,6 +66,7 @@ public class Sector {
 
 	public void addShip(Spaceship s) {
 		units.add(s);
+		s.getOwner().discover(this);
 	}
 
 	public ArrayList<Spaceship> getUnits() {

@@ -22,6 +22,7 @@ public abstract class Spaceship implements Spacecraft {
 	private ArrayDeque<Coordinates> course;
 	private int attackLevel;
 	private int currentHP;
+	private int scanStrength = 1;
 	private boolean enteringWormhole = false;
 
 	public Spaceship(Player player, Sector currentLocation, Faction faction, String shipName, int attackLevel, int startingHP) {
@@ -92,7 +93,11 @@ public abstract class Spaceship implements Spacecraft {
 		return validOrders;
 	}
 
-	public void enterWormhole() {
+	public int getScanStrength() {
+		return scanStrength;
+	}
+
+  public void enterWormhole() {
 		if (currentLocation instanceof Wormhole) {
 			enteringWormhole = true;
 		}
@@ -105,6 +110,5 @@ public abstract class Spaceship implements Spacecraft {
 	public void setEnteringWormhole(boolean enteringWormhole) {
 		enteringWormhole = enteringWormhole;
 	}
-
 
 }
