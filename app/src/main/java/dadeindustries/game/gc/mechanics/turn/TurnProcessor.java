@@ -2,6 +2,7 @@ package dadeindustries.game.gc.mechanics.turn;
 
 import android.util.Log;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -49,6 +50,8 @@ public class TurnProcessor {
 
 		processConflicts(globalGameData, events); // handle unit battles
 
+		updatePlayerVisibility(globalGameData);
+
 		// Detect if a player has won the game
 		Player didAnyoneWin = detectWinCondition(globalGameData);
 
@@ -62,7 +65,7 @@ public class TurnProcessor {
 		return events;
 	}
 
-	private ArrayList<Spaceship> getAllShipsForPlayer(Sector[][] sectors, Player player) {
+	private static ArrayList<Spaceship> getAllShipsForPlayer(Sector[][] sectors, Player player) {
 
 		ArrayList<Spaceship> returnShips = new ArrayList<Spaceship>();
 
@@ -78,7 +81,7 @@ public class TurnProcessor {
 		return returnShips;
 	}
 
-	private ArrayList<System> getAllSystemsForPlayer(Sector[][] sectors, Player player) {
+	private static ArrayList<System> getAllSystemsForPlayer(Sector[][] sectors, Player player) {
 
 		ArrayList returnSystems = new ArrayList();
 
@@ -237,6 +240,38 @@ public class TurnProcessor {
 						Log.wtf("Battle", aUnit.getShipName() + " destroyed");
 
 						iterator.remove();
+					}
+				}
+			}
+		}
+	}
+
+	public static void updatePlayerVisibility(GlobalGameData globalGameData) {
+
+		for (Player player : globalGameData.getPlayers()) {
+
+			ArrayList<Spaceship> ships = getAllShipsForPlayer(globalGameData.getSectors(), player);
+
+			player.removeAllVisibility();
+
+			ArrayList<System> systems = getAllSystemsForPlayer(globalGameData.getSectors(), player);
+			for (System system : systems) {
+				player.makeVisible(globalGameData.getSectors()[system.getX()][system.getY()]);
+			}
+
+			for (Spaceship ship : ships) {
+
+				int scanStrength = ship.getScanStrength();
+
+				for (int x = (ship.getX() - scanStrength); x < (ship.getX() + scanStrength + 1); x++) {
+
+					for (int y = (ship.getY() - scanStrength); y < (ship.getY() + scanStrength + 1); y++) {
+						if (x >= 0 && x < globalGameData.galaxySizeX) {
+
+							if (y >= 0 && y < globalGameData.galaxySizeY) {
+								player.makeVisible(globalGameData.getSectors()[x][y]);
+							}
+						}
 					}
 				}
 			}

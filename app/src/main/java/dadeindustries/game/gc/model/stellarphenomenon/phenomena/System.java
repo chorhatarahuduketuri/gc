@@ -1,6 +1,7 @@
 package dadeindustries.game.gc.model.stellarphenomenon.phenomena;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import dadeindustries.game.gc.model.factionartifacts.Spaceship;
 import dadeindustries.game.gc.model.players.Player;
@@ -10,19 +11,23 @@ public class System {
 
 	private String name;
 	private int x, y;
-	private Player player;
+	private Player owner;
 	private ArrayList<QueueItem> buildQueue = new ArrayList<QueueItem>();
+	private HashMap<Player, Boolean> discovered = new HashMap<Player, Boolean>();
 
-	private System(String name, int x, int y, Player player) {
+	private System(String name, int x, int y, Player owner) {
 		this.x = x;
 		this.y = y;
 		this.name = name;
-		this.player = player;
+		this.owner = owner;
 	}
 
 	public static boolean createNewSystem(String name, int x, int y, Player owner, Sector[][] sectors) {
 		if (!sectors[x][y].hasSystem()) {
 			sectors[x][y].setSystem(new System(name, x, y, owner));
+			if (owner!=null) {
+				owner.discover(sectors[x][y]);
+			}
 			return true;
 		} else {
 			return false;
@@ -67,16 +72,16 @@ public class System {
 	}
 
 	public boolean hasOwner() {
-		return player != null;
+		return owner != null;
 	}
 
 	public Player getOwner() {
-		return player;
+		return owner;
 	}
 
-	public void setOwner(Player player) {
+	public void setOwner(Player newowner) {
 		buildQueue.clear();
-		this.player = player;
+		this.owner = newowner;
 	}
 
 	class QueueItem {
