@@ -352,8 +352,8 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	public void onDraw(Canvas canvas) {
 
 		/* Paint all sectors */
-		for (int i = viewPort.x; i < (viewPort.x + NUM_SQUARES_IN_ROW); i++) {
-			for (int j = viewPort.y; j < (viewPort.y + NUM_SQUARES_IN_COLUMN); j++) {
+		for (int i = viewPort.x; i < (viewPort.x + NUM_SQUARES_IN_ROW - 1); i++) {
+			for (int j = viewPort.y; j < (viewPort.y + NUM_SQUARES_IN_COLUMN - 1); j++) {
 
 				Sector sector = sectors[i][j];
 
