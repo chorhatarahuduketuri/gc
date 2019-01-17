@@ -434,22 +434,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		gestureDetector.onTouchEvent(motion);
 		pinchDetector.onTouchEvent(motion);
 
-		// when finger first touches screen
-		if (motion.getAction() == motion.ACTION_DOWN) {
-			startX = (motion.getX());
-			startY = (motion.getY());
-		}
-
-		// when finger moves on screen
-		if (motion.getAction() == motion.ACTION_MOVE) {
-			moveX = (motion.getX());
-			moveY = (motion.getY());
-			final int SLOW = 200;
-			float diffX = (startX - moveX) / SLOW;
-			float diffY = (startY - moveY) / SLOW;
-			setViewPortPosition(viewPort.x + (int) diffX, viewPort.y + (int) diffY);
-		}
-
 		// when finger lifts off screen
 		if (motion.getAction() == 1) {
 
