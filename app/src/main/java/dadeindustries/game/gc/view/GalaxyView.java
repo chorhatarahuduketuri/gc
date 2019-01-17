@@ -691,27 +691,41 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	 * @param ship The ship object to give an order to
 	 */
 	public void showShipMenu(final Spaceship ship) {
-		final CharSequence orders[] = new CharSequence[]{
-				SpacecraftOrder.MOVE.name(),
-				SpacecraftOrder.ATTACK.name(),
-				SpacecraftOrder.COLONISE.name(),
-				SpacecraftOrder.ENTER_WORMHOLE.name()
-		};
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
-		builder.setTitle(ship.getClass().getSimpleName());
-		builder.setItems(orders, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				orderShip(ship, which);
+		ArrayList<CharSequence> validOrders = new ArrayList<CharSequence>();
+		validOrders.add(SpacecraftOrder.MOVE.name());
+		validOrders.add(SpacecraftOrder.ATTACK.name());
+
+		Sector s = globalGameData.getSectors()[ship.getX()][ship.getY()];
+
+		if (s.hasSystem()) {
+			if (s.getSystem().hasOwner() == false) {
+				validOrders.add(SpacecraftOrder.COLONISE.name());
 			}
-		});
+		}
 
-		AlertDialog shipDialog = builder.create();
-		int WRAP_CONTENT = ViewGroup.LayoutParams.WRAP_CONTENT;
-		shipDialog.getWindow().setLayout(100, WRAP_CONTENT);
-		shipDialog.show();
-		sound_yessir.start();
+		if (s instanceof Wormhole) {
+			validOrders.add(SpacecraftOrder.ENTER_WORMHOLE.name());
+		}
+
+		final CharSequence orders[] = validOrders.toArray(new CharSequence[validOrders.size()]);
+
+		if (ship != null) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
+			builder.setTitle(ship.getClass().getSimpleName());
+			builder.setItems(orders, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					orderShip(ship, SpacecraftOrder.valueOf((String) orders[which]));
+				}
+			});
+
+			AlertDialog shipDialog = builder.create();
+			int WRAP_CONTENT = ViewGroup.LayoutParams.WRAP_CONTENT;
+			shipDialog.getWindow().setLayout(100, WRAP_CONTENT);
+			shipDialog.show();
+			sound_yessir.start();
+		}
 	}
 
 	/**
@@ -723,22 +737,22 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 	 *              1 - ATTACK
 	 *              2 - COLONISE
 	 */
-	public void orderShip(final Spaceship ship, int order) {
+	public void orderShip(final Spaceship ship, SpacecraftOrder order) {
 		switch (order) {
 
-			case 0: // MOVE
+			case MOVE:
 				selectedShip = ship; // Does this need to be changed to setSelectedShipForOnClick()?
 
 				SELECT_MODE = (selectedShip != null) ? 1 : 0;
 				CURRENTLY_ORDERING = true;
 				break;
 
-			case 1: // ATTACK
+			case ATTACK:
 				setSelectedShipForOnClick();
 				UnitActions.attackSystem(selectedShip, globalGameData);
 				break;
 
-			case 2: // COLONISE
+			case COLONISE:
 				setSelectedShipForOnClick();
 				//UnitActions.coloniseSystem(selectedShip, globalGameData);
 				if (selectedShip instanceof ColonyShip) {
@@ -756,8 +770,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					}
 				}
 				break;
+        
+			case ENTER_WORMHOLE:
 
-			case 3: // ENTER WORMHOLE
 				setSelectedShipForOnClick();
 
 				Sector selectedSector = getSelectedSector(currentX, currentY);
@@ -795,7 +810,11 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				dialog.dismiss();
 				showShipMenu(sector.getUnits().get(option));
 			}
-		}).show();
+		});
+
+		if (items.length > 0) {
+			menu.show();
+		}
 	}
 
 	public void showSystemMenu(final System system) {
