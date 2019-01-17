@@ -336,8 +336,6 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					default:
 						// do nothing
 				}
-
-				drawShipLabel(canvas, sector);
 			}
 		}
 	}
@@ -426,6 +424,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		for (Object s : globalGameData.getHumanPlayer().getDiscoveredSectors()) {
 			drawSystem((Sector) s, canvas);
 			drawSystemLabel(canvas, (Sector) s);
+			drawShipLabel(canvas, (Sector) s);
 		}
 
 		drawTopLeftInformation(canvas);
