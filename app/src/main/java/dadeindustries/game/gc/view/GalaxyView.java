@@ -219,7 +219,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 				int y = (sector.getY() - viewPort.y) * SQUARE_SIZE;
 
 				int savedColor = paint.getColor();
-				paint.setColor(Color.WHITE);
+				paint.setColor(Color.CYAN);
 				paint.setTextSize(16 * getResources().getDisplayMetrics().density);
 				canvas.drawText(sector.getSystem().getName(),
 						(x) + PADDING,
@@ -336,13 +336,43 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 					default:
 						// do nothing
 				}
-
-				paint.setColor(Color.WHITE);
-				canvas.drawText(ship.getShipName(), x + PADDING, y + (PADDING * 3)
-						+ (SQUARE_SIZE / 2), paint);
 			}
 		}
 	}
+
+	public void drawShipLabel(Canvas canvas, Sector sector) {
+
+		ArrayList<Spaceship> ships = sector.getUnits(globalGameData.getHumanPlayer());
+
+		if (ships.size() > 0) {
+
+			int savedColor = paint.getColor(); // Save paint colour
+
+			paint.setColor(Color.WHITE);
+			paint.setTextSize(16 * getResources().getDisplayMetrics().density);
+
+			String text = "";
+
+			if (ships.size() > 1) {
+				text = ships.size() + " ships";
+
+			} else {
+				text = ships.get(0).getShipName();
+			}
+
+			int x = (sector.getX() - viewPort.x) * SQUARE_SIZE;
+			int y = (sector.getY() - viewPort.y) * SQUARE_SIZE;
+
+			canvas.drawText(text,
+					(x) + PADDING,
+					y + (PADDING * 3),
+					paint);
+
+			paint.setColor(savedColor); // Restore paint colour
+		}
+
+	}
+
 
 	/**
 	 * This is triggered every time the screen refreshes/repaints
@@ -394,6 +424,7 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 		for (Object s : globalGameData.getHumanPlayer().getDiscoveredSectors()) {
 			drawSystem((Sector) s, canvas);
 			drawSystemLabel(canvas, (Sector) s);
+			drawShipLabel(canvas, (Sector) s);
 		}
 
 		drawTopLeftInformation(canvas);
