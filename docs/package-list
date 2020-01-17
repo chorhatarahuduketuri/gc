@@ -1,3 +1,6 @@
+android.support.test
+android.support.test.espresso
+com.example.gc
 dadeindustries.game.gc
 dadeindustries.game.gc.ai
 dadeindustries.game.gc.ai.concepts
@@ -10,4 +13,5 @@ dadeindustries.game.gc.model.factionartifacts
 dadeindustries.game.gc.model.players
 dadeindustries.game.gc.model.stellarphenomenon
 dadeindustries.game.gc.model.stellarphenomenon.phenomena
+dadeindustries.game.gc.test
 dadeindustries.game.gc.view
