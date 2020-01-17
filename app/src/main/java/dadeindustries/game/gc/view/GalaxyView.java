@@ -731,7 +731,9 @@ public class GalaxyView extends View implements OnTouchListener, OnKeyListener {
 
 		if (s.hasSystem()) {
 			if (s.getSystem().hasOwner() == false) {
-				validOrders.add(SpacecraftOrder.COLONISE.name());
+				if (ship instanceof ColonyShip) {
+					validOrders.add(SpacecraftOrder.COLONISE.name());
+				}
 			}
 		}
 
