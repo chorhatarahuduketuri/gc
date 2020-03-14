@@ -2,36 +2,65 @@ package ready;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Paint;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import dadeindustries.game.gc.model.GlobalGameData;
+import dadeindustries.game.gc.model.factionartifacts.Spaceship;
+import dadeindustries.game.gc.model.stellarphenomenon.Sector;
 
 public class JGalaxyView extends JPanel {
 	
-	final static int WIDTH_IN_PIXELS = 300;
-	final static int HEIGHT_IN_PIXELS = 400;
+	private GlobalGameData globalGameData;
+	public Sector[][] sectors;
+
+	private int currentX, currentY;
+	private Rect r = new Rect();
+	
+	private BufferedImage up, mo, p1, p2, wh; // Bitmap variables
+
+	private int SELECT_MODE = 0;
+	private boolean CURRENTLY_ORDERING = false;
+
+	private Spaceship selectedShip;
+
+	private final int PADDING = 10;
+	private final Color THE_UNDISCOVERED_COUNTRY = new Color(51, 0, 51);
+	
+	final static int WIDTH_IN_PIXELS = 1000;
+	final static int HEIGHT_IN_PIXELS = 1000;
 	
 	// Display details
 	private static int NUM_SQUARES_IN_ROW = 4;
 	private static int NUM_SQUARES_IN_COLUMN = 0;
 	private static int SQUARE_SIZE;
+
+	
+	private void loadBitmaps() throws IOException {
+		up = ImageIO.read(JGalaxyView.class.getResourceAsStream("/res/drawable-mdpi/up.png"));
+	}
 	
 	protected Point viewPort = new Point(2, 2);
 
 	public JGalaxyView() {
 		this.setBackground(Color.BLACK);
-		this.setForeground(Color.BLACK);
+		this.setForeground(Color.WHITE);
+		globalGameData = new GlobalGameData(10, 10);
+		sectors = globalGameData.getSectors();
 	}
 	
-	public void paint(Graphics paint) {
-		
+	public void drawGrid(Graphics paint) {
 		// Save colour before using it
 		Color savedColor = paint.getColor();
-		paint.setColor(Color.BLACK);
+		
+		paint.setColor(Color.WHITE);
+		this.setBackground(Color.BLACK);
 
 		// Draw vertical lines
 		for (int i = viewPort.x; i <= viewPort.x + WIDTH_IN_PIXELS;
@@ -50,17 +79,142 @@ public class JGalaxyView extends JPanel {
 		
 		paint.setColor(savedColor);
 	}
+	
+	public void onDraw(Graphics paint) {
+		Graphics canvas = paint;
+		/* Paint all sectors */
+		for (int i = viewPort.x; i < globalGameData.galaxySizeX; i++) {
+			for (int j = viewPort.y; j < globalGameData.galaxySizeY; j++) {
+
+				try {
+
+					Sector sector = sectors[i][j];
+
+					// Draw a purple square if unexplored
+					if (globalGameData.getHumanPlayer().isVisible(sector)) {
+						paint.setColor(Color.BLACK);
+					} else {
+						paint.setColor(THE_UNDISCOVERED_COUNTRY);
+					}
+
+					int x = (sector.getX() - viewPort.x) * SQUARE_SIZE;
+					int y = (sector.getY() - viewPort.y) * SQUARE_SIZE;
+					r.left = x;
+					r.top = y;
+					r.right = x + (SQUARE_SIZE);
+					r.bottom = y + (SQUARE_SIZE);
+					canvas.drawRect(r.left, r.top, r.right, r.bottom);
+
+					// Draw wormhole
+					//drawWormhole(sector, canvas);
+					// Draw System bitmaps
+					//drawSystem(sector, canvas);
+					// Draw Ship bitmaps
+					drawShip(canvas, sector);
+
+				} catch (ArrayIndexOutOfBoundsException e) {
+
+				}
+			}
+		}
+
+		drawGrid(canvas);
+
+		/* Labels are drawn on top of sectors once all the sectors have been painted  */
+		for (Object s : globalGameData.getHumanPlayer().getDiscoveredSectors()) {
+			drawSystem((Sector) s, canvas);
+			drawSystemLabel(canvas, (Sector) s);
+			drawShipLabel(canvas, (Sector) s);
+		}
+
+		drawTopLeftInformation(canvas);
+	}
+	
+	private void drawShip(Graphics canvas, Sector sector) {
+		int x, y;
+		int shipx = sector.getX();
+		int shipy = sector.getY();
+
+		if ((shipx >= viewPort.x)
+				&& (shipx <= viewPort.x + NUM_SQUARES_IN_ROW)
+				&& (shipy >= viewPort.y)
+				&& globalGameData.getHumanPlayer().isVisible(sector) == true
+				) {
+
+			x = (shipx - viewPort.x) * SQUARE_SIZE;
+			y = (shipy - viewPort.y) * SQUARE_SIZE;
+			r.left = x;
+			r.top = y;
+			r.right = x + SQUARE_SIZE / 2;
+			r.bottom = y + SQUARE_SIZE / 2;
+
+			// TODO: Need to handle case where multiple units in the same system
+
+			ArrayList<Spaceship> ships = sector.getUnits();
+			for (Spaceship ship : ships) {
+
+				switch (ship.getOwner().getIntelligence()) {
+
+					case HUMAN:
+						getGlobalGameData().getHumanPlayer().discover(sector);
+						canvas.drawImage(up, r.left, r.top, r.right, r.bottom, null);
+						System.out.println("Drawing ship");
+						break;
+
+					case ARTIFICIAL:
+						//canvas.drawBitmap(mo, null, r, canvas);
+						break;
+
+					default:
+						// do nothing
+				}
+			}
+		}		
+	}
+	
+	public GlobalGameData getGlobalGameData() {
+		return globalGameData;
+	}
+
+	private void drawWormhole(Sector sector, Graphics canvas) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void drawTopLeftInformation(Graphics canvas) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void drawShipLabel(Graphics canvas, Sector s) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void drawSystemLabel(Graphics canvas, Sector s) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void drawSystem(Sector s, Graphics canvas) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void paint(Graphics paint) {
+		onDraw(paint);
+
+	}
 
 	public static void main(String[] args) {
-
-		GlobalGameData globalGameData = new GlobalGameData(10, 10);
 		
 		JFrame frame = new JFrame("FrameDemo");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(WIDTH_IN_PIXELS, HEIGHT_IN_PIXELS);
-		frame.setResizable(false);
+		frame.setResizable(true);
 		frame.setTitle("GalaxyConquest (Desktop Edition)");
 		frame.getContentPane().add(new JGalaxyView());
+		frame.setBackground(Color.BLACK);
 		frame.setVisible(true);
 		
 		/* Based on the screen size... determine how many sector squares can be seen at a time */
