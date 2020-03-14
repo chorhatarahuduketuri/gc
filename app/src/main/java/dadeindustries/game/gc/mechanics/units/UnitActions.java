@@ -1,6 +1,6 @@
 package dadeindustries.game.gc.mechanics.units;
 
-import android.util.Log;
+//import android.util.Log;
 
 import dadeindustries.game.gc.mechanics.Event;
 import dadeindustries.game.gc.model.Coordinates;
@@ -16,13 +16,13 @@ public class UnitActions {
 		if (unit instanceof ColonyShip) {
 			((ColonyShip) unit).colonise();
 		} else {
-			Log.wtf("Info", "This ship cannot colonise");
+//			Log.wtf("Info", "This ship cannot colonise");
 		}
 	}
 
 	public static void setCourse(Spaceship unit, int destX, int destY) {
 
-		Log.wtf("Plotting", "...");
+//		Log.wtf("Plotting", "...");
 
 		int srcX = unit.getX();
 		int srcY = unit.getY();
@@ -44,7 +44,7 @@ public class UnitActions {
 			if (srcX != destX) {
 				srcX++;
 			}
-			Log.wtf("Plotting", srcX + "," + srcY);
+//			Log.wtf("Plotting", srcX + "," + srcY);
 			unit.addToCourse(new Coordinates(srcX, srcY));
 		}
 
@@ -64,17 +64,17 @@ public class UnitActions {
 				srcX--;
 			}
 
-			Log.wtf("Plotting", srcX + "," + srcY);
+//			Log.wtf("Plotting", srcX + "," + srcY);
 			unit.addToCourse(new Coordinates(srcX, srcY));
 
 		}
-		Log.wtf("Plotting", "Finished");
+//		Log.wtf("Plotting", "Finished");
 	}
 
 	public static Coordinates continueCourse(Spaceship unit) {
 		if (unit.hasCourse()) {
 			Coordinates coordinates = unit.getNextCoordinatesInCourse();
-			Log.d("continueCourse", unit.getShipName() + " next coordinates in course: " + coordinates.toString());
+//			Log.d("continueCourse", unit.getShipName() + " next coordinates in course: " + coordinates.toString());
 			return coordinates;
 		} else {
 			return null;
@@ -113,7 +113,7 @@ public class UnitActions {
 				String log = sector.getUnits().get(i).getShipName() + " attacked " +
 						sector.getUnits().get(target).getShipName() + " with " + attack + " damage";
 				result.appendDescription(log);
-				Log.wtf("Battle", log);
+//				Log.wtf("Battle", log);
 			}
 		}
 

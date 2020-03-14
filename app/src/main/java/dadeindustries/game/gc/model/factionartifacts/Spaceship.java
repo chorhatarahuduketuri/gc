@@ -1,6 +1,6 @@
 package dadeindustries.game.gc.model.factionartifacts;
 
-import android.util.Log;
+//import android.util.Log;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -68,7 +68,7 @@ public abstract class Spaceship implements Spacecraft {
 	}
 
 	public void addToCourse(Coordinates coordinates) {
-		Log.d("addToCourse", this.getShipName() + " " + coordinates.toString());
+//		Log.d("addToCourse", this.getShipName() + " " + coordinates.toString());
 		course.add(coordinates);
 	}
 
@@ -85,7 +85,7 @@ public abstract class Spaceship implements Spacecraft {
 	}
 
 	public int getCurrentHP() {
-		Log.wtf("Battle", getShipName() + " has " + currentHP + " HP");
+//		Log.wtf("Battle", getShipName() + " has " + currentHP + " HP");
 		return currentHP;
 	}
 
