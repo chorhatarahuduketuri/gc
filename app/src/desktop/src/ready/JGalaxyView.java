@@ -53,6 +53,9 @@ public class JGalaxyView extends JPanel implements KeyListener {
 	private void loadBitmaps() throws IOException {
 		//System.out.println(this.getClass().;
 		up = ImageIO.read(JGalaxyView.class.getResourceAsStream("/resources/up.png"));
+		mo = ImageIO.read(JGalaxyView.class.getResourceAsStream("/resources/morphers.png"));
+		p1 = ImageIO.read(JGalaxyView.class.getResourceAsStream("/resources/system1.png"));
+		p2 = ImageIO.read(JGalaxyView.class.getResourceAsStream("/resources/system2.png"));
 	}
 	
 	protected Point viewPort = new Point(2, 2);
@@ -236,7 +239,8 @@ public class JGalaxyView extends JPanel implements KeyListener {
 		frame.setSize(WIDTH_IN_PIXELS, HEIGHT_IN_PIXELS);
 		frame.setResizable(true);
 		frame.setTitle("GalaxyConquest (Desktop Edition)");
-		pane.add(new JGalaxyView(), BorderLayout.PAGE_START);
+		//frame.getContentPane().add(new JGalaxyView());
+		pane.add(new JGalaxyView(), BorderLayout.CENTER);
 		pane.add(new JButton("END TURN"), BorderLayout.PAGE_END);
 		frame.setBackground(Color.BLACK);
 		frame.setVisible(true);
