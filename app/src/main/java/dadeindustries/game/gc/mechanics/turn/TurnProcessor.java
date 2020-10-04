@@ -1,6 +1,6 @@
 package dadeindustries.game.gc.mechanics.turn;
 
-import android.util.Log;
+//import android.util.Log;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -215,10 +215,10 @@ public class TurnProcessor {
 	 */
 	private void processPendingMoves(GlobalGameData globalGameData, ArrayList<PendingMove> pendingMoves) {
 		for (PendingMove pendingMove : pendingMoves) {
-			Log.d("processPendingMoves", pendingMove.unit.getShipName() + pendingMove.getX() + pendingMove.getY());
+//			Log.d("processPendingMoves", pendingMove.unit.getShipName() + pendingMove.getX() + pendingMove.getY());
 			Spaceship pendingMoveUnit = pendingMove.getUnit();
 			pendingMoveUnit.setSector(globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()]);
-			Log.wtf("Next: ", "" + pendingMove.getX() + "," + pendingMove.getY());
+//			//Log.wtf("Next: ", "" + pendingMove.getX() + "," + pendingMove.getY());
 			globalGameData.getSectors()[pendingMove.getX()][pendingMove.getY()].addShip(pendingMoveUnit);
 		}
 	}
@@ -237,7 +237,7 @@ public class TurnProcessor {
 				while (iterator.hasNext()) {
 					Spaceship aUnit = iterator.next();
 					if (aUnit.getCurrentHP() <= 0) {
-						Log.wtf("Battle", aUnit.getShipName() + " destroyed");
+//						//Log.wtf("Battle", aUnit.getShipName() + " destroyed");
 
 						iterator.remove();
 					}
@@ -314,7 +314,7 @@ public class TurnProcessor {
 							if (((ColonyShip) localShips.get(u)).isColonising()) {
 								if (sector.hasSystem()) {
 									if (sector.getSystem().hasOwner() == false) {
-										Log.wtf("Colony", "Colonised");
+										//Log.wtf("Colony", "Colonised");
 										UnitActions.coloniseSystem(localShips.get(u), globalGameData);
 										/* Remove ship from this sector */
 										shipsToRemove.add(u);
@@ -325,7 +325,7 @@ public class TurnProcessor {
 								}
 							}
 						} else if (localShips.get(u).isEnteringWormhole() && sector instanceof Wormhole) {
-							Log.wtf("Wormhole", "Turnprocessor is moving ship into wormhole");
+							//Log.wtf("Wormhole", "Turnprocessor is moving ship into wormhole");
 							localShips.get(u).setEnteringWormhole(false);
 							pendingMoves.add(
 									new PendingMove(

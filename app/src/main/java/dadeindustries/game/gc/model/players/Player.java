@@ -1,6 +1,6 @@
 package dadeindustries.game.gc.model.players;
 
-import android.util.Log;
+//import android.util.Log;
 
 import java.util.HashSet;
 import java.util.Iterator;

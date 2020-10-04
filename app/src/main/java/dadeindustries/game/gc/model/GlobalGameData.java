@@ -1,6 +1,6 @@
 package dadeindustries.game.gc.model;
 
-import android.util.Log;
+//import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -98,7 +98,7 @@ public class GlobalGameData {
 		for (int i = 0; i < GlobalGameData.galaxySizeX; i++) {
 			for (int j = 0; j < GlobalGameData.galaxySizeY; j++) {
 				if (sectors[i][j].hasSystem()) {
-					Log.wtf("System loaded", "System loaded at " + i + "," + j);
+				//	Log.wtf("System loaded", "System loaded at " + i + "," + j);
 				}
 			}
 		}
